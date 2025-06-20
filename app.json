@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "nutri-fucking-sight",
-    "slug": "nutri-fucking-sight",
+    "name": "NutriSight",
+    "slug": "nutrisight",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "nutrifuckingsight",
+    "scheme": "nutrisight",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -14,9 +14,8 @@
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
-        "backgroundColor": "#ffffff"
-      },
-      "edgeToEdgeEnabled": true
+        "backgroundColor": "#000000"
+      }
     },
     "web": {
       "bundler": "metro",
@@ -28,10 +27,16 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/splash-icon.png",
-          "imageWidth": 200,
-          "resizeMode": "contain",
-          "backgroundColor": "#ffffff"
+          "ios": {
+            "backgroundColor": "#FFFFFF",
+            "image": "./assets/images/splash-ios-icon.png",
+            "resizeMode": "contain"
+          },
+          "android": {
+            "backgroundColor": "#0c7cff",
+            "image": "./assets/images/splash-android-icon.png",
+            "imageWidth": 200
+          }
         }
       ]
     ],
