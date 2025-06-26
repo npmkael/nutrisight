@@ -49,8 +49,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     GoogleSignin.configure({
-      iosClientId: process.env.EXPO_PUBLIC_IOS_CLIENT_ID,
-      webClientId: process.env.EXPO_PUBLIC_WEB_CLIENT_ID,
+      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     });
   }, []);
 
@@ -120,9 +120,33 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       const response = await GoogleSignin.signIn();
 
       if (isSuccessResponse(response)) {
-        // const {idToken, user} = response.data;
-        // const {name, email} = user
-        console.log(response.data);
+        const { idToken } = response.data;
+        if (idToken) {
+          const serverResponse = await fetch(
+            `${BACKEND_URL}/auth/google/verify`,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ idToken }),
+            }
+          );
+
+          if (!serverResponse.ok) {
+            throw new Error("Google Sign-In failed on the server.");
+          }
+
+          const data = await serverResponse.json();
+          setUser(data.user);
+          router.replace("/(root)/(tabs)/home");
+        } else {
+          throw new Error(
+            "Google Sign-In failed: idToken is null. Ensure webClientId is configured correctly."
+          );
+        }
+      } else {
+        throw new Error("Google Sign-In failed");
       }
     } catch (error) {
       console.error("Google Sign-In error:", error);
@@ -130,14 +154,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         isErrorWithCode(error) &&
         error.code === statusCodes.SIGN_IN_CANCELLED
       ) {
-        throw new Error("Google Sign-In cancelled");
+        // User cancelled the sign-in flow
       } else {
-        throw new Error("Google Sign-In failed, please try again.");
+        throw new Error("An error occurred during Google Sign-In.");
       }
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   const register = useCallback(
     async (name: string, email: string, password: string) => {
