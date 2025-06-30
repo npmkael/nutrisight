@@ -1,5 +1,6 @@
 import { UserProvider, useAuth } from "@/context/AuthContext";
-import { Stack, useRouter, useSegments } from "expo-router";
+import { useFonts } from "expo-font";
+import { SplashScreen, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
 
 const InitialLayout = () => {
@@ -23,10 +24,9 @@ const InitialLayout = () => {
     }
   }, [user, loading, segments, router]);
 
-=======
-import { useFonts } from "expo-font";
-import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
+  // Return null since this component only handles redirection
+  return null;
+};
 
 export default function RootLayout() {
   const [loaded] = useFonts({
@@ -42,8 +42,6 @@ export default function RootLayout() {
     }
   }, [loaded]);
 
-
-export default function RootLayout() {
   return (
     <UserProvider>
       <InitialLayout />
