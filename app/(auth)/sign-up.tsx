@@ -25,10 +25,7 @@ export default function SignUp() {
       <View className="flex-1 bg-white">
         <View className="relative w-full h-[250px]">
           <Image source={images.signUpFood} className="z-0 w-full h-[250px]" />
-          <Text
-            className="text-2xl text-black font-JakartaBold absolute bottom-5 left-5"
-            style={{ fontFamily: "JakartaBold" }}
-          >
+          <Text className="text-2xl text-black font-PoppinsMedium absolute bottom-5 left-5">
             Create Your Account
           </Text>
         </View>
@@ -65,12 +62,11 @@ export default function SignUp() {
           {/* OAuth */}
           <OAuth />
 
-          <Link
-            href="/sign-in"
-            className="text-lg text-center text-general-200 mt-10"
-          >
-            <Text>Already have an account?</Text>
-            <Text className="text-primary-500">Log In</Text>
+          <Link href="/sign-in" className="mt-10">
+            <Text className="text-base text-center text-gray-600">
+              Already have an account?{" "}
+              <Text className="font-semibold text-[#2D3644]">Log In</Text>
+            </Text>
           </Link>
         </View>
       </View>

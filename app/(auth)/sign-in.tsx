@@ -23,7 +23,7 @@ export default function SignIn() {
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 bg-white">
         <Image source={images.signUpFood} className="z-0 w-full h-[250px]" />
-        <Text className="text-2xl text-black font-JakartaBold absolute bottom-5 left-5">
+        <Text className="text-2xl text-black font-PoppinsMedium absolute bottom-5 left-5">
           Welcome 👋🏻
         </Text>
       </View>
@@ -49,12 +49,11 @@ export default function SignIn() {
         {/* OAuth */}
         <OAuth />
 
-        <Link
-          href="/sign-up"
-          className="text-lg text-center text-general-200 mt-10"
-        >
-          <Text className="">Don't have an account?</Text>
-          <Text className="text-primary-500">Sign Up</Text>
+        <Link href="/sign-up" className="mt-10">
+          <Text className="text-base text-center text-gray-600">
+            Don't have an account?{" "}
+            <Text className="font-semibold text-[#2D3644]">Sign Up</Text>
+          </Text>
         </Link>
       </View>
     </ScrollView>

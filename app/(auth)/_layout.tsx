@@ -22,6 +22,12 @@ export default function RootLayout() {
           headerShown: false,
         }}
       />
+      <Stack.Screen
+        name="otp"
+        options={{
+          headerShown: false,
+        }}
+      />
     </Stack>
   );
 }
