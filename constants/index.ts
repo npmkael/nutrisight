@@ -1,4 +1,5 @@
 // icons
+import backArrow from "@/assets/icons/back-arrow.png";
 import email from "@/assets/icons/email.png";
 import google from "@/assets/icons/google.png";
 import lock from "@/assets/icons/lock.png";
@@ -12,6 +13,7 @@ export const icons = {
   person,
   lock,
   google,
+  backArrow,
 };
 
 export const images = {
