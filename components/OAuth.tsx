@@ -19,7 +19,7 @@ export default function OAuth() {
       </View>
 
       <CustomButton
-        title="Log In with Google"
+        title="Continue with Google"
         className="mt-5 w-full shadow-none"
         IconLeft={() => (
           <Image
