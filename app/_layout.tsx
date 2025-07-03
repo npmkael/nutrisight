@@ -1,34 +1,11 @@
-import { UserProvider, useAuth } from "@/context/AuthContext";
+import { UserProvider } from "@/context/AuthContext";
 import { useFonts } from "expo-font";
-import { Slot, SplashScreen, useRouter, useSegments } from "expo-router";
+import { Slot, SplashScreen } from "expo-router";
 import { useEffect } from "react";
 import Loading from "./loading";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
-
-const InitialLayout = () => {
-  const { user, loading } = useAuth();
-  const router = useRouter();
-  const segments = useSegments();
-
-  useEffect(() => {
-    if (loading) return; // Wait until the auth state is loaded
-
-    const inAuthGroup = segments[0] === "(auth)";
-
-    if (user && !inAuthGroup) {
-      // Redirect authenticated users to the home screen if they are not in the auth group.
-      router.replace("/(root)/(tabs)/home");
-    } else if (!user && !inAuthGroup) {
-      // Redirect unauthenticated users to the sign-in screen.
-      router.replace("/(auth)/sign-in");
-    }
-  }, [user, loading, segments, router]);
-
-  // This component renders the actual screen content based on the route.
-  return <Slot />;
-};
 
 export default function RootLayout() {
   const [loaded, error] = useFonts({
@@ -55,7 +32,7 @@ export default function RootLayout() {
 
   return (
     <UserProvider>
-      <InitialLayout />
+      <Slot />
     </UserProvider>
   );
 }
