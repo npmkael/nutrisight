@@ -13,6 +13,7 @@ import {
   useMemo,
   useState,
 } from "react";
+import Loading from "../app/loading";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "192.168.2.1:3000";
 
@@ -254,7 +255,11 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     [user, loading, login, logout, signWithGoogle, verifyOtp, register] // Dependencies for useMemo
   );
 
-  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+  return (
+    <UserContext.Provider value={value}>
+      {loading ? <Loading /> : children}
+    </UserContext.Provider>
+  );
 }
 
 export function useAuth() {

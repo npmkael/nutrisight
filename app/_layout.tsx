@@ -2,6 +2,7 @@ import { UserProvider, useAuth } from "@/context/AuthContext";
 import { useFonts } from "expo-font";
 import { Slot, SplashScreen, useRouter, useSegments } from "expo-router";
 import { useEffect } from "react";
+import Loading from "./loading";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -49,7 +50,7 @@ export default function RootLayout() {
   }, [loaded]);
 
   if (!loaded) {
-    return null; // Return null while fonts are loading, splash screen is visible
+    return <Loading />; // Show loading screen while fonts are loading
   }
 
   return (
