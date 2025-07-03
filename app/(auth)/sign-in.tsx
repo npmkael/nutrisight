@@ -44,7 +44,11 @@ export default function SignIn() {
           onChangeText={(value) => setForm({ ...form, password: value })}
         />
 
-        <CustomButton title="Sign In" onPress={() => login} className="mt-6" />
+        <CustomButton
+          title="Sign In"
+          onPress={() => login(form.email, form.password)}
+          className="mt-6"
+        />
 
         {/* OAuth */}
         <OAuth />

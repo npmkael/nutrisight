@@ -13,7 +13,6 @@ import {
   useMemo,
   useState,
 } from "react";
-import Loading from "../app/loading";
 
 const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "192.168.2.1:3000";
 
@@ -34,8 +33,9 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   signWithGoogle: () => Promise<void>;
   register: (name: string, email: string, password: string) => Promise<boolean>;
-  verifyOtp: (otp: string) => Promise<void>;
+  verifyOtp: (otp: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
+  resendOtp: (email: string) => Promise<void>;
 }
 
 export const UserContext = createContext<AuthContextType | undefined>(
@@ -69,6 +69,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           console.log("Session data:", data);
           if (data && data.user) {
             setUser(data.user);
+            router.replace("/(root)/(tabs)/home");
           }
         } else {
           console.log("No active session found.");
@@ -101,6 +102,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
         const data = await response.json();
         setUser(data.user);
+        router.replace("/(root)/(tabs)/home");
       } catch (error) {
         console.error("Login error:", error);
         throw new Error("Login failed, please check your credentials.");
@@ -138,6 +140,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
           const data = await serverResponse.json();
           setUser(data.user);
+          router.replace("/(root)/(tabs)/home");
         } else {
           throw new Error(
             "Google Sign-In failed: idToken is null. Ensure webClientId is configured correctly."
@@ -159,10 +162,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   const register = useCallback(
-    async (name: string, email: string, password: string) => {
+    async (name: string, email: string, password: string): Promise<boolean> => {
       try {
         setLoading(true);
         const response = await fetch(`${BACKEND_URL}/auth/register`, {
@@ -178,7 +181,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         }
 
         const data = await response.json();
-        return !!data.userId;
+        if (data.userId) {
+          router.replace({ pathname: "/(auth)/otp", params: { email } });
+          return true;
+        } else {
+          throw new Error("Registration failed, please try again.");
+        }
       } catch (error) {
         console.error("Registration error:", error);
         throw new Error("Registration failed, please try again.");
@@ -186,29 +194,59 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setLoading(false);
       }
     },
-    []
+    [router]
   );
 
-  const verifyOtp = useCallback(async (otp: string) => {
+  const verifyOtp = useCallback(
+    async (otp: string, email: string) => {
+      try {
+        setLoading(true);
+        const response = await fetch(`${BACKEND_URL}/auth/verify-otp`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ otp, email }),
+        });
+
+        if (!response.ok) {
+          throw new Error("Email verification failed");
+        }
+
+        const data = await response.json();
+        setUser(data.user);
+        router.replace("/(root)/(tabs)/home");
+      } catch (error) {
+        console.error("OTP verification error:", error);
+        throw new Error("OTP verification failed, please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router]
+  );
+
+  const resendOtp = useCallback(async (email: string) => {
     try {
       setLoading(true);
-      const response = await fetch(`${BACKEND_URL}/auth/verify-otp`, {
+      const response = await fetch(`${BACKEND_URL}/auth/send-otp`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ otp }),
+        body: JSON.stringify({ email }),
       });
 
       if (!response.ok) {
-        throw new Error("Email verification failed");
+        throw new Error("Resend OTP failed");
       }
 
       const data = await response.json();
-      setUser(data.user);
+      console.log("OTP resent successfully:", data);
     } catch (error) {
-      console.error("OTP verification error:", error);
-      throw new Error("OTP verification failed, please try again.");
+      console.error("Resend OTP error:", error);
+      throw new Error("Resend OTP failed, please try again.");
     } finally {
       setLoading(false);
     }
@@ -227,13 +265,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(null);
+      router.replace("/(auth)/welcome");
     } catch (error) {
       console.error("Logout error:", error);
       throw new Error("Logout failed, please try again.");
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [router]);
 
   const value = useMemo(
     () => ({
@@ -244,15 +283,21 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       signWithGoogle,
       verifyOtp,
       register,
+      resendOtp,
     }),
-    [user, loading, loading, login, logout, signWithGoogle, verifyOtp, register]
+    [
+      user,
+      loading,
+      login,
+      logout,
+      signWithGoogle,
+      verifyOtp,
+      register,
+      resendOtp,
+    ]
   );
 
-  return (
-    <UserContext.Provider value={value}>
-      {loading ? <Loading /> : children}
-    </UserContext.Provider>
-  );
+  return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
 
 export function useAuth() {
