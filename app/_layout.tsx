@@ -1,6 +1,6 @@
 import { UserProvider } from "@/context/AuthContext";
 import { useFonts } from "expo-font";
-import { Slot, SplashScreen } from "expo-router";
+import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
 import Loading from "./loading";
 

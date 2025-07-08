@@ -265,7 +265,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(null);
-      router.replace("/(auth)/welcome");
+      router.replace("/(auth)/sign-in");
     } catch (error) {
       console.error("Logout error:", error);
       throw new Error("Logout failed, please try again.");
