@@ -32,7 +32,26 @@ export default function RootLayout() {
 
   return (
     <UserProvider>
-      <Slot />
+      <Stack>
+        <Stack.Screen
+          name="index"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="(auth)"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="(root)"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
     </UserProvider>
   );
 }
