@@ -56,7 +56,7 @@ export default function Home() {
             </Text>
           </View>
 
-          <View className="bg-[##F47450] rounded-full flex-col items-center justify-center w-[85px] h-[85px] p-2">
+          <View className="bg-[##F47450] rounded-full flex-col items-center justify-center w-[95px] h-[95px] p-4">
             <Text className="text-white font-PoppinsSemiBold text-3xl">
               1758
             </Text>
@@ -99,7 +99,9 @@ export default function Home() {
               <Text className="font-PoppinsSemiBold text-black text-lg">
                 Carbs
               </Text>
-              <Text className="font-Poppins text-black">90.62 / 220g</Text>
+              <Text className="font-Poppins text-black text-xs">
+                90.62 / 220g
+              </Text>
             </View>
           </View>
 
@@ -122,7 +124,7 @@ export default function Home() {
               <Text className="font-PoppinsSemiBold text-black text-lg">
                 Protein
               </Text>
-              <Text className="font-Poppins text-black">40 / 86g</Text>
+              <Text className="font-Poppins text-black text-xs">40 / 86g</Text>
             </View>
           </View>
 
@@ -144,7 +146,9 @@ export default function Home() {
               <Text className="font-PoppinsSemiBold text-black text-lg">
                 Fat
               </Text>
-              <Text className="font-Poppins text-black">90.56 / 96g</Text>
+              <Text className="font-Poppins text-black text-xs">
+                90.56 / 96g
+              </Text>
             </View>
           </View>
         </View>

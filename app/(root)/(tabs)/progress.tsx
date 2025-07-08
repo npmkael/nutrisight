@@ -1,10 +1,12 @@
-import { Text } from "react-native";
+import { View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Progress() {
   return (
-    <SafeAreaView className="flex-1 items-center justify-center">
-      <Text className="text-red-500 font-bold text-2xl">Progress</Text>
-    </SafeAreaView>
+    <>
+      <View className="bg-blue-500 rounded-full w-[300px] h-[300px] absolute right-0" />
+      <View />
+      <SafeAreaView className="flex-1 items-center justify-center"></SafeAreaView>
+    </>
   );
 }
