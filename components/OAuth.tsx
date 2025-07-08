@@ -5,9 +5,10 @@ import CustomButton from "./CustomButton";
 
 // icons and images
 import { icons } from "@/constants/index";
+import { useAuth } from "@/context/AuthContext";
 
 export default function OAuth() {
-  const handleGoogleSignIn = async () => {};
+  const { signWithGoogle } = useAuth();
 
   return (
     <View>
@@ -18,7 +19,7 @@ export default function OAuth() {
       </View>
 
       <CustomButton
-        title="Log In with Google"
+        title="Continue with Google"
         className="mt-5 w-full shadow-none"
         IconLeft={() => (
           <Image
@@ -29,7 +30,7 @@ export default function OAuth() {
         )}
         bgVariant="outline"
         textVariant="primary"
-        onPress={handleGoogleSignIn}
+        onPress={signWithGoogle}
       />
     </View>
   );
