@@ -19,3 +19,12 @@ declare interface InputFieldProps extends TextInputProps {
   iconStyle?: string;
   className?: string;
 }
+
+declare type TypoProps = {
+  size?: number;
+  color?: string;
+  fontWeight?: TextStyle["fontWeight"];
+  children: any | null;
+  style?: TextStyle;
+  textProps?: TextProps;
+};

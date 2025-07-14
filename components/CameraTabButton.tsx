@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { Alert, StyleSheet, Text, TouchableOpacity } from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export const CameraTabButton = () => {
   const handlePress = () => {
@@ -14,8 +14,10 @@ export const CameraTabButton = () => {
       style={styles.button}
       activeOpacity={0.85}
     >
-      <Ionicons name="camera-outline" size={40} color="#000" />
-      <Text>Capture</Text>
+      <View className="flex-col items-center justify-center mb-4">
+        <Ionicons name="camera-outline" size={40} color="#000" />
+        <Text>Capture</Text>
+      </View>
     </TouchableOpacity>
   );
 };

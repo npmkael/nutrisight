@@ -27,8 +27,8 @@ export default function Home() {
           </View>
         </View>
 
-        <TouchableOpacity className="w-12 h-12 rounded-full bg-white border-gray-200 border-2 items-center justify-center">
-          <Ionicons name="person-outline" size={24} color="black" />
+        <TouchableOpacity className="w-10 h-10 rounded-full bg-white border-gray-200 border-2 items-center justify-center">
+          <Ionicons name="person-outline" size={20} color="black" />
         </TouchableOpacity>
       </View>
 
@@ -56,7 +56,7 @@ export default function Home() {
             </Text>
           </View>
 
-          <View className="bg-[##F47450] rounded-full flex-col items-center justify-center w-[85px] h-[85px] p-2">
+          <View className="bg-[##F47450] rounded-full flex-col items-center justify-center w-[95px] h-[95px] p-4">
             <Text className="text-white font-PoppinsSemiBold text-3xl">
               1758
             </Text>
@@ -79,9 +79,9 @@ export default function Home() {
         </View>
 
         {/* Carbs, Protein, and Fat */}
-        <View className="flex-row items-center justify-between">
+        <View className="flex-row items-center justify-evenly gap-2">
           {/* Carbs */}
-          <View className="p-2 rounded-tr-[28px] rounded-tl-[28px] bg-[#D0B6F5] flex-col items-center justify-center w-[90px]">
+          <View className="p-2 rounded-tr-[28px] rounded-tl-[28px] bg-[#D0B6F5] flex-col items-center justify-center flex-1">
             <View className="bg-[rgba(0,0,0,0.1)] w-[50px] h-[50px] p-4 rounded-full items-center justify-center mb-2">
               <CircularProgressBar
                 progress={25}
@@ -99,12 +99,14 @@ export default function Home() {
               <Text className="font-PoppinsSemiBold text-black text-lg">
                 Carbs
               </Text>
-              <Text className="font-Poppins text-black">90.62 / 220g</Text>
+              <Text className="font-Poppins text-black text-xs">
+                90.62 / 220g
+              </Text>
             </View>
           </View>
 
           {/* Protein */}
-          <View className="p-2 rounded-tr-[28px] rounded-tl-[28px] bg-[#F5D557] flex-col items-center justify-center w-[90px]">
+          <View className="p-2 rounded-tr-[28px] rounded-tl-[28px] bg-[#F5D557] flex-col items-center justify-center flex-1">
             <View className="bg-[rgba(0,0,0,0.1)] w-[50px] h-[50px] p-4 rounded-full items-center justify-center mb-2">
               <CircularProgressBar
                 progress={50}
@@ -122,11 +124,11 @@ export default function Home() {
               <Text className="font-PoppinsSemiBold text-black text-lg">
                 Protein
               </Text>
-              <Text className="font-Poppins text-black">40 / 86g</Text>
+              <Text className="font-Poppins text-black text-xs">40 / 86g</Text>
             </View>
           </View>
 
-          <View className="p-2 rounded-tr-[28px] rounded-tl-[28px] bg-[#D0E46E] flex-col items-center justify-center w-[90px]">
+          <View className="p-2 rounded-tr-[28px] rounded-tl-[28px] bg-[#D0E46E] flex-col items-center justify-center flex-1">
             <View className="bg-[rgba(0,0,0,0.1)] w-[50px] h-[50px] p-4 rounded-full items-center justify-center mb-2">
               <CircularProgressBar
                 progress={93}
@@ -144,7 +146,9 @@ export default function Home() {
               <Text className="font-PoppinsSemiBold text-black text-lg">
                 Fat
               </Text>
-              <Text className="font-Poppins text-black">90.56 / 96g</Text>
+              <Text className="font-Poppins text-black text-xs">
+                90.56 / 96g
+              </Text>
             </View>
           </View>
         </View>
