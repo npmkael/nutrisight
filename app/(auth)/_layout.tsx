@@ -1,33 +1,36 @@
+import NonAuthProtect from "@/lib/NonAuthProtect";
 import { Stack } from "expo-router";
 import "../../global.css";
 
 export default function RootLayout() {
   return (
-    <Stack>
-      <Stack.Screen
-        name="welcome"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="sign-up"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="sign-in"
-        options={{
-          headerShown: false,
-        }}
-      />
-      <Stack.Screen
-        name="otp"
-        options={{
-          headerShown: false,
-        }}
-      />
-    </Stack>
+    <NonAuthProtect>
+      <Stack>
+        <Stack.Screen
+          name="welcome"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="sign-up"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="sign-in"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="otp"
+          options={{
+            headerShown: false,
+          }}
+        />
+      </Stack>
+    </NonAuthProtect>
   );
 }
