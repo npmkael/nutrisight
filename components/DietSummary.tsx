@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Text, TouchableOpacity, View } from "react-native";
+import { FlatList, Text, TouchableOpacity, View } from "react-native";
 import Typo from "./Typo";
 
 import { PieChart } from "react-native-gifted-charts";
@@ -69,12 +69,12 @@ export default function DietSummary() {
     },
     {
       name: "Calcium",
-      value: 73,
+      value: 124,
       color: "#3EC6E0",
     },
     {
       name: "Iron",
-      value: 103,
+      value: 124,
       color: "#3EC6E0",
     },
     {
@@ -143,7 +143,7 @@ export default function DietSummary() {
         {activeTab === "calories" ? (
           <>
             <View className="flex-row justify-evenly items-center mb-4">
-              <PieChart data={data} donut innerRadius={20} />
+              <PieChart data={data} donut innerRadius={10} radius={80} />
 
               <View className="flex-col gap-2">
                 {caloriesSumarryData.map((data) => (
@@ -193,47 +193,13 @@ export default function DietSummary() {
               Total Nutrients (570 cal)
             </Typo>
 
-            <View className="flex-row gap-2">
-              {nutrientsSumarryData.map((data) => (
-                <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-wrap flex-1">
-                  <Text className="font-PoppinsSemiBold tracking-widest text-base uppercase mb-1">
-                    {data.name}
-                  </Text>
-                  <View
-                    style={{
-                      flexDirection: "row",
-                      alignItems: "center",
-                      width: 80,
-                      marginBottom: 8,
-                    }}
-                  >
-                    <View
-                      style={{
-                        height: 2,
-                        width: 32,
-                        backgroundColor: data.color,
-                        borderRadius: 1,
-                      }}
-                    />
-                    <View
-                      style={{
-                        flex: 1,
-                        height: 2,
-                        backgroundColor: "#d1d5db",
-                        marginLeft: 0,
-                      }}
-                    />
-                  </View>
-                  <Text className="flex-row items-end">
-                    <Text className="text-xl font-PoppinsSemiBold">
-                      {data.value}
-                    </Text>
-                    <Text className="text-xs font-Poppins ml-1 self-end">
-                      g
-                    </Text>
-                  </Text>
-                </View>
-              ))}
+            <View className="flex-row gap-4">
+              <FlatList
+                data={nutrientsSumarryData}
+                numColumns={3}
+                keyExtractor={(item) => item.name}
+                renderItem={({ item }) => <Nutrient {...item} />}
+              />
             </View>
           </View>
         )}
@@ -241,3 +207,50 @@ export default function DietSummary() {
     </>
   );
 }
+
+const Nutrient = ({
+  name,
+  value,
+  color,
+}: {
+  name: string;
+  value: number;
+  color: string;
+}) => {
+  return (
+    <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
+      <Text className="font-PoppinsSemiBold tracking-widest text-base uppercase mb-1">
+        {name}
+      </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          width: 80,
+          marginBottom: 8,
+        }}
+      >
+        <View
+          style={{
+            height: 2,
+            width: 32,
+            backgroundColor: color,
+            borderRadius: 1,
+          }}
+        />
+        <View
+          style={{
+            flex: 1,
+            height: 2,
+            backgroundColor: "#d1d5db",
+            marginLeft: 0,
+          }}
+        />
+      </View>
+      <Text className="flex-row items-end">
+        <Text className="text-xl font-PoppinsSemiBold">{value}</Text>
+        <Text className="text-xs font-Poppins ml-1 self-end">g</Text>
+      </Text>
+    </View>
+  );
+};
