@@ -10,7 +10,7 @@ export default function Progress() {
     <View className="flex-1 pt-5">
       {/* Fixed Header */}
       <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
-        <Typo size={24} className="font-Poppins">
+        <Typo size={24} className="font-PoppinsSemiBold">
           My Progress
         </Typo>
         <TouchableOpacity className="w-10 h-10 rounded-full bg-white border-gray-200 border-2 items-center justify-center">
