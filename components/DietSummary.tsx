@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { FlatList, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
 import Typo from "./Typo";
 
 import { PieChart } from "react-native-gifted-charts";
@@ -67,6 +67,9 @@ export default function DietSummary() {
       value: 124,
       color: "#3EC6E0",
     },
+  ];
+
+  const nutrientsSumarryData2 = [
     {
       name: "Calcium",
       value: 124,
@@ -193,13 +196,16 @@ export default function DietSummary() {
               Total Nutrients (570 cal)
             </Typo>
 
+            <View className="flex-row gap-4 mb-4">
+              {nutrientsSumarryData.map((data) => (
+                <Nutrient {...data} />
+              ))}
+            </View>
+
             <View className="flex-row gap-4">
-              <FlatList
-                data={nutrientsSumarryData}
-                numColumns={3}
-                keyExtractor={(item) => item.name}
-                renderItem={({ item }) => <Nutrient {...item} />}
-              />
+              {nutrientsSumarryData2.map((data) => (
+                <Nutrient {...data} />
+              ))}
             </View>
           </View>
         )}
@@ -219,7 +225,7 @@ const Nutrient = ({
 }) => {
   return (
     <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-      <Text className="font-PoppinsSemiBold tracking-widest text-base uppercase mb-1">
+      <Text className="font-PoppinsSemiBold tracking-widest text-sm uppercase mb-1">
         {name}
       </Text>
       <View
