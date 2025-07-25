@@ -9,6 +9,7 @@ export default function RootLayout() {
       <Stack.Screen name="(tabs)/progress" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)/account" options={{ headerShown: false }} />
       <Stack.Screen name="(tabs)/settings" options={{ headerShown: false }} />
+      <Stack.Screen name="result" options={{ headerShown: false }} />
     </Stack>
   );
 }

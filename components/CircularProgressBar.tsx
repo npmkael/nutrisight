@@ -17,6 +17,7 @@ interface CircularProgressBarProps {
   showPercentage?: boolean;
   percentageTextSize?: number;
   percentageTextColor?: string;
+  label?: string;
 }
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
@@ -30,6 +31,7 @@ export default function CircularProgressBar({
   showPercentage = false,
   percentageTextSize = 12,
   percentageTextColor = "white",
+  label = "%",
 }: CircularProgressBarProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
@@ -95,7 +97,8 @@ export default function CircularProgressBar({
               fontFamily: "PoppinsMedium",
             }}
           >
-            {Math.round(progress)}%
+            {Math.round(progress)}
+            {label}
           </Text>
         </View>
       )}
