@@ -1,6 +1,6 @@
 import { CameraTabButton } from "@/components/CameraTabButton";
 import { HapticTab } from "@/components/HapticTab";
-import { Ionicons, Octicons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { Tabs } from "expo-router";
 
 export default function Layout() {
@@ -25,8 +25,12 @@ export default function Layout() {
           title: "Home",
           tabBarLabel: "Home",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Octicons name="home" color={color} size={size} />
+          tabBarIcon: ({ color, size, focused }) => (
+            <Ionicons
+              name={`${focused ? "home" : "home-outline"}`}
+              color={color}
+              size={size}
+            />
           ),
           tabBarLabelStyle: {
             fontSize: 12,
