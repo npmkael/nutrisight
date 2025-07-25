@@ -1,4 +1,5 @@
 import BMIClassification from "@/components/BMIClassification";
+import DietSummary from "@/components/DietSummary";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
 import { Ionicons } from "@expo/vector-icons";
@@ -6,10 +7,10 @@ import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
 export default function Progress() {
   return (
-    <View className="flex-1">
+    <View className="flex-1 pt-5">
       {/* Fixed Header */}
       <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
-        <Typo size={30} className="font-Poppins">
+        <Typo size={24} className="font-PoppinsSemiBold">
           My Progress
         </Typo>
         <TouchableOpacity className="w-10 h-10 rounded-full bg-white border-gray-200 border-2 items-center justify-center">
@@ -77,6 +78,9 @@ export default function Progress() {
 
         {/* Target Weight Progress Card */}
         <TargetWeightProgress />
+
+        {/* Diet Summary Card */}
+        <DietSummary />
       </ScrollView>
     </View>
   );

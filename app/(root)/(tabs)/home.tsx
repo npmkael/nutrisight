@@ -56,7 +56,7 @@ export default function Home() {
             </Text>
           </View>
 
-          <View className="bg-[##F47450] rounded-full flex-col items-center justify-center w-[95px] h-[95px] p-4">
+          <View className="bg-[##F47450] rounded-full flex-col items-center justify-center w-[115px] h-[115px] p-4">
             <Text className="text-white font-PoppinsSemiBold text-3xl">
               1758
             </Text>
