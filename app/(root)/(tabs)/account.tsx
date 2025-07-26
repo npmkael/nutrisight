@@ -3,6 +3,7 @@ import { icons } from "@/constants/index";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
+import { LinearGradient } from "expo-linear-gradient";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -43,7 +44,13 @@ export default function Account() {
   };
 
   return (
-    <View className="flex-1 pt-5">
+    <LinearGradient
+      colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
+      locations={[0, 0.5, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      className="flex-1 pt-5"
+    >
       <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
         <Typo size={24} className="font-PoppinsSemiBold">
           Account
@@ -151,7 +158,7 @@ export default function Account() {
           )}
         </View>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 

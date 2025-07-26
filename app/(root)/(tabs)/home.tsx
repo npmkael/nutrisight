@@ -1,13 +1,19 @@
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { Image, Text, TouchableOpacity, View } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
 import CircularProgressBar from "../../../components/CircularProgressBar";
 
 export default function Home() {
   const router = useRouter();
   return (
-    <SafeAreaView className="flex-1 bg-white px-5">
+    <LinearGradient
+      colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
+      locations={[0, 0.5, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      className="flex-1 px-5 py-5"
+    >
       <View className="flex-row items-center justify-between py-6">
         {/* Profile and Welcome message */}
         <View className="flex-row items-center justify-center gap-2">
@@ -212,6 +218,6 @@ export default function Home() {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </LinearGradient>
   );
 }
