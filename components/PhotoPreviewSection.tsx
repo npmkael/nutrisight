@@ -1,3 +1,5 @@
+import { CameraCapturedPicture } from "expo-camera";
+
 import Typo from "@/components/Typo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -9,20 +11,28 @@ import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 
-export default function Result() {
+export default function PhotoPreviewSection({
+  photo,
+  handleRetakePhoto,
+}: {
+  photo: CameraCapturedPicture;
+  handleRetakePhoto: () => void;
+}) {
   return (
     <View className="flex-1 bg-[#F7F7F7]">
       <Image
         className="absolute top-0 left-0 right-0"
-        source={require("@/assets/images/boba-tea.jpg")}
+        source={{ uri: "data:image/jpg;base64," + photo.base64 }}
         style={{ height: 400, width: "100%" }}
         blurRadius={30}
         resizeMode="cover"
       />
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 pt-8 pb-2">
-        <Entypo name="chevron-with-circle-left" size={28} color="black" />
-        <Text className="font-PoppinsSemiBold text-gray-800 text-center text-2xl">
+        <TouchableOpacity onPress={handleRetakePhoto}>
+          <Entypo name="chevron-with-circle-left" size={28} color="white" />
+        </TouchableOpacity>
+        <Text className="font-PoppinsSemiBold text-white text-center text-2xl">
           NutriSight
         </Text>
 
@@ -31,7 +41,7 @@ export default function Result() {
       {/* Image */}
       <View className="items-center mt-2">
         <Image
-          source={require("@/assets/images/boba-tea.jpg")}
+          source={{ uri: "data:image/jpg;base64," + photo.base64 }}
           className="w-[320px] h-[200px] rounded-2xl object-cover shadow-xl"
         />
       </View>

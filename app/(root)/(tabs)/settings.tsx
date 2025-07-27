@@ -7,9 +7,17 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { Link } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
+import { LinearGradient } from "expo-linear-gradient";
+
 export default function Settings() {
   return (
-    <View className="flex-1 pt-5">
+    <LinearGradient
+      colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
+      locations={[0, 0.5, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+      className="flex-1 pt-5"
+    >
       {/* Fixed Header */}
       <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
         <Typo size={24} className="font-PoppinsSemiBold">
@@ -102,7 +110,7 @@ export default function Settings() {
           Version 0.0.1
         </Text>
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }
 

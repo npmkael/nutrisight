@@ -3,11 +3,18 @@ import DietSummary from "@/components/DietSummary";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
 import { Ionicons } from "@expo/vector-icons";
+import { LinearGradient } from "expo-linear-gradient";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
 export default function Progress() {
   return (
-    <View className="flex-1 pt-5">
+    <LinearGradient
+      className="flex-1 pt-5"
+      colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
+      locations={[0, 0.5, 1]}
+      start={{ x: 0, y: 0 }}
+      end={{ x: 1, y: 1 }}
+    >
       {/* Fixed Header */}
       <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
         <Typo size={24} className="font-PoppinsSemiBold">
@@ -82,6 +89,6 @@ export default function Progress() {
         {/* Diet Summary Card */}
         <DietSummary />
       </ScrollView>
-    </View>
+    </LinearGradient>
   );
 }

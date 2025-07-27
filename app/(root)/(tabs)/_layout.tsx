@@ -56,11 +56,6 @@ export default function Layout() {
         options={{
           tabBarButton: CameraTabButton,
         }}
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-          },
-        }}
       />
       <Tabs.Screen
         name="account"
