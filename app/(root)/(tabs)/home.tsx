@@ -1,3 +1,5 @@
+import Loading from "@/app/loading";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
@@ -5,7 +7,18 @@ import { Image, Text, TouchableOpacity, View } from "react-native";
 import CircularProgressBar from "../../../components/CircularProgressBar";
 
 export default function Home() {
+  const { user, loading } = useAuth();
   const router = useRouter();
+
+  if (loading && !user) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    router.replace("/(auth)/sign-in");
+    return null;
+  }
+
   return (
     <LinearGradient
       colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
@@ -18,7 +31,11 @@ export default function Home() {
         {/* Profile and Welcome message */}
         <View className="flex-row items-center justify-center gap-2">
           <Image
-            source={require("@/assets/images/sample-profile.jpg")}
+            source={
+              user.profileLink
+                ? { uri: user.profileLink }
+                : require("@/assets/images/sample-profile.jpg")
+            }
             resizeMethod="scale"
             resizeMode="contain"
             className="w-12 h-12 rounded-full"
@@ -28,7 +45,7 @@ export default function Home() {
               Welcome,
             </Text>
             <Text className="text-black text-2xl font-PoppinsBold">
-              Zoey Carreon!
+              {user.name}!
             </Text>
           </View>
         </View>

@@ -1,9 +1,12 @@
+import Loading from "@/app/loading";
 import Typo from "@/components/Typo";
 import { icons } from "@/constants/index";
+import { useAuth } from "@/context/AuthContext";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
@@ -20,9 +23,10 @@ const PROFILE = {
 };
 
 export default function Account() {
+  const { user, loading, uploadProfilePicture } = useAuth();
+  const router = useRouter();
   const [showPersonal, setShowPersonal] = useState(true);
   const [showHealth, setShowHealth] = useState(true);
-  const [avatar, setAvatar] = useState<string | null>(null);
 
   // Open image picker and update avatar
   const pickImage = async () => {
@@ -32,16 +36,31 @@ export default function Account() {
       return;
     }
     const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      mediaTypes: "images",
       allowsEditing: true,
       aspect: [1, 1],
       quality: 0.7,
     });
     if (!result.canceled && result.assets && result.assets.length > 0) {
-      setAvatar(result.assets[0].uri);
-      // Optionally: upload the image here
+      const uri = result.assets[0].uri;
+      try {
+        await uploadProfilePicture(uri);
+        alert("Profile picture updated successfully!");
+      } catch (error) {
+        console.error(error);
+        alert("Failed to update profile picture.");
+      }
     }
   };
+
+  if (loading && !user) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    router.replace("/(auth)/sign-in");
+    return null;
+  }
 
   return (
     <LinearGradient
@@ -64,7 +83,7 @@ export default function Account() {
         <View className="items-center pt-4 pb-6 px-4">
           {/* Profile Header */}
           <Typo size={22} className="font-PoppinsSemiBold text-center">
-            {PROFILE.name}
+            {user.name}
           </Typo>
           {/* Email */}
           <Typo
@@ -72,7 +91,7 @@ export default function Account() {
             color="#888"
             className="font-Poppins text-center mb-2"
           >
-            {PROFILE.email}
+            {user.email}
           </Typo>
           {/* Avatar */}
           <TouchableOpacity
@@ -82,8 +101,8 @@ export default function Account() {
           >
             <Image
               source={
-                avatar
-                  ? { uri: avatar }
+                user?.profileLink
+                  ? { uri: user.profileLink }
                   : require("@/assets/images/sample-profile.jpg")
               }
               className="w-24 h-24 rounded-full"
@@ -122,10 +141,17 @@ export default function Account() {
           </TouchableOpacity>
           {showPersonal && (
             <View className="px-5 pb-4">
-              <Field label="Username" value={PROFILE.name} />
-              <Field label="Gender" value={PROFILE.gender} />
-              <Field label="Birthdate" value={PROFILE.birthdate} />
-              <Field label="Email" value={PROFILE.email} />
+              <Field label="Username" value={user.name || "N/A"} />
+              <Field label="Gender" value={user.gender || "N/A"} />
+              <Field
+                label="Birthdate"
+                value={
+                  user.birthdate?.getDate()
+                    ? String(user.birthdate?.getDate())
+                    : "N/A"
+                }
+              />
+              <Field label="Email" value={user.email || "N/A"} />
             </View>
           )}
         </View>
@@ -149,11 +175,23 @@ export default function Account() {
           </TouchableOpacity>
           {showHealth && (
             <View className="px-5 pb-4">
-              <Field label="Height" value={PROFILE.height} />
-              <Field label="Weight" value={PROFILE.weight} />
-              <Field label="BMI" value={PROFILE.bmi} />
-              <Field label="Allergens" value={PROFILE.allergens} />
-              <Field label="Medical Conditions" value={PROFILE.medical} />
+              <Field
+                label="Height"
+                value={user.height ? String(user.height) : "N/A"}
+              />
+              <Field
+                label="Weight"
+                value={user.weight ? String(user.weight) : "N/A"}
+              />
+              <Field label="BMI" value={user.bmi ? String(user.bmi) : "N/A"} />
+              <Field
+                label="Allergens"
+                value={user.allergens?.join(", ") || "N/A"}
+              />
+              <Field
+                label="Medical Conditions"
+                value={user.medicalConditions?.join(", ") || "N/A"}
+              />
             </View>
           )}
         </View>

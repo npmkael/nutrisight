@@ -1,12 +1,27 @@
+import Loading from "@/app/loading";
 import BMIClassification from "@/components/BMIClassification";
 import DietSummary from "@/components/DietSummary";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
+import { useRouter } from "expo-router";
 import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
 export default function Progress() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+
+  if (loading && !user) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    router.replace("/(auth)/sign-in");
+    return null;
+  }
+
   return (
     <LinearGradient
       className="flex-1 pt-5"
@@ -36,7 +51,11 @@ export default function Progress() {
           {/* Profile */}
 
           <Image
-            source={require("@/assets/images/sample-profile.jpg")}
+            source={
+              user.profileLink
+                ? { uri: user.profileLink }
+                : require("@/assets/images/sample-profile.jpg")
+            }
             resizeMethod="scale"
             resizeMode="contain"
             className="w-[65px] h-[65px] rounded-full absolute top-0 left-[50%] transform -translate-x-1/2 -translate-y-1/2 border-4 border-white shadow-lg"
@@ -44,7 +63,7 @@ export default function Progress() {
 
           <View className="px-4 py-4">
             <Typo size={18} className="font-PoppinsSemiBold text-center mt-6">
-              Rencie Narido
+              {user.name}
             </Typo>
             <View className="h-[1px] bg-gray-200 w-full mb-2" />
             <View className="flex-row items-center justify-evenly">
@@ -53,7 +72,7 @@ export default function Progress() {
                   Current Weight
                 </Typo>
                 <Typo size={16} className="font-PoppinsSemiBold">
-                  68kg
+                  {user.weight ? `${user.weight} kg` : "N/A"}
                 </Typo>
               </View>
               <View className="flex-col items-center">
@@ -61,7 +80,7 @@ export default function Progress() {
                   Current BMI
                 </Typo>
                 <Typo size={16} className="font-PoppinsSemiBold">
-                  19.45
+                  {user.bmi ? user.bmi.toFixed(2) : "N/A"}
                 </Typo>
               </View>
               <View className="flex-col items-center">
@@ -69,7 +88,7 @@ export default function Progress() {
                   Target Weight
                 </Typo>
                 <Typo size={16} className="font-PoppinsSemiBold">
-                  190kg
+                  {user.targetWeight ? `${user.targetWeight} kg` : "N/A"}
                 </Typo>
               </View>
             </View>
@@ -78,9 +97,9 @@ export default function Progress() {
 
         {/* BMI Classification Card */}
         <BMIClassification
-          bmi={19.45}
+          bmi={user.bmi ? Number(user.bmi.toFixed(2)) : 0}
           onLogWeight={() => {}}
-          name="Rencie Narido"
+          name={user.name}
         />
 
         {/* Target Weight Progress Card */}

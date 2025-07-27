@@ -17,14 +17,23 @@ import {
 const BACKEND_URL = "https://nutrisightbackend-production.up.railway.app";
 
 export interface UserType {
-  gmailId?: string;
-  firstName?: string;
-  lastName?: string;
-  email?: string;
-  password?: string;
-  otp?: string;
-  otpExpires?: Date;
-  isVerified: boolean;
+  _id: string; // (dynamic)
+  gmailId?: string; // (dynamic)
+  profileLink?: string; // (dynamic)
+  gender?: string; // (dynamic)
+  birthdate?: Date; // (dynamic)
+  height?: number; // in feet (dynamic)
+  weight?: number; // in kg (dynamic)
+  targetWeight?: number; // in kg (dynamic)
+  bmi?: number; // Body Mass Index (dynamic)
+  allergens?: string[]; // Array of allergens (dynamic)
+  medicalConditions?: string[]; // Array of medical conditions (dynamic)
+  name?: string; // (dynamic)
+  email?: string; // (dynamic)
+  password?: string; // hidden, always undefined
+  otp?: string; // hidden, always undefined
+  otpExpires?: Date; // hidden, always undefined
+  isVerified: boolean; // (dynamic)
 }
 
 export interface AuthContextType {
@@ -36,6 +45,7 @@ export interface AuthContextType {
   verifyOtp: (otp: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
   resendOtp: (email: string) => Promise<void>;
+  uploadProfilePicture: (imageUri: string) => Promise<void>;
 }
 
 export const UserContext = createContext<AuthContextType | undefined>(
@@ -66,7 +76,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         console.log("Session response:", response.status);
         if (response.ok) {
           const data = await response.json();
-          console.log("Session data:", data);
+          console.log("Session data:", data.user);
           if (data && data.user) {
             setUser(data.user);
             router.replace("/(root)/(tabs)/home");
@@ -97,6 +107,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!response.ok) {
+          router.replace("/(auth)/sign-in");
           throw new Error("Login failed");
         }
 
@@ -105,6 +116,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         router.replace("/(root)/(tabs)/home");
       } catch (error) {
         console.error("Login error:", error);
+        router.replace("/(auth)/sign-in");
         throw new Error("Login failed, please check your credentials.");
       } finally {
         setLoading(false);
@@ -135,6 +147,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           );
 
           if (!serverResponse.ok) {
+            router.replace("/(auth)/sign-in");
             throw new Error("Google Sign-In failed on the server.");
           }
 
@@ -142,11 +155,13 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           setUser(data.user);
           router.replace("/(root)/(tabs)/home");
         } else {
+          router.replace("/(auth)/sign-in");
           throw new Error(
             "Google Sign-In failed: idToken is null. Ensure webClientId is configured correctly."
           );
         }
       } else {
+        router.replace("/(auth)/sign-in");
         throw new Error("Google Sign-In failed");
       }
     } catch (error) {
@@ -155,8 +170,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         isErrorWithCode(error) &&
         error.code === statusCodes.SIGN_IN_CANCELLED
       ) {
-        // User cancelled the sign-in flow
+        router.replace("/(auth)/sign-in");
       } else {
+        router.replace("/(auth)/sign-in");
         throw new Error("An error occurred during Google Sign-In.");
       }
     } finally {
@@ -168,6 +184,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     async (name: string, email: string, password: string): Promise<boolean> => {
       try {
         setLoading(true);
+        console.log("Registering user:", { name, email, password });
         const response = await fetch(`${BACKEND_URL}/auth/register`, {
           method: "POST",
           headers: {
@@ -177,7 +194,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!response.ok) {
-          throw new Error("Registration failed");
+          const errorData = !response.ok ? await response.json() : null;
+          console.error("Registration failed:", errorData || response);
+          if (response.status === 409) {
+            router.replace("/(auth)/sign-up");
+            throw new Error("Email is already registered.");
+          }
+          router.replace("/(auth)/sign-up");
+          throw new Error(errorData?.message || "Registration failed");
         }
 
         const data = await response.json();
@@ -185,10 +209,12 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           router.replace({ pathname: "/(auth)/otp", params: { email } });
           return true;
         } else {
+          router.replace("/(auth)/sign-up");
           throw new Error("Registration failed, please try again.");
         }
       } catch (error) {
         console.error("Registration error:", error);
+        router.replace("/(auth)/sign-up");
         throw new Error("Registration failed, please try again.");
       } finally {
         setLoading(false);
@@ -210,6 +236,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         });
 
         if (!response.ok) {
+          router.replace("/(auth)/sign-up");
           throw new Error("Email verification failed");
         }
 
@@ -218,6 +245,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         router.replace("/(root)/(tabs)/home");
       } catch (error) {
         console.error("OTP verification error:", error);
+        router.replace("/(auth)/sign-up");
         throw new Error("OTP verification failed, please try again.");
       } finally {
         setLoading(false);
@@ -261,6 +289,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
+        router.replace("/(root)/(tabs)/home");
         throw new Error("Logout failed");
       }
 
@@ -268,11 +297,55 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       router.replace("/(auth)/sign-in");
     } catch (error) {
       console.error("Logout error:", error);
+      router.replace("/(root)/(tabs)/home");
       throw new Error("Logout failed, please try again.");
     } finally {
       setLoading(false);
     }
   }, [router]);
+
+  const uploadProfilePicture = useCallback(
+    async (imageUri: string) => {
+      try {
+        setLoading(true);
+
+        // Create form data
+        const formData = new FormData();
+        formData.append("profilePicture", {
+          uri: imageUri,
+          name: "profile.jpg",
+          type: "image/jpeg",
+        } as any);
+
+        const response = await fetch(
+          `${BACKEND_URL}/account/change-profile-picture`,
+          {
+            method: "POST",
+            credentials: "include",
+            body: formData,
+          }
+        );
+
+        if (!response.ok) {
+          console.error("Upload profile picture failed:", response);
+          throw new Error("Failed to upload profile picture");
+        }
+
+        const data = await response.json();
+        // Optionally update user profile in state
+        setUser((prev) =>
+          prev ? { ...prev, profileLink: data.profileLink } : prev
+        );
+        router.replace("/(root)/(tabs)/account");
+      } catch (error) {
+        console.error("Upload profile picture error:", error);
+        throw error;
+      } finally {
+        setLoading(false);
+      }
+    },
+    [user, setUser]
+  );
 
   const value = useMemo(
     () => ({
@@ -284,6 +357,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       verifyOtp,
       register,
       resendOtp,
+      uploadProfilePicture,
     }),
     [
       user,
@@ -294,6 +368,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       verifyOtp,
       register,
       resendOtp,
+      uploadProfilePicture,
     ]
   );
 
