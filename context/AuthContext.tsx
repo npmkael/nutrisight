@@ -14,7 +14,7 @@ import {
   useState,
 } from "react";
 
-const BACKEND_URL = process.env.EXPO_PUBLIC_BACKEND_URL || "192.168.2.1:3000";
+const BACKEND_URL = "https://nutrisightbackend-production.up.railway.app";
 
 export interface UserType {
   gmailId?: string;
