@@ -1,15 +1,13 @@
-import Typo from "@/components/Typo";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
-
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
-import { chunkArray, renameNutrition } from "@/utils/helpers";
+import Typo from "@/components/Typo";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { useLocalSearchParams } from "expo-router";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 const COLORS = [
   "#30B0C7", // blue
@@ -34,18 +32,7 @@ export default function Result() {
 
   const dateNow = new Date();
 
-  const nutritionArr = nutrition
-    ? chunkArray(
-        renameNutrition(JSON.parse(nutrition)).filter(
-          (item: any) =>
-            item.name !== "Energy" &&
-            item.name !== "Calories" &&
-            item.amount &&
-            item.unit
-        ),
-        3
-      )
-    : [[]];
+  const nutritionArr: any[][] = nutrition ? JSON.parse(nutrition) : [[]];
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
