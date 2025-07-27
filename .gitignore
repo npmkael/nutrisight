@@ -3,6 +3,10 @@
 # dependencies
 node_modules/
 
+.env
+/android
+.idea/
+
 # Expo
 .expo/
 dist/
