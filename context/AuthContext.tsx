@@ -14,7 +14,8 @@ import {
   useState,
 } from "react";
 
-const BACKEND_URL = "https://nutrisightbackend-production.up.railway.app";
+export const BACKEND_URL =
+  "https://nutrisightbackend-production.up.railway.app";
 
 export interface UserType {
   _id: string; // (dynamic)

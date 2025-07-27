@@ -4,21 +4,60 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
+import { chunkArray, renameNutrition } from "@/utils/helpers";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { useLocalSearchParams } from "expo-router";
+
+const COLORS = [
+  "#30B0C7", // blue
+  "#F47450", // orange
+  "#FF2D55", // red
+  "#34C759", // green
+  "#5856D6", // purple
+  "#AF52DE", // violet
+  "#FFD60A", // yellow
+  "#FF9500", // amber
+];
 
 export default function Result() {
+  // uselocalSearchParams();
+  const { name, brand, ingredients, nutrition, photo } = useLocalSearchParams<{
+    name: string;
+    brand: string;
+    ingredients: string;
+    nutrition: string;
+    photo?: string;
+  }>();
+
+  const dateNow = new Date();
+
+  const nutritionArr = nutrition
+    ? chunkArray(
+        renameNutrition(JSON.parse(nutrition)).filter(
+          (item: any) =>
+            item.name !== "Energy" &&
+            item.name !== "Calories" &&
+            item.amount &&
+            item.unit
+        ),
+        3
+      )
+    : [[]];
+
   return (
     <View className="flex-1 bg-[#F7F7F7]">
-      <Image
-        className="absolute top-0 left-0 right-0"
-        source={require("@/assets/images/boba-tea.jpg")}
-        style={{ height: 400, width: "100%" }}
-        blurRadius={30}
-        resizeMode="cover"
-      />
+      {photo ? (
+        <Image
+          className="absolute top-0 left-0 right-0"
+          source={{ uri: photo }}
+          style={{ height: 400, width: "100%" }}
+          blurRadius={30}
+          resizeMode="cover"
+        />
+      ) : null}
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 pt-8 pb-2">
         <Entypo name="chevron-with-circle-left" size={28} color="black" />
@@ -30,10 +69,12 @@ export default function Result() {
       </View>
       {/* Image */}
       <View className="items-center mt-2">
-        <Image
-          source={require("@/assets/images/boba-tea.jpg")}
-          className="w-[320px] h-[200px] rounded-2xl object-cover shadow-xl"
-        />
+        {photo ? (
+          <Image
+            source={{ uri: photo }}
+            className="w-[320px] h-[200px] rounded-2xl object-cover shadow-xl"
+          />
+        ) : null}
       </View>
       {/* Card */}
       <ScrollView
@@ -46,14 +87,24 @@ export default function Result() {
           <AntDesign name="instagram" size={24} color="black" />
           <View>
             <Text className="text-xs text-gray-400 font-Poppins">
-              14/05/2025
+              {dateNow.toLocaleDateString("en-US", {
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+              })}
             </Text>
-            <Text className="text-xs text-gray-400 font-Poppins">12:30pm</Text>
+            <Text className="text-xs text-gray-400 font-Poppins">
+              {dateNow.toLocaleTimeString("en-US", {
+                hour: "2-digit",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </Text>
           </View>
         </View>
         {/* Food Name */}
         <Typo size={28} className="font-Poppins text-gray-900 mb-6">
-          Boba Milk Tea
+          {`${name}`}
         </Typo>
         {/* Calories Card */}
         <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 shadow border border-gray-100 mb-6">
@@ -69,7 +120,16 @@ export default function Result() {
               Estimated Total Calories
             </Text>
             <Text className="font-PoppinsBold text-gray-900 text-4xl">
-              1024
+              {nutritionArr.length > 0
+                ? nutritionArr
+                    .filter(
+                      (item: any) =>
+                        item.name === "Energy" || item.name === "Calories"
+                    )
+                    .map((item: any) => item.amount)
+                    .join(" + ")
+                : "0"}{" "}
+              kcal
             </Text>
           </View>
         </View>
@@ -88,7 +148,39 @@ export default function Result() {
             <Text className="font-PoppinsSemiBold text-3xl">Summary</Text>
           </View>
 
-          <View className="flex-row items-center gap-2 mb-2">
+          <View className="flex-col">
+            {nutritionArr.map((row, rowIdx) => (
+              <View key={rowIdx} className="flex-row items-center gap-2 mb-2">
+                {row.map((item: any) => (
+                  <View
+                    key={item.name}
+                    className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1"
+                  >
+                    <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                      {item.name}
+                    </Text>
+                    <CircularProgressBar
+                      progress={item.amount}
+                      size={60}
+                      strokeWidth={5}
+                      color={COLORS[Math.floor(Math.random() * COLORS.length)]}
+                      backgroundColor="rgba(0,0,0,0.05)"
+                      showPercentage={true}
+                      percentageTextSize={12}
+                      percentageTextColor="black"
+                      label={item.unit}
+                    />
+                  </View>
+                ))}
+                {/* Fill empty columns if less than 3 */}
+                {Array.from({ length: 3 - row.length }).map((_, i) => (
+                  <View key={i} style={{ flex: 1 }} />
+                ))}
+              </View>
+            ))}
+          </View>
+
+          {/* <View className="flex-row items-center gap-2 mb-2">
             <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
               <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
                 Carbs
@@ -194,7 +286,7 @@ export default function Result() {
                 label="g"
               />
             </View>
-          </View>
+          </View> */}
         </View>
 
         {/* Healthiness Rating */}

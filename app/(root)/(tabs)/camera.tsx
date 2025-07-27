@@ -1,17 +1,28 @@
+import Loading from "@/app/loading";
 import PhotoPreviewSection from "@/components/PhotoPreviewSection";
+import { BACKEND_URL } from "@/context/AuthContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
-import { CameraType, CameraView, useCameraPermissions } from "expo-camera";
+import {
+  CameraCapturedPicture,
+  CameraType,
+  CameraView,
+  useCameraPermissions,
+} from "expo-camera";
+import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export default function App() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
-  const [photo, setPhoto] = useState<any>(null);
+  const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
   const [scanMode, setScanMode] = useState<"food" | "barcode" | "nutrition">(
     "food"
   );
   const cameraRef = useRef<CameraView | null>(null);
+  const [barcodeScanned, setBarcodeScanned] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -28,6 +39,54 @@ export default function App() {
         <Button onPress={requestPermission} title="grant permission" />
       </View>
     );
+  }
+
+  async function handleBarcodeScanned({
+    type,
+    data,
+  }: {
+    type: string;
+    data: string;
+  }) {
+    setBarcodeScanned(true);
+    setLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/camera/barcode`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify({ barcodeData: data }),
+      });
+
+      if (!res.ok) {
+        alert("Scan Result, Failed to send barcode data");
+        return;
+      }
+      const result = await res.json();
+      if (result && result.data) {
+        // passing the data to the Result component
+        console.log("Scan Result:", result.data);
+        router.replace({
+          pathname: "/(root)/result",
+          params: {
+            name: result.data.name,
+            brand: result.data.brand,
+            ingredients: result.data.ingredients,
+            nutrition: JSON.stringify(result.data.nutrition),
+          },
+        });
+        return;
+      } else {
+        throw new Error("Invalid response data");
+      }
+    } catch (error) {
+      console.error("Error scanning barcode:", error);
+      alert("Failed to scan barcode. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   }
 
   function toggleCameraFacing() {
@@ -47,7 +106,15 @@ export default function App() {
     }
   };
 
-  const handleRetakePhoto = () => setPhoto(null);
+  const handleRetakePhoto = () => {
+    setPhoto(null);
+    setBarcodeScanned(false);
+    setLoading(false);
+  };
+
+  if (loading) {
+    return <Loading />;
+  }
 
   if (photo)
     return (
@@ -59,7 +126,21 @@ export default function App() {
 
   return (
     <View style={styles.container}>
-      <CameraView style={styles.camera} facing={facing} ref={cameraRef}>
+      {/**
+       * may warning dito:
+       *  WARN  The <CameraView> component does not support children. This may lead to inconsistent behaviour or crashes. If you want to render content on top of the Camera, consider using absolute positioning.
+       *
+       * SUGGESTION: Move all overlay and UI elements outside of <CameraView> and use absolute positioning.
+       */}
+      <CameraView
+        onBarcodeScanned={barcodeScanned ? undefined : handleBarcodeScanned}
+        barcodeScannerSettings={{
+          barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e"],
+        }}
+        style={styles.camera}
+        facing={facing}
+        ref={cameraRef}
+      >
         {/* Camera Scan Indicator */}
         <View style={styles.scanOverlay}>
           <View style={styles.scanFrame}>
@@ -153,14 +234,16 @@ export default function App() {
         </View>
 
         {/* Circular Camera Button */}
-        <View style={styles.cameraButtonContainer}>
-          <TouchableOpacity
-            style={styles.cameraButton}
-            onPress={handleTakePhoto}
-          >
-            <View style={styles.cameraButtonInner} />
-          </TouchableOpacity>
-        </View>
+        {scanMode !== "barcode" && (
+          <View style={styles.cameraButtonContainer}>
+            <TouchableOpacity
+              style={styles.cameraButton}
+              onPress={handleTakePhoto}
+            >
+              <View style={styles.cameraButtonInner} />
+            </TouchableOpacity>
+          </View>
+        )}
       </CameraView>
     </View>
   );
