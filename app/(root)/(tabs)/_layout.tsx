@@ -1,7 +1,28 @@
 import { CameraTabButton } from "@/components/CameraTabButton";
 import { HapticTab } from "@/components/HapticTab";
-import { Ionicons } from "@expo/vector-icons";
+import { icons } from "@/constants";
 import { Tabs } from "expo-router";
+import { Image } from "react-native";
+
+const TabIcon = ({
+  iconFill,
+  iconOutline,
+  focused,
+  className,
+}: {
+  iconFill: any;
+  iconOutline: any;
+  focused: boolean;
+  className?: string;
+}) => {
+  return (
+    <Image
+      source={focused ? iconFill : iconOutline}
+      className={className}
+      resizeMode="contain"
+    />
+  );
+};
 
 export default function Layout() {
   return (
@@ -25,11 +46,12 @@ export default function Layout() {
           title: "Home",
           tabBarLabel: "Home",
           headerShown: false,
-          tabBarIcon: ({ color, size, focused }) => (
-            <Ionicons
-              name={`${focused ? "home" : "home-outline"}`}
-              color={color}
-              size={size}
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              iconFill={icons.homeFill}
+              iconOutline={icons.homeOutline}
+              focused={focused}
+              className="w-6 h-6"
             />
           ),
           tabBarLabelStyle: {
@@ -42,8 +64,13 @@ export default function Layout() {
         options={{
           tabBarLabel: "Progress",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="cube" color={color} size={size} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              iconFill={icons.progressFill}
+              iconOutline={icons.progressOutline}
+              focused={focused}
+              className="w-7 h-7"
+            />
           ),
           tabBarLabelStyle: {
             fontSize: 12,
@@ -62,8 +89,13 @@ export default function Layout() {
         options={{
           tabBarLabel: "Account",
           headerShown: false,
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="person" color={color} size={size} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              iconFill={icons.accountFill}
+              iconOutline={icons.accountOutline}
+              focused={focused}
+              className="w-7 h-7"
+            />
           ),
           tabBarLabelStyle: {
             fontSize: 12,
@@ -74,8 +106,13 @@ export default function Layout() {
         name="settings"
         options={{
           tabBarLabel: "Settings",
-          tabBarIcon: ({ color, size }) => (
-            <Ionicons name="settings" color={color} size={size} />
+          tabBarIcon: ({ focused }) => (
+            <TabIcon
+              iconFill={icons.settingsFill}
+              iconOutline={icons.settingsOutline}
+              focused={focused}
+              className="w-7 h-7"
+            />
           ),
           tabBarLabelStyle: {
             fontSize: 12,
