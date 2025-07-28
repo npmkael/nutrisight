@@ -32,10 +32,6 @@ export default function PhotoPreviewSection({
         <TouchableOpacity onPress={handleRetakePhoto}>
           <Entypo name="chevron-with-circle-left" size={28} color="white" />
         </TouchableOpacity>
-        <Text className="font-PoppinsSemiBold text-white text-center text-2xl">
-          NutriSight
-        </Text>
-
         <View className="w-1 h-1 bg-gray-300/0" />
       </View>
       {/* Image */}
