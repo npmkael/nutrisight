@@ -40,6 +40,7 @@ const InputField = ({
               className={`rounded-full p-4 font-PoppinsSemiBold text-[15px] flex-1 ${inputStyle} text-left`}
               secureTextEntry={secureTextEntry}
               {...props}
+              placeholderTextColor="#898989"
             />
           </View>
         </View>

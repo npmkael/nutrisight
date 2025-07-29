@@ -3,12 +3,14 @@ import Typo from "@/components/Typo";
 import { icons } from "@/constants/index";
 import { useAuth } from "@/context/AuthContext";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import Ionicons from "@expo/vector-icons/build/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
 import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 const PROFILE = {
   name: "Rencie Narido",
@@ -63,13 +65,7 @@ export default function Account() {
   }
 
   return (
-    <LinearGradient
-      colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
-      locations={[0, 0.5, 1]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      className="flex-1 pt-5"
-    >
+    <SafeAreaView className="flex-1 bg-[#FAFAFA]" edges={["top"]}>
       <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
         <Typo size={24} className="font-PoppinsSemiBold">
           Account
@@ -135,9 +131,11 @@ export default function Account() {
                 Personal Information
               </Typo>
             </View>
-            <Text className="text-2xl text-gray-400">
-              {showPersonal ? "\u25BC" : "\u25B6"}
-            </Text>
+            <Ionicons
+              name={showPersonal ? "chevron-down" : "chevron-forward"}
+              size={20}
+              color="black"
+            />
           </TouchableOpacity>
           {showPersonal && (
             <View className="px-5 pb-4">
@@ -169,9 +167,11 @@ export default function Account() {
                 Health Information
               </Typo>
             </View>
-            <Text className="text-2xl text-gray-400">
-              {showHealth ? "\u25BC" : "\u25B6"}
-            </Text>
+            <Ionicons
+              name={showHealth ? "chevron-down" : "chevron-forward"}
+              size={20}
+              color="black"
+            />
           </TouchableOpacity>
           {showHealth && (
             <View className="px-5 pb-4">
@@ -196,7 +196,7 @@ export default function Account() {
           )}
         </View>
       </ScrollView>
-    </LinearGradient>
+    </SafeAreaView>
   );
 }
 
