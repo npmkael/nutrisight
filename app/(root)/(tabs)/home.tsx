@@ -1,3 +1,5 @@
+import Loading from "@/app/loading";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
@@ -145,14 +147,29 @@ const CustomCircularProgress = () => {
 };
 
 export default function Home() {
+  const { user, loading } = useAuth();
   const router = useRouter();
+
+  if (loading && !user) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    router.replace("/(auth)/sign-in");
+    return null;
+  }
+
   return (
     <SafeAreaView className="bg-[#FAFAFA] flex-1 px-5" edges={["top"]}>
       <View className="flex-row items-center justify-between py-5 bg-transparent">
         {/* Profile and Welcome message */}
         <View className="flex-row items-center justify-center gap-2">
           <Image
-            source={require("@/assets/images/sample-profile.jpg")}
+            source={
+              user.profileLink
+                ? { uri: user.profileLink }
+                : require("@/assets/images/sample-profile.jpg")
+            }
             resizeMethod="scale"
             resizeMode="contain"
             className="w-12 h-12 rounded-full"
@@ -162,7 +179,7 @@ export default function Home() {
               Welcome,
             </Text>
             <Text className="text-black text-2xl font-PoppinsBold">
-              Zoey Carreon!
+              {user.name}!
             </Text>
           </View>
         </View>
