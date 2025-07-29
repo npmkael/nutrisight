@@ -10,6 +10,7 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import Swiper from "react-native-swiper";
 
 export default function PhotoPreviewSection({
   photo,
@@ -38,7 +39,7 @@ export default function PhotoPreviewSection({
       <View className="items-center mt-2">
         <Image
           source={{ uri: "data:image/jpg;base64," + photo.base64 }}
-          className="w-[320px] h-[200px] rounded-2xl object-cover shadow-xl"
+          className="w-[320px] h-[250px] rounded-2xl object-cover shadow-xl"
         />
       </View>
       {/* Card */}
@@ -81,8 +82,8 @@ export default function PhotoPreviewSection({
         </View>
 
         {/* Estimated Nutrients Summary */}
-        <View className="flex-col bg-white rounded-2xl p-4 shadow border border-gray-100 mb-4">
-          <View className="flex-col mb-4">
+        <View className="flex-col bg-white rounded-2xl pt-4 shadow border border-gray-100 mb-4">
+          <View className="flex-col mx-4 mb-4">
             <Text
               className="font-Poppins"
               style={{
@@ -94,113 +95,237 @@ export default function PhotoPreviewSection({
             <Text className="font-PoppinsSemiBold text-3xl">Summary</Text>
           </View>
 
-          <View className="flex-row items-center gap-2 mb-2">
-            <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-              <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
-                Carbs
-              </Text>
+          <Swiper
+            loop={false}
+            className="h-[265px]"
+            dot={
+              <View className="w-[32px] h-[4px] mx-1 bg-[#f1f1f1] rounded-full" />
+            }
+            activeDot={
+              <View className="w-[32px] h-[4px] mx-1 bg-black rounded-full" />
+            }
+          >
+            {/* add ka nalang another view kung gusto mo pa ng isang swiper */}
+            <View className="mx-4">
+              <View className="flex-row items-center gap-2 mb-2">
+                <View className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Carbs
+                  </Text>
 
-              <CircularProgressBar
-                progress={50}
-                size={60}
-                strokeWidth={5}
-                color="#30B0C7"
-                backgroundColor="rgba(0,0,0,0.05)"
-                showPercentage={true}
-                percentageTextSize={12}
-                percentageTextColor="black"
-                label="g"
-              />
+                  <CircularProgressBar
+                    progress={50}
+                    size={55}
+                    strokeWidth={4}
+                    color="#30B0C7"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Protein
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={28}
+                    size={55}
+                    strokeWidth={4}
+                    color="#F47450"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Fiber
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={20}
+                    size={55}
+                    strokeWidth={4}
+                    color="#FF2D55"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+              </View>
+
+              <View className="flex-row items-center gap-2 mb-2">
+                <View className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Calcium
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={40}
+                    size={55}
+                    strokeWidth={4}
+                    color="#34C759"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Iron
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={14}
+                    size={55}
+                    strokeWidth={4}
+                    color="#5856D6"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-6 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Fat
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={30}
+                    size={55}
+                    strokeWidth={4}
+                    color="#AF52DE"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+              </View>
             </View>
-            <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-              <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
-                Protein
-              </Text>
 
-              <CircularProgressBar
-                progress={28}
-                size={60}
-                strokeWidth={5}
-                color="#F47450"
-                backgroundColor="rgba(0,0,0,0.05)"
-                showPercentage={true}
-                percentageTextSize={12}
-                percentageTextColor="black"
-                label="g"
-              />
+            <View className="mx-4">
+              <View className="flex-row items-center gap-2 mb-2">
+                <View className="bg-gray-100 rounded-3xl px-6 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Carbs
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={50}
+                    size={55}
+                    strokeWidth={4}
+                    color="#30B0C7"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-6 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Protein
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={28}
+                    size={55}
+                    strokeWidth={5}
+                    color="#F47450"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-6 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Fiber
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={20}
+                    size={55}
+                    strokeWidth={4}
+                    color="#FF2D55"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+              </View>
+
+              <View className="flex-row items-center gap-2 mb-2">
+                <View className="bg-gray-100 rounded-3xl px-6 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Calcium
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={40}
+                    size={55}
+                    strokeWidth={4}
+                    color="#34C759"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-6 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Iron
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={14}
+                    size={55}
+                    strokeWidth={4}
+                    color="#5856D6"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+                <View className="bg-gray-100 rounded-3xl px-6 py-4 items-center flex-1">
+                  <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                    Fat
+                  </Text>
+
+                  <CircularProgressBar
+                    progress={30}
+                    size={55}
+                    strokeWidth={4}
+                    color="#AF52DE"
+                    backgroundColor="rgba(0,0,0,0.05)"
+                    showPercentage={true}
+                    percentageTextSize={10}
+                    percentageTextColor="black"
+                    label="g"
+                  />
+                </View>
+              </View>
             </View>
-            <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-              <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
-                Fiber
-              </Text>
-
-              <CircularProgressBar
-                progress={20}
-                size={60}
-                strokeWidth={5}
-                color="#FF2D55"
-                backgroundColor="rgba(0,0,0,0.05)"
-                showPercentage={true}
-                percentageTextSize={12}
-                percentageTextColor="black"
-                label="g"
-              />
-            </View>
-          </View>
-
-          <View className="flex-row items-center gap-2 mb-2">
-            <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-              <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
-                Calcium
-              </Text>
-
-              <CircularProgressBar
-                progress={40}
-                size={60}
-                strokeWidth={5}
-                color="#34C759"
-                backgroundColor="rgba(0,0,0,0.05)"
-                showPercentage={true}
-                percentageTextSize={12}
-                percentageTextColor="black"
-                label="g"
-              />
-            </View>
-            <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-              <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
-                Iron
-              </Text>
-
-              <CircularProgressBar
-                progress={14}
-                size={60}
-                strokeWidth={5}
-                color="#5856D6"
-                backgroundColor="rgba(0,0,0,0.05)"
-                showPercentage={true}
-                percentageTextSize={12}
-                percentageTextColor="black"
-                label="g"
-              />
-            </View>
-            <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-              <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
-                Fat
-              </Text>
-
-              <CircularProgressBar
-                progress={30}
-                size={60}
-                strokeWidth={5}
-                color="#AF52DE"
-                backgroundColor="rgba(0,0,0,0.05)"
-                showPercentage={true}
-                percentageTextSize={12}
-                percentageTextColor="black"
-                label="g"
-              />
-            </View>
-          </View>
+          </Swiper>
         </View>
 
         {/* Healthiness Rating */}

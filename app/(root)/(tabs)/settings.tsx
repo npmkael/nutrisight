@@ -7,116 +7,103 @@ import Octicons from "@expo/vector-icons/Octicons";
 import { Link } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Settings() {
   return (
-    <SafeAreaView className="flex-1" edges={["top"]}>
-      <LinearGradient
-        colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
-        locations={[0, 0.5, 1]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        className="flex-1"
+    <SafeAreaView className="flex-1 bg-[#FAFAFA]" edges={["top"]}>
+      {/* Fixed Header */}
+      <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
+        <Typo size={24} className="font-PoppinsSemiBold">
+          Settings
+        </Typo>
+      </View>
+
+      <ScrollView
+        className="flex-1 px-5"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
       >
-        {/* Fixed Header */}
-        <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
-          <Typo size={24} className="font-PoppinsSemiBold">
-            Settings
-          </Typo>
-        </View>
-
-        <ScrollView
-          className="flex-1 px-5"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
-        >
-          <Container className="px-4 py-4 mb-6">
-            <View className="flex-row gap-4 items-center">
-              <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
-                <Ionicons name="person" size={18} color="black" />
-              </View>
-
-              <View className="flex-1">
-                <Link href="/(root)/(settings)/name" className=" gap-2">
-                  <View className="flex-row items-center gap-1">
-                    <Text className="font-PoppinsMedium text-lg text-gray-500 mb-1">
-                      Enter your name{" "}
-                    </Text>
-                    <Octicons name="pencil" size={10} color="black" />
-                  </View>
-                </Link>
-                <Text className="font-Poppins text-sm">21 years old</Text>
-              </View>
-            </View>
-          </Container>
-
-          <Container className="px-4 py-4 mb-6">
-            <TouchableOpacity className="flex-row items-center gap-2">
+        <Container className="px-4 py-4 mb-6">
+          <View className="flex-row gap-4 items-center">
+            <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
               <Ionicons name="person" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Personal details</Text>
-            </TouchableOpacity>
+            </View>
 
-            <View className="h-[1px] bg-gray-200 my-4" />
+            <View className="flex-1">
+              <Link href="/(root)/(settings)/name" className=" gap-2">
+                <View className="flex-row items-center gap-1">
+                  <Text className="font-PoppinsMedium text-lg text-gray-500 mb-1">
+                    Enter your name{" "}
+                  </Text>
+                  <Octicons name="pencil" size={10} color="black" />
+                </View>
+              </Link>
+              <Text className="font-Poppins text-sm">21 years old</Text>
+            </View>
+          </View>
+        </Container>
 
-            <TouchableOpacity className="flex-row items-center gap-2">
-              <MaterialIcons name="adjust" size={18} color="black" />
-              <Text className="text-sm font-Poppins">
-                Adjust macronutrients
-              </Text>
-            </TouchableOpacity>
+        <Container className="px-4 py-4 mb-6">
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <Ionicons name="person" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Personal details</Text>
+          </TouchableOpacity>
 
-            <View className="h-[1px] bg-gray-200 my-4" />
+          <View className="h-[1px] bg-gray-200 my-4" />
 
-            <TouchableOpacity className="flex-row items-center gap-2">
-              <Ionicons name="flag" size={18} color="black" />
-              <Text className="text-sm font-Poppins">
-                Goal & current weight
-              </Text>
-            </TouchableOpacity>
-          </Container>
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <MaterialIcons name="adjust" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Adjust macronutrients</Text>
+          </TouchableOpacity>
 
-          <Container className="px-4 py-4 mb-6">
-            <TouchableOpacity className="flex-row items-center gap-2">
-              <Ionicons name="document-text" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Terms and Conditions</Text>
-            </TouchableOpacity>
+          <View className="h-[1px] bg-gray-200 my-4" />
 
-            <View className="h-[1px] bg-gray-200 my-4" />
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <Ionicons name="flag" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Goal & current weight</Text>
+          </TouchableOpacity>
+        </Container>
 
-            <TouchableOpacity className="flex-row items-center gap-2">
-              <Ionicons name="shield" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Privacy Policy</Text>
-            </TouchableOpacity>
+        <Container className="px-4 py-4 mb-6">
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <Ionicons name="document-text" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Terms and Conditions</Text>
+          </TouchableOpacity>
 
-            <View className="h-[1px] bg-gray-200 my-4" />
+          <View className="h-[1px] bg-gray-200 my-4" />
 
-            <TouchableOpacity className="flex-row items-center gap-2">
-              <Feather name="mail" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Support Email</Text>
-            </TouchableOpacity>
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <Ionicons name="shield" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Privacy Policy</Text>
+          </TouchableOpacity>
 
-            <View className="h-[1px] bg-gray-200 my-4" />
+          <View className="h-[1px] bg-gray-200 my-4" />
 
-            <TouchableOpacity className="flex-row items-center gap-2">
-              <Feather name="user-minus" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Delete Account</Text>
-            </TouchableOpacity>
-          </Container>
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <Feather name="mail" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Support Email</Text>
+          </TouchableOpacity>
 
-          <Container className="px-4 py-4 mb-6">
-            <TouchableOpacity className="flex-row items-center gap-2">
-              <MaterialIcons name="logout" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Logout</Text>
-            </TouchableOpacity>
-          </Container>
+          <View className="h-[1px] bg-gray-200 my-4" />
 
-          <Text className="text-sm font-Poppins text-center uppercase">
-            Version 0.0.1
-          </Text>
-        </ScrollView>
-      </LinearGradient>
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <Feather name="user-minus" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Delete Account</Text>
+          </TouchableOpacity>
+        </Container>
+
+        <Container className="px-4 py-4 mb-6">
+          <TouchableOpacity className="flex-row items-center gap-2">
+            <MaterialIcons name="logout" size={18} color="black" />
+            <Text className="text-sm font-Poppins">Logout</Text>
+          </TouchableOpacity>
+        </Container>
+
+        <Text className="text-sm font-Poppins text-center uppercase">
+          Version 0.0.1
+        </Text>
+      </ScrollView>
     </SafeAreaView>
   );
 }

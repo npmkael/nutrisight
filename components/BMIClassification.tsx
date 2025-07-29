@@ -81,7 +81,7 @@ export default function BMIClassification({
         </View> */}
         </View>
         {/* Legend */}
-        <View className="flex-row justify-between mb-8">
+        <View className="flex-row mb-8">
           {BMI_CATEGORIES.map((cat) => (
             <View
               key={cat.label}
@@ -105,17 +105,19 @@ export default function BMIClassification({
         {/* BMI Value and Classification */}
         <View className="flex-col gap-2">
           <View className="flex-row justify-between items-center">
-            <Text className="font-Poppins text-gray-400">Current BMI</Text>
-            <Text className="font-PoppinsSemiBold">{bmi}</Text>
+            <Text className="font-Poppins text-gray-400 text-sm">
+              Current BMI
+            </Text>
+            <Text className="font-PoppinsSemiBold text-sm">{bmi}</Text>
           </View>
 
           <View className="w-full h-[1px] bg-gray-200 rounded-full" />
 
           <View className="flex-row justify-between items-center">
-            <Text className="font-Poppins text-gray-400">
+            <Text className="font-Poppins text-gray-400 text-sm">
               Weight Classification per BMI
             </Text>
-            <Text className="font-PoppinsSemiBold">Normal Weight</Text>
+            <Text className="font-PoppinsSemiBold text-sm">Normal Weight</Text>
           </View>
         </View>
       </View>
