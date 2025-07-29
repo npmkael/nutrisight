@@ -17,6 +17,15 @@ import {
 export const BACKEND_URL =
   "https://nutrisightbackend-production.up.railway.app";
 
+interface NutritionalData {
+  [key: string]: number;
+}
+
+interface DietHistory {
+  date: Date;
+  nutritionalData: NutritionalData[];
+}
+
 export interface UserType {
   _id: string; // (dynamic)
   gmailId?: string; // (dynamic)
@@ -29,6 +38,7 @@ export interface UserType {
   bmi?: number; // Body Mass Index (dynamic)
   allergens?: string[]; // Array of allergens (dynamic)
   medicalConditions?: string[]; // Array of medical conditions (dynamic)
+  dietHistory?: DietHistory[]; // Array of diet history objects (dynamic)
   name?: string; // (dynamic)
   email?: string; // (dynamic)
   password?: string; // hidden, always undefined

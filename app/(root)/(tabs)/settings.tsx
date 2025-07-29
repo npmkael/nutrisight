@@ -9,7 +9,6 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import Loading from "@/app/loading";
 import { useAuth } from "@/context/AuthContext";
-import { formatDateToYears } from "@/utils/helpers";
 import { LinearGradient } from "expo-linear-gradient";
 
 export default function Settings() {
@@ -62,7 +61,11 @@ export default function Settings() {
               </Link>
               <Text className="font-Poppins text-sm">
                 {user.birthdate
-                  ? `${formatDateToYears(user.birthdate)} years old`
+                  ? `${Math.floor(
+                      (new Date().getTime() -
+                        new Date(user.birthdate).getTime()) /
+                        (1000 * 60 * 60 * 24 * 365.25)
+                    )} years old`
                   : "Age: N/A"}
               </Text>
             </View>

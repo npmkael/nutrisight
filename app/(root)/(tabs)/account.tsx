@@ -146,8 +146,8 @@ export default function Account() {
               <Field
                 label="Birthdate"
                 value={
-                  user.birthdate?.getDate()
-                    ? String(user.birthdate?.getDate())
+                  user.birthdate
+                    ? String(new Date(user.birthdate).toLocaleDateString())
                     : "N/A"
                 }
               />
