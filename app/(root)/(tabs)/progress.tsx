@@ -3,6 +3,8 @@ import BMIClassification from "@/components/BMIClassification";
 import DietSummary from "@/components/DietSummary";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
+import { Image, ScrollView, View } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
@@ -23,21 +25,12 @@ export default function Progress() {
   }
 
   return (
-    <LinearGradient
-      className="flex-1 pt-5"
-      colors={["#E1DADA", "#BDCAD9", "#F3F4F7"]}
-      locations={[0, 0.5, 1]}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-    >
+    <SafeAreaView className="bg-white flex-1" edges={["top"]}>
       {/* Fixed Header */}
       <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
         <Typo size={24} className="font-PoppinsSemiBold">
           My Progress
         </Typo>
-        <TouchableOpacity className="w-10 h-10 rounded-full bg-white border-gray-200 border-2 items-center justify-center">
-          <Ionicons name="person-outline" size={20} color="black" />
-        </TouchableOpacity>
       </View>
 
       {/* Scrollable Content */}
@@ -108,6 +101,6 @@ export default function Progress() {
         {/* Diet Summary Card */}
         <DietSummary />
       </ScrollView>
-    </LinearGradient>
+    </SafeAreaView>
   );
 }
