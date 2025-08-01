@@ -110,7 +110,11 @@ export default function Otp() {
 
         {/* Continue Button */}
         <View className="mt-auto mb-8">
-          <CustomButton title="Continue" onPress={onContinuePress} />
+          <CustomButton
+            title="Continue"
+            onPress={onContinuePress}
+            loading={false}
+          />
         </View>
       </View>
     </SafeAreaView>
