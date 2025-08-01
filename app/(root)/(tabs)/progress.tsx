@@ -3,13 +3,10 @@ import BMIClassification from "@/components/BMIClassification";
 import DietSummary from "@/components/DietSummary";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
+import { useAuth } from "@/context/AuthContext";
+import { useRouter } from "expo-router";
 import { Image, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useAuth } from "@/context/AuthContext";
-import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
-import { useRouter } from "expo-router";
-import { Image, ScrollView, TouchableOpacity, View } from "react-native";
 
 export default function Progress() {
   const { user, loading } = useAuth();
