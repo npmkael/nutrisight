@@ -150,7 +150,7 @@ export default function DietSummary() {
 
               <View className="flex-col gap-2">
                 {caloriesSumarryData.map((data) => (
-                  <View className="flex-row gap-2">
+                  <View key={data.name} className="flex-row gap-2">
                     <View
                       className="w-2.5 h-2.5 mt-1.5"
                       style={{ backgroundColor: data.color }}
@@ -204,13 +204,13 @@ export default function DietSummary() {
 
             <View className="flex-row gap-4 mb-4">
               {nutrientsSumarryData.map((data) => (
-                <Nutrient {...data} />
+                <Nutrient key={data.name} {...data} />
               ))}
             </View>
 
             <View className="flex-row gap-4">
               {nutrientsSumarryData2.map((data) => (
-                <Nutrient {...data} />
+                <Nutrient key={data.name} {...data} />
               ))}
             </View>
           </View>

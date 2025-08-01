@@ -1,5 +1,5 @@
 import { icons } from "@/constants";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { useEffect, useState } from "react";
 import {
   Alert,
@@ -14,10 +14,14 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import colors from "@/lib/utils";
 
 import CustomButton from "@/components/CustomButton";
+import { useAuth } from "@/context/AuthContext";
 import { moderateScale, textScale } from "@/lib/utils";
 import OTPTextInput from "react-native-otp-textinput";
 
 export default function Otp() {
+  const { verifyOtp, resendOtp } = useAuth();
+  const { email } = useLocalSearchParams<{ email: string }>();
+  const [otpCode, setOtpCode] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
 
   useEffect(() => {
@@ -27,25 +31,30 @@ export default function Otp() {
     }
   }, [resendTimer]);
 
-  const verifyOtp = (otpCode: string) => {
-    // Here you would typically make an API call to verify the OTP
-    console.log("Verifying OTP:", otpCode);
-    Alert.alert("Success", "OTP verified successfully!");
-    // Navigate to next screen
-    // router.push('/(root)');
-  };
-
-  const handleResend = () => {
+  const handleResend = async () => {
+    if (!email) return;
     setResendTimer(60);
-    // Here you would typically make an API call to resend OTP
-    Alert.alert(
-      "OTP Resent",
-      "A new verification code has been sent to your email."
-    );
+    try {
+      await resendOtp(email);
+      Alert.alert(
+        "OTP Resent",
+        "A new verification code has been sent to your email."
+      );
+    } catch (error) {
+      Alert.alert("Error", "Failed to resend OTP. Please try again.");
+    }
   };
 
-  const onContinuePress = () => {
-    console.log("Continue pressed");
+  const onContinuePress = async () => {
+    if (otpCode.length !== 4) {
+      Alert.alert("Invalid OTP", "Please enter a 4-digit OTP.");
+      return;
+    }
+    try {
+      await verifyOtp(otpCode, email);
+    } catch (error) {
+      Alert.alert("Verification Failed", "The OTP you entered is incorrect.");
+    }
   };
 
   return (
@@ -68,13 +77,15 @@ export default function Otp() {
           <Text className="text-3xl text-gray-900 mb-2 font-PoppinsSemiBold">
             Verification Code
           </Text>
-          <Text className="text-base text-gray-600 leading-6 font-PoppinsMedium">
-            We've sent a 4-digit verification code to your email address
+          <Text className="text-base text-gray-600 leading-6">
+            We&apos;ve sent a 4-digit verification code to{" "}
+            <Text className="font-PoppinsMedium">{email}</Text>
           </Text>
         </View>
 
         {/* OTP Input Section */}
         <OTPTextInput
+          handleTextChange={setOtpCode}
           containerStyle={{
             marginTop: moderateScale(48),
             marginBottom: moderateScale(24),
@@ -89,7 +100,7 @@ export default function Otp() {
         {/* Resend Section */}
         <View className="mt-8 items-center">
           <Text className="text-sm text-gray-500 mb-2">
-            Didn't receive the code?
+            Didn&apos;t receive the code?
           </Text>
           <TouchableOpacity
             onPress={handleResend}

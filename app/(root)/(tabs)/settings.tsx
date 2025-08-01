@@ -4,12 +4,27 @@ import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 
-import { Link } from "expo-router";
+import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
+import Loading from "@/app/loading";
+import { useAuth } from "@/context/AuthContext";
+import { LinearGradient } from "expo-linear-gradient";
 
 export default function Settings() {
+  const { user, loading, logout } = useAuth();
+  const router = useRouter();
+
+  if (loading && !user) {
+    return <Loading />;
+  }
+
+  if (!user) {
+    router.replace("/(auth)/sign-in");
+    return null;
+  }
+
   return (
     <SafeAreaView className="flex-1 bg-[#FAFAFA]" edges={["top"]}>
       {/* Fixed Header */}
@@ -34,12 +49,20 @@ export default function Settings() {
               <Link href="/(root)/(settings)/name" className=" gap-2">
                 <View className="flex-row items-center gap-1">
                   <Text className="font-PoppinsMedium text-lg text-gray-500 mb-1">
-                    Enter your name{" "}
+                    {user.name ? `${user.name}` : "Enter your name"}
                   </Text>
                   <Octicons name="pencil" size={10} color="black" />
                 </View>
               </Link>
-              <Text className="font-Poppins text-sm">21 years old</Text>
+              <Text className="font-Poppins text-sm">
+                {user.birthdate
+                  ? `${Math.floor(
+                      (new Date().getTime() -
+                        new Date(user.birthdate).getTime()) /
+                        (1000 * 60 * 60 * 24 * 365.25)
+                    )} years old`
+                  : "Age: N/A"}
+              </Text>
             </View>
           </View>
         </Container>
@@ -94,7 +117,10 @@ export default function Settings() {
         </Container>
 
         <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity className="flex-row items-center gap-2">
+          <TouchableOpacity
+            onPress={logout}
+            className="flex-row items-center gap-2"
+          >
             <MaterialIcons name="logout" size={18} color="black" />
             <Text className="text-sm font-Poppins">Logout</Text>
           </TouchableOpacity>

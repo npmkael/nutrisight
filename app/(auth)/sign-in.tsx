@@ -9,14 +9,15 @@ import OAuth from "@/components/OAuth";
 
 // icons and images
 import { icons, images } from "@/constants";
+import { useAuth } from "@/context/AuthContext";
 
 export default function SignIn() {
+  const { login } = useAuth();
+
   const [form, setForm] = useState({
     email: "",
     password: "",
   });
-
-  const onSignInPress = async () => {};
 
   return (
     <ScrollView className="flex-1 bg-white">
@@ -47,7 +48,7 @@ export default function SignIn() {
 
         <CustomButton
           title="Sign In"
-          onPress={onSignInPress}
+          onPress={() => login(form.email, form.password)}
           className="mt-6"
         />
 
