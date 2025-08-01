@@ -65,10 +65,10 @@ export default function Otp() {
       <View className="flex-1 px-6">
         {/* Title Section */}
         <View className="mt-8">
-          <Text className="text-3xl font-bold text-gray-900 mb-2">
+          <Text className="text-3xl text-gray-900 mb-2 font-PoppinsSemiBold">
             Verification Code
           </Text>
-          <Text className="text-base text-gray-600 leading-6">
+          <Text className="text-base text-gray-600 leading-6 font-PoppinsMedium">
             We've sent a 4-digit verification code to your email address
           </Text>
         </View>
