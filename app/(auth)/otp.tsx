@@ -74,7 +74,7 @@ export default function Otp() {
       <View className="flex-1 px-6">
         {/* Title Section */}
         <View className="mt-8">
-          <Text className="text-3xl font-bold text-gray-900 mb-2">
+          <Text className="text-3xl text-gray-900 mb-2 font-PoppinsSemiBold">
             Verification Code
           </Text>
           <Text className="text-base text-gray-600 leading-6">
@@ -121,7 +121,11 @@ export default function Otp() {
 
         {/* Continue Button */}
         <View className="mt-auto mb-8">
-          <CustomButton title="Continue" onPress={onContinuePress} />
+          <CustomButton
+            title="Continue"
+            onPress={onContinuePress}
+            loading={false}
+          />
         </View>
       </View>
     </SafeAreaView>
