@@ -33,6 +33,7 @@ export default function Result() {
   const dateNow = new Date();
 
   const nutritionArr: any[][] = nutrition ? JSON.parse(nutrition) : [[]];
+  console.log("Nutrition Array:", nutritionArr);
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
@@ -107,16 +108,19 @@ export default function Result() {
               Estimated Total Calories
             </Text>
             <Text className="font-PoppinsBold text-gray-900 text-4xl">
-              {nutritionArr.length > 0
-                ? nutritionArr
-                    .filter(
-                      (item: any) =>
-                        item.name === "Energy" || item.name === "Calories"
-                    )
-                    .map((item: any) => item.amount)
-                    .join(" + ")
-                : "0"}{" "}
-              kcal
+              <Text className="font-PoppinsBold text-gray-900 text-4xl">
+                {nutritionArr
+                  .flat() // flatten the 2D array
+                  .filter(
+                    (item: any) =>
+                      item.name === "Energy" || item.name === "Calories"
+                  )
+                  .reduce(
+                    (sum: number, item: any) => sum + Number(item.amount || 0),
+                    0
+                  )}{" "}
+                kcal
+              </Text>
             </Text>
           </View>
         </View>

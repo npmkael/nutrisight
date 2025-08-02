@@ -12,6 +12,14 @@ import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
+export type ScanResultType = {
+  name: string;
+  brand: string;
+  servingSize: string;
+  ingredients: string[];
+  nutrition: any[][];
+};
+
 export default function App() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
@@ -22,6 +30,7 @@ export default function App() {
   const cameraRef = useRef<CameraView | null>(null);
   const [barcodeScanned, setBarcodeScanned] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [scanResult, setScanResult] = useState<ScanResultType | null>(null); // State to hold scan result
   const router = useRouter();
 
   if (!permission) {
@@ -66,18 +75,21 @@ export default function App() {
       }
       const result = await res.json();
       if (result && result.data) {
-        // passing the data to the Result component
         console.log("Scan Result:", result.data);
-        router.replace({
-          pathname: "/(root)/result",
-          params: {
-            name: result.data.name,
-            brand: result.data.brand,
-            ingredients: result.data.ingredients,
-            nutrition: JSON.stringify(result.data.nutrition),
-          },
+        // router.replace({
+        //   pathname: "/(root)/result",
+        //   params: {
+        //     name: result.data.name,
+        //     brand: result.data.brand,
+        //     ingredients: result.data.ingredients,
+        //     nutrition: JSON.stringify(result.data.nutrition),
+        //   },
+        // });
+        // return;
+        setScanResult({
+          ...result.data,
+          nutrition: JSON.stringify(result.data.nutrition),
         });
-        return;
       } else {
         throw new Error("Invalid response data");
       }
@@ -116,10 +128,11 @@ export default function App() {
     return <Loading />;
   }
 
-  if (photo)
+  if (photo || scanResult)
     return (
       <PhotoPreviewSection
         photo={photo}
+        scanResult={scanResult}
         handleRetakePhoto={handleRetakePhoto}
       />
     );

@@ -41,6 +41,7 @@ export interface UserType {
   dietHistory?: DietHistory[]; // Array of diet history objects (dynamic)
   firstName?: string; // (dynamic)
   lastName?: string; // (dynamic)
+  name?: string; // (dynamic)
   email?: string; // (dynamic)
   password?: string; // hidden, always undefined
   otp?: string; // hidden, always undefined
@@ -240,7 +241,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ name, email, password }),
+          body: JSON.stringify({ firstName, lastName, email, password }),
         });
 
         if (!response.ok) {
@@ -294,7 +295,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         if (!data.success) {
           throw new Error("OTP verification failed, please try again.");
         }
-        router.replace("/(auth)/welcome");
+        router.replace({ pathname: "/(auth)/welcome", params: { email } });
       } catch (error) {
         console.error("OTP verification error:", error);
         router.replace("/(auth)/sign-up");

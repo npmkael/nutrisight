@@ -201,7 +201,7 @@ const Onboarding = () => {
       )}
 
       {/* Content */}
-      {registered ? <SuccessAccount /> : renderContent()}
+      {renderContent()}
 
       {/* Footer */}
       {currentStep <= totalSteps + 2 && currentStep !== 5 && (

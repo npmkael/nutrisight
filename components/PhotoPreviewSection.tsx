@@ -4,6 +4,7 @@ import Typo from "@/components/Typo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
+import { ScanResultType } from "@/app/(root)/(tabs)/camera";
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
 import AntDesign from "@expo/vector-icons/AntDesign";
@@ -12,18 +13,55 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Swiper from "react-native-swiper";
 
+const COLORS = [
+  "#30B0C7", // blue
+  "#F47450", // orange
+  "#FF2D55", // red
+  "#34C759", // green
+  "#5856D6", // purple
+  "#AF52DE", // violet
+  "#FFD60A", // yellow
+  "#FF9500", // amber
+];
+
 export default function PhotoPreviewSection({
   photo,
+  scanResult,
   handleRetakePhoto,
 }: {
-  photo: CameraCapturedPicture;
+  photo: CameraCapturedPicture | null;
+  scanResult: ScanResultType | null;
   handleRetakePhoto: () => void;
 }) {
+  console.log(scanResult);
+
+  // Flatten the 3D array into a single array of nutrients
+  const parsedNutrition: any[][][] =
+    typeof scanResult?.nutrition === "string"
+      ? JSON.parse(scanResult.nutrition)
+      : Array.isArray(scanResult?.nutrition)
+        ? scanResult.nutrition
+        : [];
+
+  // Flatten all nutrients into a single array
+  const flatNutritionArr: any[] = parsedNutrition.flat(2); // flatten 2 levels
+
+  // Chunk into groups of 6 for the slider
+  function chunkArray(array: any[], size: number) {
+    const result = [];
+    for (let i = 0; i < array.length; i += size) {
+      result.push(array.slice(i, i + size));
+    }
+    return result;
+  }
+
+  const nutritionChunks = chunkArray(flatNutritionArr, 6);
+
   return (
     <View className="flex-1 bg-[#F7F7F7]">
       <Image
         className="absolute top-0 left-0 right-0"
-        source={{ uri: "data:image/jpg;base64," + photo.base64 }}
+        source={{ uri: "data:image/jpg;base64," + photo?.base64 }}
         style={{ height: 400, width: "100%" }}
         blurRadius={30}
         resizeMode="cover"
@@ -38,7 +76,7 @@ export default function PhotoPreviewSection({
       {/* Image */}
       <View className="items-center mt-2">
         <Image
-          source={{ uri: "data:image/jpg;base64," + photo.base64 }}
+          source={{ uri: "data:image/jpg;base64," + photo?.base64 }}
           className="w-[320px] h-[250px] rounded-2xl object-cover shadow-xl"
         />
       </View>
@@ -60,7 +98,7 @@ export default function PhotoPreviewSection({
         </View>
         {/* Food Name */}
         <Typo size={28} className="font-Poppins text-gray-900 mb-6">
-          Boba Milk Tea
+          {`${scanResult?.name}`}
         </Typo>
         {/* Calories Card */}
         <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 shadow border border-gray-100 mb-6">
@@ -75,8 +113,23 @@ export default function PhotoPreviewSection({
             <Text className="text-gray-500 font-Poppins">
               Estimated Total Calories
             </Text>
+            <Text className="text-gray-500 font-Poppins">
+              {scanResult?.servingSize
+                ? `${scanResult.servingSize} Serving Size`
+                : ""}
+            </Text>
             <Text className="font-PoppinsBold text-gray-900 text-4xl">
-              1024
+              {nutritionChunks
+                .flat() // flatten the 2D array
+                .filter(
+                  (item: any) =>
+                    item.name === "Energy" || item.name === "Calories"
+                )
+                .reduce(
+                  (sum: number, item: any) => sum + Number(item.amount || 0),
+                  0
+                )}{" "}
+              kcal
             </Text>
           </View>
         </View>
@@ -106,7 +159,45 @@ export default function PhotoPreviewSection({
             }
           >
             {/* add ka nalang another view kung gusto mo pa ng isang swiper */}
-            <View className="mx-4">
+
+            {nutritionChunks.map((chunk: any[], idx) => (
+              <View className="mx-4" key={idx}>
+                {[0, 1].map((rowIdx) => (
+                  <View
+                    key={rowIdx}
+                    className="flex-row items-center gap-2 mb-2"
+                  >
+                    {chunk
+                      .slice(rowIdx * 3, rowIdx * 3 + 3)
+                      .map((nutrient: any, colIdx: number) => (
+                        <View
+                          key={colIdx}
+                          className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1"
+                        >
+                          <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                            {nutrient.name}
+                          </Text>
+                          <CircularProgressBar
+                            progress={nutrient.amount}
+                            size={55}
+                            strokeWidth={4}
+                            color={
+                              COLORS[(rowIdx * 3 + colIdx) % COLORS.length]
+                            }
+                            backgroundColor="rgba(0,0,0,0.05)"
+                            showPercentage={true}
+                            percentageTextSize={10}
+                            percentageTextColor="black"
+                            label={nutrient.unit}
+                          />
+                        </View>
+                      ))}
+                  </View>
+                ))}
+              </View>
+            ))}
+
+            {/* <View className="mx-4">
               <View className="flex-row items-center gap-2 mb-2">
                 <View className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1">
                   <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
@@ -324,7 +415,7 @@ export default function PhotoPreviewSection({
                   />
                 </View>
               </View>
-            </View>
+            </View> */}
           </Swiper>
         </View>
 
