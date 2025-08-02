@@ -1,12 +1,12 @@
 import BMIClassification from "@/components/BMIClassification";
 import DietSummary from "@/components/DietSummary";
-import Loading from "@/components/Loading";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
 import { Image, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Loading from "../../../components/Loading";
 
 export default function Progress() {
   const { user, loading } = useAuth();

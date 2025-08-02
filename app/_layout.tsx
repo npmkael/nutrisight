@@ -1,8 +1,8 @@
-import Loading from "@/components/Loading";
 import { UserProvider } from "@/context/AuthContext";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { useEffect } from "react";
+import Loading from "../components/Loading";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();

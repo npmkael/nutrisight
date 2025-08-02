@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Redirect } from "expo-router";
 import { memo, ReactNode } from "react";
-import Loading from "../app/loading";
+import Loading from "../components/Loading";
 
 interface AuthProtectProps {
   children: ReactNode;

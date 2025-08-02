@@ -1,4 +1,3 @@
-import Loading from "@/components/Loading";
 import PhotoPreviewSection from "@/components/PhotoPreviewSection";
 import { BACKEND_URL } from "@/context/AuthContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
@@ -8,16 +7,16 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { useRouter } from "expo-router";
 import { useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Loading from "../../../components/Loading";
 
 export type ScanResultType = {
   name: string;
   brand: string;
   servingSize: string;
   ingredients: string[];
-  nutrition: any[][];
+  nutrition: any[][][];
 };
 
 export default function App() {
@@ -28,10 +27,9 @@ export default function App() {
     "food"
   );
   const cameraRef = useRef<CameraView | null>(null);
-  const [barcodeScanned, setBarcodeScanned] = useState(false);
   const [loading, setLoading] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null); // State to hold scan result
-  const router = useRouter();
+  const [barcodeScanned, setBarcodeScanned] = useState(false);
 
   if (!permission) {
     // Camera permissions are still loading.
@@ -50,60 +48,48 @@ export default function App() {
     );
   }
 
-  async function handleBarcodeScanned({
-    type,
-    data,
-  }: {
-    type: string;
-    data: string;
-  }) {
+  const handleBarcodeScanned = async ({ data }: { data: string }) => {
+    if (scanMode !== "barcode") return;
+    if (loading) return; // Prevent multiple triggers
+    if (barcodeScanned) return; // Prevent re-scanning
+    // Take a photo
     setBarcodeScanned(true);
     setLoading(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/camera/barcode`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ barcodeData: data }),
-      });
+    if (cameraRef.current) {
+      const options = {
+        quality: 1,
+        base64: true,
+        exif: false,
+      };
 
-      if (!res.ok) {
-        alert("Scan Result, Failed to send barcode data");
-        return;
-      }
-      const result = await res.json();
-      if (result && result.data) {
-        console.log("Scan Result:", result.data);
-        // router.replace({
-        //   pathname: "/(root)/result",
-        //   params: {
-        //     name: result.data.name,
-        //     brand: result.data.brand,
-        //     ingredients: result.data.ingredients,
-        //     nutrition: JSON.stringify(result.data.nutrition),
-        //   },
-        // });
-        // return;
-        setScanResult({
-          ...result.data,
-          nutrition: JSON.stringify(result.data.nutrition),
+      cameraRef.current
+        .takePictureAsync(options)
+        .then(async (takedPhoto) => {
+          setPhoto(takedPhoto);
+          // Send barcode number to backend
+          const res = await fetch(`${BACKEND_URL}/camera/barcode`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify({ barcodeData: data }),
+          });
+          if (res.ok) {
+            const result = await res.json();
+            setScanResult({
+              ...result.data,
+              nutrition: JSON.stringify(result.data.nutrition),
+            });
+          } else {
+            alert("Failed to scan barcode. Please try again.");
+            handleRetakePhoto();
+          }
+        })
+        .catch((error) => {
+          console.error("Error taking picture:", error);
         });
-      } else {
-        throw new Error("Invalid response data");
-      }
-    } catch (error) {
-      console.error("Error scanning barcode:", error);
-      alert("Failed to scan barcode. Please try again.");
-    } finally {
-      setLoading(false);
     }
-  }
-
-  function toggleCameraFacing() {
-    setFacing((current) => (current === "back" ? "front" : "back"));
-  }
+    setLoading(false);
+  };
 
   const handleTakePhoto = async () => {
     if (cameraRef.current) {
@@ -113,22 +99,25 @@ export default function App() {
         exif: false,
       };
       const takedPhoto = await cameraRef.current.takePictureAsync(options);
-
       setPhoto(takedPhoto);
     }
   };
 
   const handleRetakePhoto = () => {
     setPhoto(null);
-    setBarcodeScanned(false);
     setLoading(false);
+    setScanResult(null);
+    setBarcodeScanned(false);
+    if (cameraRef.current) {
+      cameraRef.current.resumePreview();
+    }
   };
 
   if (loading) {
     return <Loading />;
   }
 
-  if (photo || scanResult)
+  if (photo && scanResult) {
     return (
       <PhotoPreviewSection
         photo={photo}
@@ -136,6 +125,7 @@ export default function App() {
         handleRetakePhoto={handleRetakePhoto}
       />
     );
+  }
 
   return (
     <View style={styles.container}>
@@ -146,7 +136,7 @@ export default function App() {
        * SUGGESTION: Move all overlay and UI elements outside of <CameraView> and use absolute positioning.
        */}
       <CameraView
-        onBarcodeScanned={barcodeScanned ? undefined : handleBarcodeScanned}
+        onBarcodeScanned={handleBarcodeScanned}
         barcodeScannerSettings={{
           barcodeTypes: ["ean13", "ean8", "upc_a", "upc_e"],
         }}

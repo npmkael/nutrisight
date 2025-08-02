@@ -9,8 +9,8 @@ import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
+import Loading from "../../../components/Loading";
 
 export default function Settings() {
   const { user, loading, logout } = useAuth();

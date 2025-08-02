@@ -1,4 +1,3 @@
-import Loading from "@/components/Loading";
 import Typo from "@/components/Typo";
 import { icons } from "@/constants/index";
 import { useAuth } from "@/context/AuthContext";
@@ -10,6 +9,7 @@ import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
+import Loading from "../../../components/Loading";
 
 const PROFILE = {
   name: "Rencie Narido",

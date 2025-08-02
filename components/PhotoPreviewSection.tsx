@@ -33,8 +33,7 @@ export default function PhotoPreviewSection({
   scanResult: ScanResultType | null;
   handleRetakePhoto: () => void;
 }) {
-  console.log(scanResult);
-
+  console.log("PhotoPreviewSection");
   // Flatten the 3D array into a single array of nutrients
   const parsedNutrition: any[][][] =
     typeof scanResult?.nutrition === "string"
