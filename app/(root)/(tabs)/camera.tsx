@@ -65,6 +65,7 @@ export default function App() {
       cameraRef.current
         .takePictureAsync(options)
         .then(async (takedPhoto) => {
+          await cameraRef.current?.pausePreview(); // Pause the camera preview
           setPhoto(takedPhoto);
           // Send barcode number to backend
           const res = await fetch(`${BACKEND_URL}/camera/barcode`, {
@@ -85,7 +86,8 @@ export default function App() {
           }
         })
         .catch((error) => {
-          console.error("Error taking picture:", error);
+          alert("Error taking photo: " + error.message);
+          handleRetakePhoto();
         });
     }
     setLoading(false);
