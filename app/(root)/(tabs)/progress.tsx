@@ -1,6 +1,6 @@
-import Loading from "@/app/loading";
 import BMIClassification from "@/components/BMIClassification";
 import DietSummary from "@/components/DietSummary";
+import Loading from "@/components/Loading";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";

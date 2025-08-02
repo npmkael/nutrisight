@@ -8,9 +8,9 @@ import { Link, useRouter } from "expo-router";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import Loading from "@/app/loading";
+
+import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
-import { LinearGradient } from "expo-linear-gradient";
 
 export default function Settings() {
   const { user, loading, logout } = useAuth();

@@ -1,4 +1,4 @@
-import Loading from "@/app/loading";
+import Loading from "@/components/Loading";
 import PhotoPreviewSection from "@/components/PhotoPreviewSection";
 import { BACKEND_URL } from "@/context/AuthContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";

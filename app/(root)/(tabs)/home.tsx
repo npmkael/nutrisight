@@ -1,4 +1,4 @@
-import Loading from "@/app/loading";
+import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";

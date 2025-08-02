@@ -1,4 +1,4 @@
-import Loading from "@/app/loading";
+import Loading from "@/components/Loading";
 import Typo from "@/components/Typo";
 import { icons } from "@/constants/index";
 import { useAuth } from "@/context/AuthContext";
@@ -6,7 +6,6 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Ionicons from "@expo/vector-icons/build/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
