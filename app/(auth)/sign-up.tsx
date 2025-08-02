@@ -63,7 +63,9 @@ export default function SignUp() {
 
           <CustomButton
             title="Sign Up"
-            onPress={() => register(form.name, form.email, form.password)}
+            onPress={() =>
+              register(form.firstName, form.lastName, form.email, form.password)
+            }
             className="mt-6"
           />
 

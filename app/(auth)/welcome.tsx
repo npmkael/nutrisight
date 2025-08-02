@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 import AllergensSelection from "@/components/onboarding/AllergensSelection";
@@ -7,18 +7,20 @@ import HeightAndWeight from "@/components/onboarding/HeightAndWeight";
 import InputName from "@/components/onboarding/InputName";
 import { LoadingScreen } from "@/components/onboarding/LoadingScreen";
 import SuccessAccount from "@/components/onboarding/SuccessAccount";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const totalSteps = 5;
 
 const Onboarding = () => {
+  const { onboardingSubmission, loading, registered, agreement } = useAuth();
+  const { email } = useLocalSearchParams<{ email: string }>();
   const [currentStep, setCurrentStep] = useState(1);
   const router = useRouter();
-  const [answers, setAnswers] = useState<any>({});
 
   // Input states for each step
   const [name, setName] = useState("");
@@ -30,7 +32,38 @@ const Onboarding = () => {
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
 
   const progress = (currentStep / totalSteps) * 100;
-  const isWelcomeScreen = currentStep === 0;
+
+  useEffect(() => {
+    if (currentStep === 5 && !registered) {
+      onboardingSubmission(
+        name,
+        selectedAllergens,
+        gender,
+        parseInt(age),
+        parseFloat(`${heightFeet}.${heightInches === "" ? "0" : heightInches}`),
+        parseFloat(weight),
+        email
+      )
+        .then(() => {
+          console.log("Onboarding submission successful.");
+        })
+        .catch((error) => {
+          console.error("Error during onboarding submission:", error);
+        });
+    }
+  }, [
+    currentStep,
+    email,
+    name,
+    selectedAllergens,
+    gender,
+    age,
+    heightFeet,
+    heightInches,
+    weight,
+    onboardingSubmission,
+    registered,
+  ]);
 
   // Validation functions for each step
   const isStep1Valid = () => {
@@ -64,6 +97,7 @@ const Onboarding = () => {
   };
 
   const isCurrentStepValid = () => {
+    if (registered) return true;
     switch (currentStep) {
       case 1:
         return isStep1Valid();
@@ -79,6 +113,14 @@ const Onboarding = () => {
   };
 
   const renderContent = () => {
+    if (loading) {
+      return <LoadingScreen />;
+    }
+
+    if (registered) {
+      return <SuccessAccount />;
+    }
+
     if (currentStep === 1) {
       return <InputName value={name} onChangeText={setName} />;
     }
@@ -115,17 +157,13 @@ const Onboarding = () => {
         />
       );
     }
-
-    if (currentStep === 5) {
-      return <LoadingScreen onTimeout={handleContinue} />;
-    }
-
-    if (currentStep === totalSteps + 1) {
-      return <SuccessAccount />;
-    }
   };
 
+  console.log("Current step:", currentStep);
+  console.log("Registered:", registered);
+
   const handleContinue = async () => {
+    if (registered) return;
     if (!isCurrentStepValid()) return;
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -133,6 +171,7 @@ const Onboarding = () => {
   };
 
   const handleBack = () => {
+    if (registered) return;
     Haptics.selectionAsync();
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
@@ -144,7 +183,7 @@ const Onboarding = () => {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      {shouldShowProgress && (
+      {shouldShowProgress && !registered && (
         <View className="flex-row items-center p-4 gap-4">
           <TouchableOpacity
             onPress={handleBack}
@@ -162,13 +201,13 @@ const Onboarding = () => {
       )}
 
       {/* Content */}
-      {renderContent()}
+      {registered ? <SuccessAccount /> : renderContent()}
 
       {/* Footer */}
       {currentStep <= totalSteps + 2 && currentStep !== 5 && (
         <Animated.View entering={FadeIn.duration(600)}>
           <TouchableOpacity
-            onPress={handleContinue}
+            onPress={registered ? () => agreement(email) : handleContinue}
             disabled={!isCurrentStepValid()}
             className={`p-4 m-2 rounded-lg items-center ${
               isCurrentStepValid() ? "bg-black" : "bg-gray-300"
@@ -179,7 +218,7 @@ const Onboarding = () => {
                 isCurrentStepValid() ? "text-white" : "text-gray-500"
               }`}
             >
-              {currentStep === totalSteps + 1 ? "Finish" : "Next"}
+              {registered ? "Finish" : "Next"}
             </Text>
           </TouchableOpacity>
         </Animated.View>

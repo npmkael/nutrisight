@@ -1,20 +1,7 @@
-import { useEffect } from "react";
 import { ActivityIndicator, StyleSheet, Text } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
-interface LoadingScreenProps {
-  onTimeout: () => void;
-}
-
-export function LoadingScreen({ onTimeout }: LoadingScreenProps) {
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      onTimeout();
-    }, 3000);
-
-    return () => clearTimeout(timer);
-  }, [onTimeout]);
-
+export function LoadingScreen() {
   return (
     <Animated.View
       entering={FadeIn.duration(600)}

@@ -15,7 +15,7 @@ import {
 } from "react";
 
 export const BACKEND_URL =
-  "https://nutrisightbackend-production.up.railway.app";
+  "https://nutrisight-backend-dd22d1bd9780.herokuapp.com";
 
 interface NutritionalData {
   [key: string]: number;
@@ -39,7 +39,8 @@ export interface UserType {
   allergens?: string[]; // Array of allergens (dynamic)
   medicalConditions?: string[]; // Array of medical conditions (dynamic)
   dietHistory?: DietHistory[]; // Array of diet history objects (dynamic)
-  name?: string; // (dynamic)
+  firstName?: string; // (dynamic)
+  lastName?: string; // (dynamic)
   email?: string; // (dynamic)
   password?: string; // hidden, always undefined
   otp?: string; // hidden, always undefined
@@ -50,13 +51,29 @@ export interface UserType {
 export interface AuthContextType {
   user: UserType | null;
   loading: boolean;
+  registered?: boolean;
   login: (email: string, password: string) => Promise<void>;
   signWithGoogle: () => Promise<void>;
-  register: (name: string, email: string, password: string) => Promise<boolean>;
+  register: (
+    firstName: string,
+    lastName: string,
+    email: string,
+    password: string
+  ) => Promise<boolean>;
   verifyOtp: (otp: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
   resendOtp: (email: string) => Promise<void>;
   uploadProfilePicture: (imageUri: string) => Promise<void>;
+  onboardingSubmission: (
+    name: string,
+    allergens: string[],
+    gender: string,
+    age: number,
+    height: number,
+    weight: number,
+    email: string
+  ) => Promise<void>;
+  agreement: (email: string) => Promise<void>;
 }
 
 export const UserContext = createContext<AuthContextType | undefined>(
@@ -66,6 +83,7 @@ export const UserContext = createContext<AuthContextType | undefined>(
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [registered, setRegistered] = useState<boolean>(false);
 
   const router = useRouter();
 
@@ -163,8 +181,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           }
 
           const data = await serverResponse.json();
-          setUser(data.user);
-          router.replace("/(root)/(tabs)/home");
+          if (data.user) {
+            setUser(data.user);
+            router.replace("/(root)/(tabs)/home");
+            return;
+          }
+          if (!data.success && !data.user && !data.email) {
+            router.replace("/(auth)/sign-in");
+            throw new Error("Google Sign-In failed, please try again.");
+          }
+          router.replace({
+            pathname: "/(auth)/welcome",
+            params: { email: data.email },
+          });
         } else {
           router.replace("/(auth)/sign-in");
           throw new Error(
@@ -192,10 +221,20 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   }, [router]);
 
   const register = useCallback(
-    async (name: string, email: string, password: string): Promise<boolean> => {
+    async (
+      firstName: string,
+      lastName: string,
+      email: string,
+      password: string
+    ): Promise<boolean> => {
       try {
         setLoading(true);
-        console.log("Registering user:", { name, email, password });
+        console.log("Registering user:", {
+          firstName,
+          lastName,
+          email,
+          password,
+        });
         const response = await fetch(`${BACKEND_URL}/auth/register`, {
           method: "POST",
           headers: {
@@ -248,12 +287,14 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
         if (!response.ok) {
           router.replace("/(auth)/sign-up");
-          throw new Error("Email verification failed");
+          throw new Error("OTP verification failed");
         }
 
         const data = await response.json();
-        setUser(data.user);
-        router.replace("/(root)/(tabs)/home");
+        if (!data.success) {
+          throw new Error("OTP verification failed, please try again.");
+        }
+        router.replace("/(auth)/welcome");
       } catch (error) {
         console.error("OTP verification error:", error);
         router.replace("/(auth)/sign-up");
@@ -291,6 +332,83 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     }
   }, []);
 
+  const onboardingSubmission = useCallback(
+    async (
+      name: string,
+      allergens: string[],
+      gender: string,
+      age: number,
+      height: number,
+      weight: number,
+      email: string
+    ) => {
+      try {
+        setLoading(true);
+        const res = await fetch(`${BACKEND_URL}/auth/onboarding`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name,
+            allergens,
+            gender,
+            age,
+            height,
+            weight,
+            email,
+          }),
+        });
+        if (!res.ok) {
+          console.error("Onboarding submission failed:", res);
+          throw new Error("Onboarding submission failed, please try again.");
+        }
+
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error("Onboarding submission failed, please try again.");
+        }
+        console.log("Onboarding submission successful:", data);
+        setRegistered(true);
+      } catch (error) {
+        console.error("Onboarding submission error:", error);
+        throw new Error("Onboarding submission failed, please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    []
+  );
+
+  const agreement = useCallback(async (email: string) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`${BACKEND_URL}/auth/agreement`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Agreement submission failed");
+      }
+
+      const data = await response.json();
+      if (!data.user) {
+        throw new Error("Agreement submission failed, please try again.");
+      }
+      setUser(data.user);
+      router.replace("/(root)/(tabs)/home");
+    } catch (error) {
+      console.error("Agreement submission error:", error);
+      throw new Error("Agreement submission failed, please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       setLoading(true);
@@ -305,6 +423,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(null);
+      setRegistered(false);
       router.replace("/(auth)/sign-in");
     } catch (error) {
       console.error("Logout error:", error);
@@ -369,6 +488,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       register,
       resendOtp,
       uploadProfilePicture,
+      onboardingSubmission,
+      agreement,
+      registered,
     }),
     [
       user,
@@ -380,6 +502,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       register,
       resendOtp,
       uploadProfilePicture,
+      onboardingSubmission,
+      agreement,
+      registered,
     ]
   );
 

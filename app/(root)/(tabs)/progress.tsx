@@ -53,7 +53,7 @@ export default function Progress() {
 
           <View className="px-4 py-4">
             <Typo size={18} className="font-PoppinsSemiBold text-center mt-6">
-              {user.name}
+              {user.firstName}
             </Typo>
             <View className="h-[1px] bg-gray-200 w-full mb-2" />
             <View className="flex-row items-center justify-evenly">
@@ -89,7 +89,7 @@ export default function Progress() {
         <BMIClassification
           bmi={user.bmi ? Number(user.bmi.toFixed(2)) : 0}
           onLogWeight={() => {}}
-          name={user.name}
+          name={user.firstName}
         />
 
         {/* Target Weight Progress Card */}
