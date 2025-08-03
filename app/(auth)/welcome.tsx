@@ -113,7 +113,7 @@ const Onboarding = () => {
   };
 
   const renderContent = () => {
-    if (loading) {
+    if (loading || currentStep === 5) {
       return <LoadingScreen />;
     }
 

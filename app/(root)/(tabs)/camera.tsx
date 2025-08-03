@@ -1,5 +1,5 @@
 import PhotoPreviewSection from "@/components/PhotoPreviewSection";
-import { BACKEND_URL } from "@/context/AuthContext";
+import { BACKEND_URL, useAuth } from "@/context/AuthContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import {
   CameraCapturedPicture,
@@ -15,11 +15,12 @@ export type ScanResultType = {
   name: string;
   brand: string;
   servingSize: string;
-  ingredients: string[];
+  ingredients: string;
   nutrition: any[][][];
 };
 
 export default function App() {
+  const { user } = useAuth();
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
@@ -122,6 +123,7 @@ export default function App() {
   if (photo && scanResult) {
     return (
       <PhotoPreviewSection
+        userAllergens={user?.allergens || []}
         photo={photo}
         scanResult={scanResult}
         handleRetakePhoto={handleRetakePhoto}

@@ -7,6 +7,7 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { ScanResultType } from "@/app/(root)/(tabs)/camera";
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
+import { capitalizeFirstLetter, scanForAllergen } from "@/utils/helpers";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -25,15 +26,18 @@ const COLORS = [
 ];
 
 export default function PhotoPreviewSection({
+  userAllergens,
   photo,
   scanResult,
   handleRetakePhoto,
 }: {
+  userAllergens: string[];
   photo: CameraCapturedPicture | null;
   scanResult: ScanResultType | null;
   handleRetakePhoto: () => void;
 }) {
   console.log("PhotoPreviewSection");
+  console.log("ingredients:", scanResult?.ingredients);
   // Flatten the 3D array into a single array of nutrients
   const parsedNutrition: any[][][] =
     typeof scanResult?.nutrition === "string"
@@ -55,6 +59,10 @@ export default function PhotoPreviewSection({
   }
 
   const nutritionChunks = chunkArray(flatNutritionArr, 6);
+  const allergensDetected = scanForAllergen(
+    userAllergens,
+    scanResult?.ingredients || ""
+  );
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
@@ -432,26 +440,43 @@ export default function PhotoPreviewSection({
         </View>
 
         {/* Allergens */}
-        <View className="rounded-2xl p-4 shadow border border-[#FFA4A4] bg-[#FFEEEE] mb-6">
-          <View className="flex-row gap-4">
-            <FontAwesome
-              name="warning"
-              size={18}
-              color="red"
-              className="mt-1"
-            />
+        {allergensDetected.length > 0 && (
+          <View className="rounded-2xl p-4 shadow border border-[#FFA4A4] bg-[#FFEEEE] mb-6">
+            <View className="flex-row gap-4">
+              <FontAwesome
+                name="warning"
+                size={18}
+                color="red"
+                className="mt-1"
+              />
 
-            <View className="flex-col gap-1">
-              <Text className="font-PoppinsBold text-2xl">
-                Allergens: <Text className="font-Poppins">Soybeans</Text>
-              </Text>
-              <Text className="font-Poppins">
-                Please read all labels carefully and consult with a healthcare
-                provider if you have any concerns.
-              </Text>
+              <View className="flex-col gap-1 flex-1 min-w-0">
+                <Text className="font-PoppinsBold text-2xl mb-2">
+                  Allergens:
+                </Text>
+                <View className="flex-row flex-wrap gap-1 mb-2">
+                  {allergensDetected.map((a, idx) => (
+                    <View
+                      key={idx}
+                      className="bg-[#FFA4A4] px-3 py-1 rounded-xl"
+                    >
+                      <Text className="font-Poppins text-black">
+                        {capitalizeFirstLetter(a)}
+                      </Text>
+                    </View>
+                  ))}
+                </View>
+                <Text
+                  className="font-Poppins"
+                  style={{ flexWrap: "wrap", width: "100%" }}
+                >
+                  Please read all labels carefully and consult with a healthcare
+                  provider if you have any concerns.
+                </Text>
+              </View>
             </View>
           </View>
-        </View>
+        )}
 
         <View className="flex-row gap-2">
           <TouchableOpacity className="bg-white rounded-2xl px-6 py-2 shadow border border-black flex-1">
