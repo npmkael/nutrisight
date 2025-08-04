@@ -98,9 +98,15 @@ export default function PhotoPreviewSection({
           <AntDesign name="instagram" size={24} color="black" />
           <View>
             <Text className="text-xs text-gray-400 font-Poppins">
-              14/05/2025
+              {new Date().toLocaleDateString("en-GB")}
             </Text>
-            <Text className="text-xs text-gray-400 font-Poppins">12:30pm</Text>
+            <Text className="text-xs text-gray-400 font-Poppins">
+              {new Date().toLocaleTimeString("en-US", {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              })}
+            </Text>
           </View>
         </View>
         {/* Food Name */}
@@ -181,7 +187,11 @@ export default function PhotoPreviewSection({
                           key={colIdx}
                           className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1"
                         >
-                          <Text className="font-PoppinsSemiBold tracking-widest text-md mb-1">
+                          <Text
+                            className="font-PoppinsSemiBold tracking-widest text-md mb-1 text-center"
+                            numberOfLines={1}
+                            ellipsizeMode="tail"
+                          >
                             {nutrient.name}
                           </Text>
                           <CircularProgressBar
