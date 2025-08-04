@@ -5,7 +5,6 @@ import React, { useEffect, useRef, useState } from "react";
 import { Animated, Image, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
-import Loading from "../../../components/Loading";
 
 const Progress = ({
   min,
@@ -138,7 +137,7 @@ const CustomCircularProgress = () => {
 
       {/* Center text */}
       <View className="absolute items-center justify-center">
-        <Text className="text-black text-3xl font-PoppinsBold">439</Text>
+        <Text className="text-black text-3xl font-PoppinsBold">467</Text>
         <Text className="text-gray-500 text-sm font-Poppins">of 822</Text>
         <Text className="text-gray-500 text-sm font-Poppins">Consumed</Text>
       </View>
@@ -147,12 +146,8 @@ const CustomCircularProgress = () => {
 };
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
-
-  if (loading && !user) {
-    return <Loading />;
-  }
 
   if (!user) {
     router.replace("/(auth)/sign-in");

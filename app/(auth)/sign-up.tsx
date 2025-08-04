@@ -12,7 +12,7 @@ import { icons, images } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SignUp() {
-  const { register } = useAuth();
+  const { register, loading } = useAuth();
 
   const [form, setForm] = useState({
     firstName: "",
@@ -67,6 +67,8 @@ export default function SignUp() {
               register(form.firstName, form.lastName, form.email, form.password)
             }
             className="mt-6"
+            disabled={loading}
+            loading={loading}
           />
 
           {/* OAuth */}

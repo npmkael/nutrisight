@@ -12,7 +12,7 @@ import { icons, images } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
 
 export default function SignIn() {
-  const { login } = useAuth();
+  const { login, loading } = useAuth();
 
   const [form, setForm] = useState({
     email: "",
@@ -48,6 +48,8 @@ export default function SignIn() {
 
         <CustomButton
           title="Sign In"
+          disabled={loading}
+          loading={loading}
           onPress={() => login(form.email, form.password)}
           className="mt-6"
         />
