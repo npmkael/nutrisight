@@ -1,5 +1,5 @@
 import { useAuth } from "@/context/AuthContext";
-import { Redirect } from "expo-router";
+import { Redirect, useSegments } from "expo-router";
 import { memo, ReactNode } from "react";
 import Loading from "../components/Loading";
 
@@ -9,8 +9,14 @@ interface GuestProtectProps {
 
 function GuestProtect({ children }: GuestProtectProps) {
   const { user, loading } = useAuth();
+  const segments = useSegments();
+  const path = segments.join("/");
 
-  if (loading) {
+  // Define the public auth pages that should not show a loading screen
+  const isPublicAuthPage =
+    path === "(auth)/sign-in" || path === "(auth)/sign-up";
+
+  if (loading && !isPublicAuthPage) {
     return <Loading />;
   }
 
