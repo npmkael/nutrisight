@@ -105,7 +105,7 @@ export default function PhotoPreviewSection({
         </View>
         {/* Food Name */}
         <Typo size={28} className="font-Poppins text-gray-900 mb-6">
-          {`${scanResult?.name}`}
+          {`${capitalizeFirstLetter(scanResult?.name || "")}`}
         </Typo>
         {/* Calories Card */}
         <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 shadow border border-gray-100 mb-6">

@@ -13,7 +13,7 @@ import Loading from "../../../components/Loading";
 
 export type ScanResultType = {
   name: string;
-  brand: string;
+  brand?: string;
   servingSize: string;
   ingredients: string;
   nutrition: any[][][];
@@ -97,12 +97,53 @@ export default function App() {
   const handleTakePhoto = async () => {
     if (cameraRef.current) {
       const options = {
-        quality: 1,
+        quality: 0.6, // reduce quality to speed up processing
         base64: true,
         exif: false,
       };
       const takedPhoto = await cameraRef.current.takePictureAsync(options);
+
+      if (!takedPhoto) {
+        alert("Failed to take photo. Please try again.");
+        handleRetakePhoto();
+        return;
+      }
+
+      await cameraRef.current?.pausePreview(); // Pause the camera preview
+      setLoading(true);
       setPhoto(takedPhoto);
+
+      if (scanMode === "food") {
+        const res = await fetch(`${BACKEND_URL}/camera/food-scan`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          credentials: "include",
+          body: JSON.stringify({ image: takedPhoto.base64 }),
+        });
+        if (!res.ok) {
+          console.error("Failed to scan food:", res.statusText);
+          alert("Failed to scan food. Please try again.");
+          handleRetakePhoto();
+          return;
+        }
+
+        const data = await res.json();
+        console.log("Food scan result:", data);
+
+        if (!data || !data.data) {
+          alert("No data found in the scan result. Please try again.");
+          handleRetakePhoto();
+          return;
+        }
+
+        setScanResult({
+          name: data.data.foodName,
+          ingredients: data.data.ingredients,
+          servingSize: data.data.servingSize,
+          nutrition: data.data.nutrition,
+        });
+        setLoading(false);
+      }
     }
   };
 
@@ -241,7 +282,7 @@ export default function App() {
         </View>
 
         {/* Circular Camera Button */}
-        {scanMode !== "barcode" && (
+        {!loading && scanMode !== "barcode" && (
           <View style={styles.cameraButtonContainer}>
             <TouchableOpacity
               style={styles.cameraButton}
