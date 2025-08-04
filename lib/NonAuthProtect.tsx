@@ -8,7 +8,7 @@ interface GuestProtectProps {
 }
 
 function GuestProtect({ children }: GuestProtectProps) {
-  const { user, loading } = useAuth();
+  const { user, loading, checkingSession } = useAuth();
   const segments = useSegments();
   const path = segments.join("/");
 
@@ -16,13 +16,11 @@ function GuestProtect({ children }: GuestProtectProps) {
   const isPublicAuthPage =
     path === "(auth)/sign-in" || path === "(auth)/sign-up";
 
-  if (loading && !isPublicAuthPage) {
-    return <Loading />;
-  }
+  if (checkingSession) return <Loading />;
 
-  if (user && user.isVerified) {
-    return <Redirect href="/(root)/(tabs)/home" />;
-  }
+  if (loading && !isPublicAuthPage) return <Loading />;
+
+  if (user && user.isVerified) return <Redirect href="/(root)/(tabs)/home" />;
 
   return <>{children}</>;
 }

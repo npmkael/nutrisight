@@ -50,6 +50,7 @@ export interface UserType {
 }
 
 export interface AuthContextType {
+  checkingSession: boolean;
   user: UserType | null;
   loading: boolean;
   registered?: boolean;
@@ -84,6 +85,7 @@ export const UserContext = createContext<AuthContextType | undefined>(
 export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
+  const [checkingSession, setCheckingSession] = useState(true);
   const [registered, setRegistered] = useState<boolean>(false);
 
   const router = useRouter();
@@ -98,6 +100,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const checkSession = async () => {
       console.log("Checking session...");
+      setCheckingSession(true);
       setLoading(true);
       try {
         const response = await fetch(`${BACKEND_URL}/auth/session`, {
@@ -117,6 +120,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       } catch (error) {
         console.error("Error checking session:", error);
       } finally {
+        setCheckingSession(false);
         setLoading(false);
       }
     };
@@ -492,6 +496,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       onboardingSubmission,
       agreement,
       registered,
+      checkingSession: checkingSession,
     }),
     [
       user,
@@ -506,6 +511,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       onboardingSubmission,
       agreement,
       registered,
+      checkingSession,
     ]
   );
 
