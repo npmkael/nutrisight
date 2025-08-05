@@ -59,6 +59,7 @@ export default function PhotoPreviewSection({
   }
 
   const nutritionChunks = chunkArray(flatNutritionArr, 6);
+  console.log("nutritionChunks:", nutritionChunks);
   const allergensDetected = scanForAllergen(
     userAllergens,
     scanResult?.ingredients || ""
@@ -134,9 +135,8 @@ export default function PhotoPreviewSection({
             <Text className="font-PoppinsBold text-gray-900 text-4xl">
               {nutritionChunks
                 .flat() // flatten the 2D array
-                .filter(
-                  (item: any) =>
-                    item.name === "Energy" || item.name === "Calories"
+                .filter((item: any) =>
+                  ["Energy", "Calories", "Energy kcal"].includes(item.name)
                 )
                 .reduce(
                   (sum: number, item: any) => sum + Number(item.amount || 0),

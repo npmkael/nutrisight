@@ -97,7 +97,7 @@ export default function CircularProgressBar({
               fontFamily: "PoppinsMedium",
             }}
           >
-            {progress.toFixed(1)}
+            {progress % 1 === 0 ? progress : progress.toFixed(1)}
             {label}
           </Text>
         </View>
