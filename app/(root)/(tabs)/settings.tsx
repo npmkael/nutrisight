@@ -5,7 +5,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import Octicons from "@expo/vector-icons/Octicons";
 
 import { Link, useRouter } from "expo-router";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -68,49 +68,86 @@ export default function Settings() {
         </Container>
 
         <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity className="flex-row items-center gap-2">
-            <Ionicons name="person" size={18} color="black" />
-            <Text className="text-sm font-Poppins">Personal details</Text>
+          <TouchableOpacity
+            className="flex-row items-center justify-between gap-2"
+            onPress={() => router.push("/(root)/(settings)/details")}
+          >
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="person" size={18} color="black" />
+              <Text className="text-sm font-Poppins">Personal details</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>
 
           <View className="h-[1px] bg-gray-200 my-4" />
 
-          <TouchableOpacity className="flex-row items-center gap-2">
-            <MaterialIcons name="adjust" size={18} color="black" />
-            <Text className="text-sm font-Poppins">Adjust macronutrients</Text>
+          <TouchableOpacity className="flex-row items-center justify-between gap-2">
+            <View className="flex-row items-center gap-2">
+              <MaterialIcons name="adjust" size={18} color="black" />
+              <Text className="text-sm font-Poppins">
+                Adjust macronutrients
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>
 
           <View className="h-[1px] bg-gray-200 my-4" />
 
-          <TouchableOpacity className="flex-row items-center gap-2">
-            <Ionicons name="flag" size={18} color="black" />
-            <Text className="text-sm font-Poppins">Goal & current weight</Text>
+          <TouchableOpacity className="flex-row items-center justify-between gap-2">
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="flag" size={18} color="black" />
+              <Text className="text-sm font-Poppins">
+                Goal & current weight
+              </Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>
         </Container>
 
         <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity className="flex-row items-center gap-2">
-            <Ionicons name="document-text" size={18} color="black" />
-            <Text className="text-sm font-Poppins">Terms and Conditions</Text>
+          <TouchableOpacity className="flex-row items-center justify-between gap-2">
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="document-text" size={18} color="black" />
+              <Text className="text-sm font-Poppins">Terms and Conditions</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>
 
           <View className="h-[1px] bg-gray-200 my-4" />
 
-          <TouchableOpacity className="flex-row items-center gap-2">
-            <Ionicons name="shield" size={18} color="black" />
-            <Text className="text-sm font-Poppins">Privacy Policy</Text>
+          <TouchableOpacity className="flex-row justify-between items-center gap-2">
+            <View className="flex-row items-center gap-2">
+              <Ionicons name="shield" size={18} color="black" />
+              <Text className="text-sm font-Poppins">Privacy Policy</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>
 
           <View className="h-[1px] bg-gray-200 my-4" />
 
-          <TouchableOpacity className="flex-row items-center gap-2">
-            <Feather name="mail" size={18} color="black" />
-            <Text className="text-sm font-Poppins">Support Email</Text>
+          <TouchableOpacity className="flex-row items-center justify-between gap-2">
+            <View className="flex-row items-center gap-2">
+              <Feather name="mail" size={18} color="black" />
+              <Text className="text-sm font-Poppins">Support Email</Text>
+            </View>
+            <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>
 
           <View className="h-[1px] bg-gray-200 my-4" />
 
-          <TouchableOpacity className="flex-row items-center gap-2">
+          <TouchableOpacity
+            className="flex-row items-center gap-2"
+            onPress={() =>
+              Alert.alert(
+                "Delete Account",
+                "Are you sure you want to delete your account?",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  { text: "Delete", onPress: () => console.log("Delete") },
+                ]
+              )
+            }
+          >
             <Feather name="user-minus" size={18} color="black" />
             <Text className="text-sm font-Poppins">Delete Account</Text>
           </TouchableOpacity>
