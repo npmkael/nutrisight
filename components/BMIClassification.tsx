@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React from "react";
-import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Typo from "./Typo";
 
 const BMI_CATEGORIES = [
@@ -31,13 +31,25 @@ export default function BMIClassification({
 }: BMIClassificationProps) {
   const category = getClassification(bmi);
 
-  // Calculate marker position (0-1)
-  const minBMI = BMI_CATEGORIES[0].min;
-  const maxBMI = BMI_CATEGORIES[BMI_CATEGORIES.length - 1].max;
-  const markerPos = Math.min(
-    Math.max((bmi - minBMI) / (maxBMI - minBMI), 0),
-    1
-  );
+  // Calculate marker position based on actual BMI category distributions
+  // The gradient represents: Underweight (0-18.49), Normal (18.5-24.99), Overweight (25-29.99), Obese (30+)
+  let markerPos = 0;
+
+  if (bmi <= 18.49) {
+    // Underweight: 0-18.49 (about 46% of the 0-40 range)
+    markerPos = (bmi / 18.49) * 0.46;
+  } else if (bmi <= 24.99) {
+    // Normal: 18.5-24.99 (about 16% of the 0-40 range)
+    markerPos = 0.46 + ((bmi - 18.5) / (24.99 - 18.5)) * 0.16;
+  } else if (bmi <= 29.99) {
+    // Overweight: 25-29.99 (about 12% of the 0-40 range)
+    markerPos = 0.62 + ((bmi - 25) / (29.99 - 25)) * 0.12;
+  } else {
+    // Obese: 30+ (about 26% of the 0-40 range)
+    markerPos = 0.74 + Math.min((bmi - 30) / 10, 1) * 0.26;
+  }
+
+  markerPos = Math.min(Math.max(markerPos, 0), 1);
 
   return (
     <>
@@ -59,7 +71,7 @@ export default function BMIClassification({
           </TouchableOpacity>
         </View>
         {/* BMI Bar */}
-        <View className="relative h-8 mb-4 mt-2">
+        <View className="relative h-8 mb-4 mt-10">
           {/* Color bar */}
           <LinearGradient
             colors={["#487DE7", "#79C314", "#FAEB36", "#FFA500", "#E81416"]}
@@ -67,18 +79,48 @@ export default function BMIClassification({
             start={{ x: 0, y: 0 }}
             end={{ x: 1, y: 0 }}
           />
-          {/* Marker */}
-          {/* <View
-          style={{ left: `${markerPos * 100}%` }}
-          className="absolute -top-3 z-10"
-        >
-          <View className="items-center">
-            <View className="bg-blue-800 rounded-full border-2 border-white w-8 h-8 items-center justify-center shadow-lg">
-              <Text className="text-white font-bold">R</Text>
-            </View>
-            <View className="w-2 h-2 bg-blue-800 rounded-full mt-[-4px]" />
+          {/* BMI Marker */}
+          <View
+            style={{
+              position: "absolute",
+              left: `${markerPos * 100}%`,
+              top: -38,
+              transform: [{ translateX: -38 }],
+              width: 50,
+              height: 50,
+            }}
+          >
+            {/* Marker Background */}
+            <Image
+              source={require("../assets/icons/marker.png")}
+              style={{
+                width: 50,
+                height: 50,
+                resizeMode: "contain",
+              }}
+            />
+            {/* Profile Image Overlay */}
+            {/* */}
+            <Image
+              source={
+                true
+                  ? require("@/assets/images/sample-profile.jpg")
+                  : require("@/assets/images/default-profile.jpg")
+              }
+              style={{
+                position: "absolute",
+                top: 8,
+                left: 15,
+                width: 20,
+                height: 20,
+                borderRadius: 17,
+                borderWidth: 2,
+                borderColor: "#fff",
+              }}
+              resizeMethod="scale"
+              resizeMode="contain"
+            />
           </View>
-        </View> */}
         </View>
         {/* Legend */}
         <View className="flex-row mb-8">
@@ -117,7 +159,9 @@ export default function BMIClassification({
             <Text className="font-Poppins text-gray-400 text-sm">
               Weight Classification per BMI
             </Text>
-            <Text className="font-PoppinsSemiBold text-sm">Normal Weight</Text>
+            <Text className="font-PoppinsSemiBold text-sm">
+              {category.label}
+            </Text>
           </View>
         </View>
       </View>
