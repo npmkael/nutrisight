@@ -74,6 +74,7 @@ export default function Account() {
       <ScrollView
         className="flex-1"
         contentContainerStyle={{ paddingBottom: 32 }}
+        showsVerticalScrollIndicator={false}
       >
         <View className="items-center pt-4 pb-6 px-4">
           {/* Profile Header */}

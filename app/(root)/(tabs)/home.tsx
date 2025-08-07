@@ -2,7 +2,14 @@ import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { useEffect, useRef, useState } from "react";
-import { Animated, Image, Text, TouchableOpacity, View } from "react-native";
+import {
+  Animated,
+  Image,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Svg, { Circle } from "react-native-svg";
 
@@ -184,62 +191,67 @@ export default function Home() {
         </TouchableOpacity>
       </View>
 
-      {/* Today's Status */}
-      <Text className="text-black text-2xl font-PoppinsBold mt-5">
-        Today's Status
-      </Text>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 21 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Today's Status */}
+        <Text className="text-black text-2xl font-PoppinsBold mt-5">
+          Today's Status
+        </Text>
 
-      <View className="bg-white shadow-sm border-[1px] border-gray-200 rounded-3xl p-4 mt-4 mb-4 flex-row items-center">
-        <View className="mr-4">
-          <CustomCircularProgress />
+        <View className="bg-white shadow-sm border-[1px] border-gray-200 rounded-3xl p-4 mt-4 mb-4 flex-row items-center">
+          <View className="mr-4">
+            <CustomCircularProgress />
+          </View>
+          <View className="flex-col flex-1">
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between">
+                <Text className="font-PoppinsMedium">Protein</Text>
+                <Text className="font-Poppins text-xs">20g / 50g</Text>
+              </View>
+              <Progress
+                min={1}
+                max={10}
+                height={5}
+                color="#9CE3D4"
+                backgroundColor="#E1FAF2"
+              />
+            </View>
+
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between">
+                <Text className="font-PoppinsMedium">Fat</Text>
+                <Text className="font-Poppins text-xs">20g / 28g</Text>
+              </View>
+              <Progress
+                min={5}
+                max={10}
+                height={5}
+                color="#FAC85F"
+                backgroundColor="#FFF1D8"
+              />
+            </View>
+
+            <View className="mb-4">
+              <View className="flex-row items-center justify-between">
+                <Text className="font-PoppinsMedium">Carbs</Text>
+                <Text className="font-Poppins text-xs">20g / 50g</Text>
+              </View>
+              <Progress
+                min={8}
+                max={10}
+                height={5}
+                color="#77A5ED"
+                backgroundColor="#DAE8FC"
+              />
+            </View>
+          </View>
         </View>
+
         <View className="flex-col flex-1">
-          <View className="mb-4">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-PoppinsMedium">Protein</Text>
-              <Text className="font-Poppins text-xs">20g / 50g</Text>
-            </View>
-            <Progress
-              min={1}
-              max={10}
-              height={5}
-              color="#9CE3D4"
-              backgroundColor="#E1FAF2"
-            />
-          </View>
-
-          <View className="mb-4">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-PoppinsMedium">Fat</Text>
-              <Text className="font-Poppins text-xs">20g / 28g</Text>
-            </View>
-            <Progress
-              min={5}
-              max={10}
-              height={5}
-              color="#FAC85F"
-              backgroundColor="#FFF1D8"
-            />
-          </View>
-
-          <View className="mb-4">
-            <View className="flex-row items-center justify-between">
-              <Text className="font-PoppinsMedium">Carbs</Text>
-              <Text className="font-Poppins text-xs">20g / 50g</Text>
-            </View>
-            <Progress
-              min={8}
-              max={10}
-              height={5}
-              color="#77A5ED"
-              backgroundColor="#DAE8FC"
-            />
-          </View>
-        </View>
-      </View>
-
-      <View className="flex-col flex-1">
-        <View className="bg-white shadow-sm border-[1px] border-gray-200 flex-row items-center p-4 rounded-xl mb-4">
+          {/* <View className="bg-white shadow-sm border-[1px] border-gray-200 flex-row items-center p-4 rounded-xl mb-4">
           <View className="flex-row items-center justify-center w-[50px] h-[50px] rounded-full bg-[#FFF5ED] mr-4">
             <Ionicons name="restaurant-outline" size={24} color="black" />
           </View>
@@ -256,46 +268,107 @@ export default function Home() {
           <TouchableOpacity className="bg-white w-[30px] h-[30px] rounded-full border-black border-[1px] items-center justify-center ml-auto">
             <Ionicons name="add-outline" size={20} color="black" />
           </TouchableOpacity>
+        </View> */}
+
+          <View className="bg-white shadow-sm border-[1px] border-gray-200 p-4 rounded-xl mb-4 flex-row justify-between">
+            <View className="flex-1">
+              <View className="flex-1 flex-col justify-between">
+                <View className="">
+                  <Text className="font-PoppinsSemiBold text-black text-xl">
+                    Fried Rice
+                  </Text>
+                  <View className="flex-row gap-2">
+                    {/* Protein */}
+                    <View className="flex-row items-center gap-1 bg-[#E7F1FF] p-1 rounded-full">
+                      <Image
+                        source={require("@/assets/icons/meat.png")}
+                        className="w-4 h-4"
+                      />
+                      <Text className="font-PoppinsMedium text-xs text-[#498FFD]">
+                        20g
+                      </Text>
+                    </View>
+                    {/* Carbs */}
+                    <View className="flex-row items-center gap-1 bg-[#ebfce9] p-1 rounded-full">
+                      <Image
+                        source={require("@/assets/icons/carbs.png")}
+                        className="w-4 h-4"
+                      />
+                      <Text className="font-PoppinsMedium text-xs text-[#2BA660]">
+                        20g
+                      </Text>
+                    </View>
+                    {/* Prtein */}
+                    <View className="flex-row items-center gap-1 bg-[#F9F2DF] p-1 rounded-full">
+                      <Image
+                        source={require("@/assets/icons/protein.png")}
+                        className="w-4 h-4"
+                      />
+                      <Text className="font-PoppinsMedium text-xs text-[#F1AA17]">
+                        20g
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+                <View className="">
+                  <Text className="font-PoppinsSemiBold text-3xl">
+                    250 <Text className="font-Poppins text-sm">kcal</Text>
+                  </Text>
+                </View>
+              </View>
+            </View>
+            <View className="w-[110px] h-[110px]">
+              <Image
+                source={require("@/assets/images/fried-rice.jpg")}
+                className="w-full h-full rounded-xl"
+              />
+              <View className="absolute bottom-2 right-2 p-1 rounded-lg bg-[#FAFAFA]">
+                <Text className="font-Poppins text-xs text-gray-500">
+                  10:15 PM
+                </Text>
+              </View>
+            </View>
+          </View>
+
+          <View className="bg-white shadow-sm border-[1px] border-gray-200  flex-row items-center p-4 rounded-xl mb-4">
+            <View className="flex-row items-center justify-center w-[50px] h-[50px] rounded-full bg-[#D9E3FB] mr-4">
+              <Ionicons name="restaurant-outline" size={24} color="black" />
+            </View>
+
+            <View className="flex-col">
+              <Text className="font-PoppinsSemiBold text-black text-md">
+                Add Lunch
+              </Text>
+              <Text className="font-Poppins text-black text-sm">
+                Recommended: 527 - 703 kcal
+              </Text>
+            </View>
+
+            <TouchableOpacity className="bg-white w-[30px] h-[30px] rounded-full border-black border-[1px] items-center justify-center ml-auto">
+              <Ionicons name="add-outline" size={20} color="black" />
+            </TouchableOpacity>
+          </View>
+
+          <View className="bg-white shadow-sm border-[1px] border-gray-200 flex-row items-center p-4 rounded-xl mb-4">
+            <View className="flex-row items-center justify-center w-[50px] h-[50px] rounded-full bg-[#DCEAE5] mr-4">
+              <Ionicons name="restaurant-outline" size={24} color="black" />
+            </View>
+
+            <View className="flex-col">
+              <Text className="font-PoppinsSemiBold text-black text-md">
+                Add Dinner
+              </Text>
+              <Text className="font-Poppins text-black text-sm">
+                Recommended: 440 - 615 kcal
+              </Text>
+            </View>
+
+            <TouchableOpacity className="bg-white w-[30px] h-[30px] rounded-full border-black border-[1px] items-center justify-center ml-auto">
+              <Ionicons name="add-outline" size={20} color="black" />
+            </TouchableOpacity>
+          </View>
         </View>
-
-        <View className="bg-white shadow-sm border-[1px] border-gray-200  flex-row items-center p-4 rounded-xl mb-4">
-          <View className="flex-row items-center justify-center w-[50px] h-[50px] rounded-full bg-[#D9E3FB] mr-4">
-            <Ionicons name="restaurant-outline" size={24} color="black" />
-          </View>
-
-          <View className="flex-col">
-            <Text className="font-PoppinsSemiBold text-black text-md">
-              Add Lunch
-            </Text>
-            <Text className="font-Poppins text-black text-sm">
-              Recommended: 527 - 703 kcal
-            </Text>
-          </View>
-
-          <TouchableOpacity className="bg-white w-[30px] h-[30px] rounded-full border-black border-[1px] items-center justify-center ml-auto">
-            <Ionicons name="add-outline" size={20} color="black" />
-          </TouchableOpacity>
-        </View>
-
-        <View className="bg-white shadow-sm border-[1px] border-gray-200 flex-row items-center p-4 rounded-xl mb-4">
-          <View className="flex-row items-center justify-center w-[50px] h-[50px] rounded-full bg-[#DCEAE5] mr-4">
-            <Ionicons name="restaurant-outline" size={24} color="black" />
-          </View>
-
-          <View className="flex-col">
-            <Text className="font-PoppinsSemiBold text-black text-md">
-              Add Dinner
-            </Text>
-            <Text className="font-Poppins text-black text-sm">
-              Recommended: 440 - 615 kcal
-            </Text>
-          </View>
-
-          <TouchableOpacity className="bg-white w-[30px] h-[30px] rounded-full border-black border-[1px] items-center justify-center ml-auto">
-            <Ionicons name="add-outline" size={20} color="black" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
