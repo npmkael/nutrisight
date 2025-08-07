@@ -1,5 +1,5 @@
 import PhotoPreviewSection from "@/components/PhotoPreviewSection";
-import { BACKEND_URL, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import {
   CameraCapturedPicture,
@@ -68,13 +68,19 @@ export default function App() {
         .then(async (takedPhoto) => {
           await cameraRef.current?.pausePreview(); // Pause the camera preview
           setPhoto(takedPhoto);
-          // Send barcode number to backend
-          const res = await fetch(`${BACKEND_URL}/camera/barcode`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            credentials: "include",
-            body: JSON.stringify({ barcodeData: data }),
-          });
+          // Send barcode number to backend microservice
+          const res = await fetch(
+            "https://nutrisight-microservice-89ab7ccf2966.herokuapp.com/barcode",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                "X-APP-KEY": process.env.EXPO_PUBLIC_SUSHI_SECRET || "",
+              },
+              credentials: "include",
+              body: JSON.stringify({ barcodeData: data }),
+            }
+          );
           if (res.ok) {
             const result = await res.json();
             setScanResult({
@@ -114,12 +120,18 @@ export default function App() {
       setPhoto(takedPhoto);
 
       if (scanMode === "food") {
-        const res = await fetch(`${BACKEND_URL}/camera/food-scan`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          credentials: "include",
-          body: JSON.stringify({ image: takedPhoto.base64 }),
-        });
+        const res = await fetch(
+          "https://nutrisight-microservice-89ab7ccf2966.herokuapp.com/food-scan",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-APP-KEY": process.env.EXPO_PUBLIC_SUSHI_SECRET || "",
+            },
+            credentials: "include",
+            body: JSON.stringify({ image: takedPhoto.base64 }),
+          }
+        );
         if (!res.ok) {
           console.error("Failed to scan food:", res.statusText);
           alert("Failed to scan food. Please try again.");
