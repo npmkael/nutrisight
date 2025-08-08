@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { memo, useState } from "react";
 import { FlatList, Text, TouchableOpacity, View } from "react-native";
 
 interface DatePickerWeekProps {
@@ -13,10 +13,7 @@ interface DayItem {
   isToday: boolean;
 }
 
-export default function DatePickerWeek({
-  onDateChange,
-  initialDate,
-}: DatePickerWeekProps) {
+function DatePickerWeek({ onDateChange, initialDate }: DatePickerWeekProps) {
   const [selectedDate, setSelectedDate] = useState<Date>(
     initialDate || new Date()
   );
@@ -112,3 +109,5 @@ export default function DatePickerWeek({
     </View>
   );
 }
+
+export default memo(DatePickerWeek);

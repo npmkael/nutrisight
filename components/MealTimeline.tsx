@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import React from "react";
+import React, { memo } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 interface MacroNutrients {
@@ -102,7 +102,7 @@ function MealCard({ meal, onEdit }: MealCardProps) {
   );
 }
 
-export default function MealTimeline({ meals, onEditMeal }: MealTimelineProps) {
+function MealTimeline({ meals, onEditMeal }: MealTimelineProps) {
   // Define individual meal times
   const mealTimes = [
     { time: "06:00", displayTime: "6 AM", mealType: "Breakfast" },
@@ -301,6 +301,8 @@ export default function MealTimeline({ meals, onEditMeal }: MealTimelineProps) {
     </View>
   );
 }
+
+export default memo(MealTimeline);
 
 // Export MealCard for potential standalone use
 export { MealCard };

@@ -3,7 +3,7 @@ import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import DatePickerWeek from "../../../components/DatePickerWeek";
@@ -22,7 +22,7 @@ const PROFILE = {
   medical: "n/a",
 };
 
-export default function Account() {
+function Account() {
   const { user, loading, uploadProfilePicture } = useAuth();
   const router = useRouter();
   const [showPersonal, setShowPersonal] = useState(true);
@@ -118,19 +118,19 @@ export default function Account() {
   ]);
 
   // Handle date selection
-  const handleDateChange = (date: Date) => {
+  const handleDateChange = useCallback((date: Date) => {
     setSelectedDate(date);
     console.log("Selected date:", date.toDateString());
-  };
+  }, []);
 
   // Handle meal editing
-  const handleEditMeal = (mealId: string) => {
+  const handleEditMeal = useCallback((mealId: string) => {
     console.log("Edit meal:", mealId);
     // Navigate to edit screen or show modal
-  };
+  }, []);
 
   // Open image picker and update avatar
-  const pickImage = async () => {
+  const pickImage = useCallback(async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       alert("Permission to access gallery is required!");
@@ -152,11 +152,9 @@ export default function Account() {
         alert("Failed to update profile picture.");
       }
     }
-  };
+  }, []);
 
-  if (loading && !user) {
-    return <Loading />;
-  }
+  if (loading && !user) return <Loading />;
 
   if (!user) {
     router.replace("/(auth)/sign-in");
@@ -184,6 +182,8 @@ export default function Account() {
     </SafeAreaView>
   );
 }
+
+export default memo(Account);
 
 function Field({ label, value }: { label: string; value: string }) {
   return (

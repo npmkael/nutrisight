@@ -1,5 +1,7 @@
 import PhotoPreviewSection from "@/components/PhotoPreviewSection";
 import { useAuth } from "@/context/AuthContext";
+import { useBarcodeScan } from "@/hooks/useBarcodeScan";
+import { useFoodScan } from "@/hooks/useFoodScan";
 import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 import {
   CameraCapturedPicture,
@@ -7,7 +9,7 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { memo, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Loading from "../../../components/Loading";
 
@@ -21,6 +23,8 @@ export type ScanResultType = {
 
 function App() {
   const { user } = useAuth();
+  const { scanBarcode, barcodeData } = useBarcodeScan();
+  const { foodScan, foodScanData } = useFoodScan();
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
@@ -32,75 +36,43 @@ function App() {
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null); // State to hold scan result
   const [barcodeScanned, setBarcodeScanned] = useState(false);
 
-  if (!permission) {
-    // Camera permissions are still loading.
-    return <View />;
-  }
+  useEffect(() => {
+    if (barcodeData) setScanResult(barcodeData);
+  }, [barcodeData]); // The effect runs only when barcodeData changes
 
-  if (!permission.granted) {
-    // Camera permissions are not granted yet.
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>
-          We need your permission to show the camera
-        </Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
-    );
-  }
+  useEffect(() => {
+    if (foodScanData) setScanResult(foodScanData);
+  }, [foodScanData]); // The effect runs only when foodScanData changes
 
-  const handleBarcodeScanned = async ({ data }: { data: string }) => {
-    if (scanMode !== "barcode") return;
-    if (loading) return; // Prevent multiple triggers
-    if (barcodeScanned) return; // Prevent re-scanning
-    // Take a photo
-    setBarcodeScanned(true);
-    setLoading(true);
-    if (cameraRef.current) {
-      const options = {
-        quality: 1,
-        base64: true,
-        exif: false,
-      };
-
-      cameraRef.current
-        .takePictureAsync(options)
-        .then(async (takedPhoto) => {
-          await cameraRef.current?.pausePreview(); // Pause the camera preview
-          setPhoto(takedPhoto);
-          // Send barcode number to backend microservice
-          const res = await fetch(
-            "https://nutrisight-microservice-89ab7ccf2966.herokuapp.com/barcode",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                "X-APP-KEY": process.env.EXPO_PUBLIC_SUSHI_SECRET || "",
-              },
-              credentials: "include",
-              body: JSON.stringify({ barcodeData: data }),
-            }
-          );
-          if (res.ok) {
-            const result = await res.json();
-            setScanResult({
-              ...result.data,
-              nutrition: JSON.stringify(result.data.nutrition),
-            });
-          } else {
-            alert("Failed to scan barcode. Please try again.");
-            handleRetakePhoto();
-          }
-        })
-        .catch((error) => {
-          alert("Error taking photo: " + error.message);
-          handleRetakePhoto();
-        });
-    }
+  const handleRetakePhoto = useCallback(() => {
+    setPhoto(null);
     setLoading(false);
-  };
+    setScanResult(null);
+    setBarcodeScanned(false);
+    if (cameraRef.current) {
+      cameraRef.current.resumePreview();
+    }
+  }, []);
 
-  const handleTakePhoto = async () => {
+  const handleBarcodeScanned = useCallback(
+    async ({ data }: { data: string }) => {
+      if (scanMode !== "barcode" || barcodeScanned) return;
+      setBarcodeScanned(true);
+      // Take the picture and set the photo state
+      if (cameraRef.current) {
+        cameraRef.current
+          .takePictureAsync({ quality: 1, base64: true })
+          .then((takedPhoto) => {
+            cameraRef.current?.pausePreview();
+            setPhoto(takedPhoto);
+          });
+      }
+      await scanBarcode(data, handleRetakePhoto);
+    },
+    [scanMode, barcodeScanned, scanBarcode, handleRetakePhoto]
+  );
+
+  const handleTakePhoto = useCallback(async () => {
     if (cameraRef.current) {
       const options = {
         quality: 0.6, // reduce quality to speed up processing
@@ -120,60 +92,27 @@ function App() {
       setPhoto(takedPhoto);
 
       if (scanMode === "food") {
-        const res = await fetch(
-          "https://nutrisight-microservice-89ab7ccf2966.herokuapp.com/food-scan",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-              "X-APP-KEY": process.env.EXPO_PUBLIC_SUSHI_SECRET || "",
-            },
-            credentials: "include",
-            body: JSON.stringify({ image: takedPhoto.base64 }),
-          }
-        );
-        if (!res.ok) {
-          console.error("Failed to scan food:", res.statusText);
-          alert("Failed to scan food. Please try again.");
-          handleRetakePhoto();
-          return;
-        }
-
-        const data = await res.json();
-        console.log("Food scan result:", data);
-
-        if (!data || !data.data) {
-          alert("No data found in the scan result. Please try again.");
-          handleRetakePhoto();
-          return;
-        }
-
-        setScanResult({
-          name: data.data.foodName,
-          ingredients: data.data.ingredients,
-          servingSize: data.data.servingSize,
-          nutrition: data.data.nutrition,
-        });
-        setLoading(false);
+        await foodScan(takedPhoto, handleRetakePhoto);
       }
     }
-  };
-
-  const handleRetakePhoto = () => {
-    setPhoto(null);
     setLoading(false);
-    setScanResult(null);
-    setBarcodeScanned(false);
-    if (cameraRef.current) {
-      cameraRef.current.resumePreview();
-    }
-  };
+  }, [foodScan, handleRetakePhoto]);
 
-  if (loading) {
-    return <Loading />;
-  }
+  // Camera permissions are still loading.
+  if (!permission) return <View />;
 
-  if (photo && scanResult) {
+  // Camera permissions are not granted yet.
+  if (!permission.granted)
+    return (
+      <View style={styles.container}>
+        <Text style={styles.message}>
+          We need your permission to show the camera
+        </Text>
+        <Button onPress={requestPermission} title="grant permission" />
+      </View>
+    );
+
+  if (photo && scanResult)
     return (
       <PhotoPreviewSection
         userAllergens={user?.allergens || []}
@@ -182,16 +121,9 @@ function App() {
         handleRetakePhoto={handleRetakePhoto}
       />
     );
-  }
 
   return (
     <View style={styles.container}>
-      {/**
-       * may warning dito:
-       *  WARN  The <CameraView> component does not support children. This may lead to inconsistent behaviour or crashes. If you want to render content on top of the Camera, consider using absolute positioning.
-       *
-       * SUGGESTION: Move all overlay and UI elements outside of <CameraView> and use absolute positioning.
-       */}
       <CameraView
         onBarcodeScanned={handleBarcodeScanned}
         barcodeScannerSettings={{
@@ -200,111 +132,117 @@ function App() {
         style={styles.camera}
         facing={facing}
         ref={cameraRef}
-      >
-        {/* Camera Scan Indicator */}
-        <View style={styles.scanOverlay}>
-          <View style={styles.scanFrame}>
-            {/* Corner markers */}
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
-          </View>
-
-          {/* Scanning Mode Selector */}
-          <View style={styles.modeSelector}>
-            <Text className="font-Poppins text-white text-xl mb-4">
-              Select a Scanning Mode:
-            </Text>
-            <View style={styles.modeButtons}>
-              <TouchableOpacity
-                style={[
-                  styles.modeButton,
-                  scanMode === "food" && styles.modeButtonActive,
-                ]}
-                onPress={() => setScanMode("food")}
-              >
-                <View style={styles.modeIcon}>
-                  <Ionicons
-                    name="fast-food-sharp"
-                    size={24}
-                    color={scanMode === "food" ? "black" : "white"}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.modeText,
-                    scanMode === "food" && styles.modeTextActive,
-                  ]}
-                >
-                  Scan Food
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.modeButton,
-                  scanMode === "barcode" && styles.modeButtonActive,
-                ]}
-                onPress={() => setScanMode("barcode")}
-                className="font-Poppins"
-              >
-                <View style={styles.modeIcon}>
-                  <Ionicons
-                    name="barcode-outline"
-                    size={24}
-                    color={scanMode === "barcode" ? "black" : "white"}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.modeText,
-                    scanMode === "barcode" && styles.modeTextActive,
-                  ]}
-                >
-                  Barcode
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={[
-                  styles.modeButton,
-                  scanMode === "nutrition" && styles.modeButtonActive,
-                ]}
-                onPress={() => setScanMode("nutrition")}
-              >
-                <View style={styles.modeIcon}>
-                  <MaterialIcons
-                    name="document-scanner"
-                    size={24}
-                    color={scanMode === "nutrition" ? "black" : "white"}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.modeText,
-                    scanMode === "nutrition" && styles.modeTextActive,
-                  ]}
-                >
-                  Nutrition Facts
-                </Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+      />
+      {/* Camera Scan Indicator */}
+      <View style={styles.scanOverlay}>
+        <View style={styles.scanFrame}>
+          {/* Corner markers */}
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
         </View>
 
-        {/* Circular Camera Button */}
-        {!loading && scanMode !== "barcode" && (
-          <View style={styles.cameraButtonContainer}>
+        {/* Scanning Mode Selector */}
+        <View style={styles.modeSelector}>
+          <Text className="font-Poppins text-white text-xl mb-4">
+            Select a Scanning Mode:
+          </Text>
+          <View style={styles.modeButtons}>
             <TouchableOpacity
-              style={styles.cameraButton}
-              onPress={handleTakePhoto}
+              style={[
+                styles.modeButton,
+                scanMode === "food" && styles.modeButtonActive,
+              ]}
+              onPress={() => setScanMode("food")}
             >
-              <View style={styles.cameraButtonInner} />
+              <View style={styles.modeIcon}>
+                <Ionicons
+                  name="fast-food-sharp"
+                  size={24}
+                  color={scanMode === "food" ? "black" : "white"}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.modeText,
+                  scanMode === "food" && styles.modeTextActive,
+                ]}
+              >
+                Scan Food
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.modeButton,
+                scanMode === "barcode" && styles.modeButtonActive,
+              ]}
+              onPress={() => setScanMode("barcode")}
+              className="font-Poppins"
+            >
+              <View style={styles.modeIcon}>
+                <Ionicons
+                  name="barcode-outline"
+                  size={24}
+                  color={scanMode === "barcode" ? "black" : "white"}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.modeText,
+                  scanMode === "barcode" && styles.modeTextActive,
+                ]}
+              >
+                Barcode
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.modeButton,
+                scanMode === "nutrition" && styles.modeButtonActive,
+              ]}
+              onPress={() => setScanMode("nutrition")}
+            >
+              <View style={styles.modeIcon}>
+                <MaterialIcons
+                  name="document-scanner"
+                  size={24}
+                  color={scanMode === "nutrition" ? "black" : "white"}
+                />
+              </View>
+              <Text
+                style={[
+                  styles.modeText,
+                  scanMode === "nutrition" && styles.modeTextActive,
+                ]}
+              >
+                Nutrition Facts
+              </Text>
             </TouchableOpacity>
           </View>
-        )}
-      </CameraView>
+        </View>
+      </View>
+
+      {/* Circular Camera Button */}
+      {!loading && scanMode !== "barcode" && (
+        <View style={styles.cameraButtonContainer}>
+          <TouchableOpacity
+            style={styles.cameraButton}
+            onPress={handleTakePhoto}
+          >
+            <View style={styles.cameraButtonInner} />
+          </TouchableOpacity>
+        </View>
+      )}
+
+      {/* Add loading overlay */}
+      {loading && (
+        <View style={styles.loadingOverlay}>
+          <Loading />
+        </View>
+      )}
     </View>
   );
 }
@@ -321,7 +259,7 @@ const styles = StyleSheet.create({
     paddingBottom: 10,
   },
   camera: {
-    flex: 1,
+    ...StyleSheet.absoluteFillObject, // Make camera fill the container
   },
   buttonContainer: {
     flex: 1,
@@ -340,6 +278,7 @@ const styles = StyleSheet.create({
     color: "white",
   },
   scanOverlay: {
+    ...StyleSheet.absoluteFillObject, // Make overlay fill the screen
     flex: 1,
     justifyContent: "center",
     alignItems: "center",
@@ -490,5 +429,11 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
     elevation: 3,
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
