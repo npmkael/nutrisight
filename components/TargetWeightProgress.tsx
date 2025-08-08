@@ -23,11 +23,11 @@ export default function TargetWeightProgress() {
       </View>
       <View className="bg-white rounded-2xl shadow-xl p-4">
         <View className="flex-col">
-          <View className="w-full mb-7">
+          <View className="mb-7">
             <LineChart
               data={lineData}
               thickness={2}
-              width={400}
+              width={200}
               color="#27A5C6" // light blue line
               hideRules={false}
               rulesColor="#E5E5E5"
