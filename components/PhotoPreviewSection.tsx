@@ -136,7 +136,9 @@ export default function PhotoPreviewSection({
               {nutritionChunks
                 .flat() // flatten the 2D array
                 .filter((item: any) =>
-                  ["Energy", "Calories", "Energy kcal"].includes(item.name)
+                  ["energy", "calories", "energy kcal"].includes(
+                    (item.name as string).toLowerCase()
+                  )
                 )
                 .reduce(
                   (sum: number, item: any) => sum + Number(item.amount || 0),
