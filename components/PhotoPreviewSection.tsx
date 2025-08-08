@@ -7,11 +7,16 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { ScanResultType } from "@/app/(root)/(tabs)/camera";
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
-import { capitalizeFirstLetter, scanForAllergen } from "@/utils/helpers";
+import {
+  capitalizeFirstLetter,
+  chunkArray,
+  scanForAllergen,
+} from "@/utils/helpers";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { memo, useMemo } from "react";
 import Swiper from "react-native-swiper";
 
 const COLORS = [
@@ -25,7 +30,7 @@ const COLORS = [
   "#FF9500", // amber
 ];
 
-export default function PhotoPreviewSection({
+function PhotoPreviewSection({
   userAllergens,
   photo,
   scanResult,
@@ -38,32 +43,30 @@ export default function PhotoPreviewSection({
 }) {
   console.log("PhotoPreviewSection");
   console.log("ingredients:", scanResult?.ingredients);
-  // Flatten the 3D array into a single array of nutrients
-  const parsedNutrition: any[][][] =
-    typeof scanResult?.nutrition === "string"
-      ? JSON.parse(scanResult.nutrition)
-      : Array.isArray(scanResult?.nutrition)
-        ? scanResult.nutrition
-        : [];
 
-  // Flatten all nutrients into a single array
-  const flatNutritionArr: any[] = parsedNutrition.flat(2); // flatten 2 levels
+  // This calculation only runs when nutrition changes
+  const nutritionChunks = useMemo(() => {
+    if (!scanResult?.nutrition) return [];
+    // Flatten the 3D array into a single array of nutrients
+    const parsedNutrition: any[][][] =
+      typeof scanResult.nutrition === "string"
+        ? JSON.parse(scanResult.nutrition)
+        : Array.isArray(scanResult.nutrition)
+          ? scanResult.nutrition
+          : [];
 
-  // Chunk into groups of 6 for the slider
-  function chunkArray(array: any[], size: number) {
-    const result = [];
-    for (let i = 0; i < array.length; i += size) {
-      result.push(array.slice(i, i + size));
-    }
-    return result;
-  }
+    // Flatten all nutrients into a single array
+    const flatNutritionArr: any[] = parsedNutrition.flat(2); // flatten 2 levels
 
-  const nutritionChunks = chunkArray(flatNutritionArr, 6);
+    return chunkArray(flatNutritionArr, 6);
+  }, [scanResult?.nutrition]);
+
   console.log("nutritionChunks:", nutritionChunks);
-  const allergensDetected = scanForAllergen(
-    userAllergens,
-    scanResult?.ingredients || ""
-  );
+
+  // this only runs when userAllergens or ingredients change
+  const allergensDetected = useMemo(() => {
+    return scanForAllergen(userAllergens, scanResult?.ingredients || "");
+  }, [userAllergens, scanResult?.ingredients]);
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
@@ -506,3 +509,5 @@ export default function PhotoPreviewSection({
     </View>
   );
 }
+
+export default memo(PhotoPreviewSection);

@@ -2,7 +2,7 @@ import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 
-export default function HeightEdit() {
+function HeightEdit() {
   const { user } = useAuth();
   const router = useRouter();
   const [heightFeet, setHeightFeet] = useState("");
@@ -21,28 +21,28 @@ export default function HeightEdit() {
   const [heightCm, setHeightCm] = useState(user?.height?.toString() || "");
   const [heightUnit, setHeightUnit] = useState("cm");
 
-  const back = () => {
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Here you would save the height to the backend
     const height =
       heightUnit === "cm" ? heightCm : `${heightFeet}'${heightInches}"`;
     console.log("Saving height:", height);
     router.back();
-  };
+  }, [heightFeet, heightInches, heightCm, heightUnit, router]);
 
-  const toggleHeightUnit = () => {
+  const toggleHeightUnit = useCallback(() => {
     setHeightUnit(heightUnit === "ft/in" ? "cm" : "ft/in");
-  };
+  }, [heightUnit]);
 
-  const isValid = () => {
+  const isValid = useCallback(() => {
     if (heightUnit === "cm") {
       return heightCm.trim().length > 0 && parseFloat(heightCm) > 0;
     }
     return heightFeet.trim().length > 0 && parseInt(heightFeet) > 0;
-  };
+  }, [heightFeet, heightInches, heightCm, heightUnit]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -136,6 +136,8 @@ export default function HeightEdit() {
     </SafeAreaView>
   );
 }
+
+export default memo(HeightEdit);
 
 const styles = StyleSheet.create({
   header: {

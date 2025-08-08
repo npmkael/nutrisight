@@ -2,7 +2,7 @@ import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,31 +13,32 @@ import {
   View,
 } from "react-native";
 
-export default function AgeEdit() {
+function AgeEdit() {
   const { user } = useAuth();
   const router = useRouter();
-  const currentAge = user?.birthdate
-    ? Math.floor(
-        (new Date().getTime() - new Date(user.birthdate).getTime()) /
-          (1000 * 60 * 60 * 24 * 365.25)
-      )
-    : "";
+  const currentAge = useMemo(() => {
+    if (!user?.birthdate) return "";
+    return Math.floor(
+      (new Date().getTime() - new Date(user.birthdate).getTime()) /
+        (1000 * 60 * 60 * 24 * 365.25)
+    );
+  }, [user?.birthdate]);
   const [age, setAge] = useState(currentAge.toString() || "");
 
-  const back = () => {
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Here you would save the age to the backend
     console.log("Saving age:", age);
     router.back();
-  };
+  }, [router, age]);
 
-  const isValid = () => {
+  const isValid = useCallback(() => {
     const ageNum = parseInt(age);
     return age.trim().length > 0 && ageNum >= 1 && ageNum <= 120;
-  };
+  }, [age]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -105,6 +106,8 @@ export default function AgeEdit() {
     </SafeAreaView>
   );
 }
+
+export default memo(AgeEdit);
 
 const styles = StyleSheet.create({
   header: {

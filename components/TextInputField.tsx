@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { memo, useState } from "react";
 import { TextInput } from "react-native";
 
-export default function TextInputField({
+function TextInputField({
   value,
   onChangeText,
   maxLength,
@@ -28,3 +28,5 @@ export default function TextInputField({
     />
   );
 }
+
+export default memo(TextInputField);

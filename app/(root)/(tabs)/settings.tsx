@@ -10,9 +10,10 @@ import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
+import { memo } from "react";
 import Loading from "../../../components/Loading";
 
-export default function Settings() {
+function Settings() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
 
@@ -170,6 +171,8 @@ export default function Settings() {
     </SafeAreaView>
   );
 }
+
+export default memo(Settings);
 
 const Container = ({
   children,

@@ -1,5 +1,5 @@
 import { Link } from "expo-router";
-import { useState } from "react";
+import { memo, useState } from "react";
 import { Image, ScrollView, Text, View } from "react-native";
 
 // custom components
@@ -11,7 +11,7 @@ import OAuth from "@/components/OAuth";
 import { icons, images } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
 
-export default function SignUp() {
+function SignUp() {
   const { register, loading } = useAuth();
 
   const [form, setForm] = useState({
@@ -85,3 +85,5 @@ export default function SignUp() {
     </ScrollView>
   );
 }
+
+export default memo(SignUp);

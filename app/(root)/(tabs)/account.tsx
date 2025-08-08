@@ -6,31 +6,31 @@ import Ionicons from "@expo/vector-icons/build/Ionicons";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Loading from "../../../components/Loading";
 
-const PROFILE = {
-  name: "Rencie Narido",
-  email: "renciepogi_09@gmail.com",
-  gender: "Rather not say",
-  birthdate: "09/12/2004",
-  height: "5ft 9in",
-  weight: "120 kg",
-  bmi: "18.5 (Normal Weight)",
-  allergens: "Milk · Eggs · Peanuts · Wheat · Soybeans",
-  medical: "n/a",
-};
+// const PROFILE = {
+//   name: "Rencie Narido",
+//   email: "renciepogi_09@gmail.com",
+//   gender: "Rather not say",
+//   birthdate: "09/12/2004",
+//   height: "5ft 9in",
+//   weight: "120 kg",
+//   bmi: "18.5 (Normal Weight)",
+//   allergens: "Milk · Eggs · Peanuts · Wheat · Soybeans",
+//   medical: "n/a",
+// };
 
-export default function Account() {
+function Account() {
   const { user, loading, uploadProfilePicture } = useAuth();
   const router = useRouter();
   const [showPersonal, setShowPersonal] = useState(true);
   const [showHealth, setShowHealth] = useState(true);
 
   // Open image picker and update avatar
-  const pickImage = async () => {
+  const pickImage = useCallback(async () => {
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       alert("Permission to access gallery is required!");
@@ -52,7 +52,7 @@ export default function Account() {
         alert("Failed to update profile picture.");
       }
     }
-  };
+  }, [uploadProfilePicture]);
 
   if (loading && !user) {
     return <Loading />;
@@ -199,6 +199,8 @@ export default function Account() {
     </SafeAreaView>
   );
 }
+
+export default memo(Account);
 
 function Field({ label, value }: { label: string; value: string }) {
   return (

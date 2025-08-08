@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 
 import AllergensSelection from "@/components/onboarding/AllergensSelection";
@@ -10,7 +10,7 @@ import SuccessAccount from "@/components/onboarding/SuccessAccount";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { useLocalSearchParams, useRouter } from "expo-router";
+import { useLocalSearchParams /*useRouter*/ } from "expo-router";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -20,7 +20,7 @@ const Onboarding = () => {
   const { onboardingSubmission, loading, registered, agreement } = useAuth();
   const { email } = useLocalSearchParams<{ email: string }>();
   const [currentStep, setCurrentStep] = useState(1);
-  const router = useRouter();
+  // const router = useRouter();
 
   // Input states for each step
   const [name, setName] = useState("");
@@ -31,7 +31,10 @@ const Onboarding = () => {
   const [weight, setWeight] = useState("");
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
 
-  const progress = (currentStep / totalSteps) * 100;
+  const progress = useMemo(
+    () => (currentStep / totalSteps) * 100,
+    [currentStep]
+  );
 
   useEffect(() => {
     if (currentStep === 5 && !registered) {
@@ -66,16 +69,16 @@ const Onboarding = () => {
   ]);
 
   // Validation functions for each step
-  const isStep1Valid = () => {
+  const isStep1Valid = useCallback(() => {
     return name.trim().length > 0 && name.trim().length <= 20;
-  };
+  }, [name]);
 
-  const isStep2Valid = () => {
+  const isStep2Valid = useCallback(() => {
     const ageNum = parseInt(age);
     return gender.length > 0 && age.length > 0 && ageNum >= 1 && ageNum <= 120;
-  };
+  }, [gender, age]);
 
-  const isStep3Valid = () => {
+  const isStep3Valid = useCallback(() => {
     const weightNum = parseFloat(weight);
     const heightFeetNum = parseInt(heightFeet);
     const heightInchesNum = parseInt(heightInches);
@@ -90,13 +93,13 @@ const Onboarding = () => {
       heightInchesNum >= 0 &&
       heightInchesNum <= 11
     );
-  };
+  }, [weight, heightFeet, heightInches]);
 
-  const isStep4Valid = () => {
+  const isStep4Valid = useCallback(() => {
     return selectedAllergens.length > 0;
-  };
+  }, [selectedAllergens]);
 
-  const isCurrentStepValid = () => {
+  const isCurrentStepValid = useCallback(() => {
     if (registered) return true;
     switch (currentStep) {
       case 1:
@@ -110,22 +113,24 @@ const Onboarding = () => {
       default:
         return true;
     }
-  };
+  }, [
+    registered,
+    currentStep,
+    isStep1Valid,
+    isStep2Valid,
+    isStep3Valid,
+    isStep4Valid,
+  ]);
 
-  const renderContent = () => {
-    if (loading || currentStep === 5) {
-      return <LoadingScreen />;
-    }
+  const renderContent = useCallback(() => {
+    if (loading || currentStep === 5) return <LoadingScreen />;
 
-    if (registered) {
-      return <SuccessAccount />;
-    }
+    if (registered) return <SuccessAccount />;
 
-    if (currentStep === 1) {
+    if (currentStep === 1)
       return <InputName value={name} onChangeText={setName} />;
-    }
 
-    if (currentStep === 2) {
+    if (currentStep === 2)
       return (
         <GenderAndAge
           selectedGender={gender}
@@ -134,9 +139,8 @@ const Onboarding = () => {
           setAge={setAge}
         />
       );
-    }
 
-    if (currentStep === 3) {
+    if (currentStep === 3)
       return (
         <HeightAndWeight
           heightFeet={heightFeet}
@@ -147,38 +151,49 @@ const Onboarding = () => {
           setWeight={setWeight}
         />
       );
-    }
 
-    if (currentStep === 4) {
+    if (currentStep === 4)
       return (
         <AllergensSelection
           selectedAllergens={selectedAllergens}
           setSelectedAllergens={setSelectedAllergens}
         />
       );
-    }
-  };
+  }, [
+    currentStep,
+    registered,
+    name,
+    gender,
+    age,
+    heightFeet,
+    heightInches,
+    weight,
+    selectedAllergens,
+  ]);
 
   console.log("Current step:", currentStep);
   console.log("Registered:", registered);
 
-  const handleContinue = async () => {
+  const handleContinue = useCallback(async () => {
     if (registered) return;
     if (!isCurrentStepValid()) return;
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setCurrentStep(currentStep + 1);
-  };
+  }, [registered, isCurrentStepValid, currentStep]);
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     if (registered) return;
     Haptics.selectionAsync();
     if (currentStep > 0) {
       setCurrentStep(currentStep - 1);
     }
-  };
+  }, [registered, currentStep]);
 
-  const shouldShowProgress = currentStep > 0 && currentStep < totalSteps;
+  const shouldShowProgress = useMemo(
+    () => currentStep > 0 && currentStep < totalSteps,
+    [currentStep, totalSteps]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -227,4 +242,4 @@ const Onboarding = () => {
   );
 };
 
-export default Onboarding;
+export default memo(Onboarding);

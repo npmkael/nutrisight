@@ -1,13 +1,15 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
+import { useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export const CameraTabButton = () => {
-  const handlePress = () => {
+  // function is not recreated on every render
+  const handlePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push("/camera");
-  };
+  }, []);
 
   return (
     <TouchableOpacity

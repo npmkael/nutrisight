@@ -1,8 +1,9 @@
 import NonAuthProtect from "@/lib/NonAuthProtect";
 import { Stack } from "expo-router";
+import { memo } from "react";
 import "../../global.css";
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <NonAuthProtect>
       <Stack>
@@ -34,3 +35,5 @@ export default function RootLayout() {
     </NonAuthProtect>
   );
 }
+
+export default memo(RootLayout);

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { Text, View } from "react-native";
 import Animated, {
   interpolate,
@@ -22,7 +22,7 @@ interface CircularProgressBarProps {
 
 const AnimatedCircle = Animated.createAnimatedComponent(Circle);
 
-export default function CircularProgressBar({
+function CircularProgressBar({
   progress,
   size = 40,
   strokeWidth = 4,
@@ -33,8 +33,9 @@ export default function CircularProgressBar({
   percentageTextColor = "white",
   label = "%",
 }: CircularProgressBarProps) {
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
+  // memoize
+  const radius = useMemo(() => (size - strokeWidth) / 2, [size, strokeWidth]);
+  const circumference = useMemo(() => radius * 2 * Math.PI, [radius]);
   const progressValue = useSharedValue(0);
 
   React.useEffect(() => {
@@ -105,3 +106,5 @@ export default function CircularProgressBar({
     </View>
   );
 }
+
+export default memo(CircularProgressBar);

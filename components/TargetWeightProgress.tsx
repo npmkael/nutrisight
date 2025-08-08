@@ -2,9 +2,10 @@ import { Ionicons } from "@expo/vector-icons";
 import { Text, View } from "react-native";
 import Typo from "./Typo";
 
+import { memo } from "react";
 import { LineChart } from "react-native-gifted-charts";
 
-export default function TargetWeightProgress() {
+function TargetWeightProgress() {
   const lineData = [
     { value: 45, label: "Jan" },
     { value: 55, label: "Feb" },
@@ -74,3 +75,5 @@ export default function TargetWeightProgress() {
     </>
   );
 }
+
+export default memo(TargetWeightProgress);

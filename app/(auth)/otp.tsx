@@ -1,6 +1,6 @@
 import { icons } from "@/constants";
 import { router, useLocalSearchParams } from "expo-router";
-import { useEffect, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import {
   Alert,
   Image,
@@ -18,7 +18,7 @@ import { useAuth } from "@/context/AuthContext";
 import { moderateScale, textScale } from "@/lib/utils";
 import OTPTextInput from "react-native-otp-textinput";
 
-export default function Otp() {
+function Otp() {
   const { verifyOtp, resendOtp } = useAuth();
   const { email } = useLocalSearchParams<{ email: string }>();
   const [otpCode, setOtpCode] = useState("");
@@ -31,7 +31,7 @@ export default function Otp() {
     }
   }, [resendTimer]);
 
-  const handleResend = async () => {
+  const handleResend = useCallback(async () => {
     if (!email) return;
     setResendTimer(60);
     try {
@@ -43,9 +43,9 @@ export default function Otp() {
     } catch (error) {
       Alert.alert("Error", "Failed to resend OTP. Please try again.");
     }
-  };
+  }, [email, resendOtp]);
 
-  const onContinuePress = async () => {
+  const onContinuePress = useCallback(async () => {
     if (otpCode.length !== 4) {
       Alert.alert("Invalid OTP", "Please enter a 4-digit OTP.");
       return;
@@ -55,7 +55,7 @@ export default function Otp() {
     } catch (error) {
       Alert.alert("Verification Failed", "The OTP you entered is incorrect.");
     }
-  };
+  }, [otpCode, email, verifyOtp]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -131,6 +131,8 @@ export default function Otp() {
     </SafeAreaView>
   );
 }
+
+export default memo(Otp);
 
 const styles = StyleSheet.create({
   weHaveTextstyle: {

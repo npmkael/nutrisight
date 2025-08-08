@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo /*useState*/, useCallback } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -25,17 +25,17 @@ const Container = ({
   );
 };
 
-export default function Details() {
-  const [name, setName] = useState("");
+function Details() {
+  // const [name, setName] = useState("");
   const router = useRouter();
   const { user } = useAuth();
 
-  const back = () => {
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
   // Format allergens display - show first 4, then "..." if more
-  const formatAllergens = () => {
+  const formatAllergens = useCallback(() => {
     if (!user?.allergens || user.allergens.length === 0) {
       return "None";
     }
@@ -45,7 +45,7 @@ export default function Details() {
     }
 
     return user.allergens.slice(0, 4).join(", ") + ", ...";
-  };
+  }, [user]);
 
   return (
     <KeyboardAvoidingView
@@ -183,6 +183,8 @@ export default function Details() {
     </KeyboardAvoidingView>
   );
 }
+
+export default memo(Details);
 
 const styles = StyleSheet.create({
   container: {

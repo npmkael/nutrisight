@@ -1,6 +1,7 @@
 import { Stack } from "expo-router";
+import { memo } from "react";
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <Stack>
       <Stack.Screen name="name" options={{ headerShown: false }} />
@@ -13,3 +14,5 @@ export default function RootLayout() {
     </Stack>
   );
 }
+
+export default memo(RootLayout);

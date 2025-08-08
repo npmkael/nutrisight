@@ -2,7 +2,7 @@ import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -13,27 +13,30 @@ import {
   View,
 } from "react-native";
 
-export default function WeightEdit() {
+function WeightEdit() {
   const { user } = useAuth();
   const router = useRouter();
   const [weight, setWeight] = useState(user?.weight?.toString() || "");
   const [weightUnit, setWeightUnit] = useState("lbs");
 
-  const back = () => {
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Here you would save the weight to the backend
     console.log("Saving weight:", weight, weightUnit);
     router.back();
-  };
+  }, [weight, weightUnit, router]);
 
-  const toggleWeightUnit = () => {
-    setWeightUnit(weightUnit === "lbs" ? "kg" : "lbs");
-  };
+  const toggleWeightUnit = useCallback(() => {
+    setWeightUnit((prev) => (prev === "lbs" ? "kg" : "lbs"));
+  }, []);
 
-  const isValid = weight.trim().length > 0 && parseFloat(weight) > 0;
+  const isValid = useMemo(
+    () => weight.trim().length > 0 && parseFloat(weight) > 0,
+    [weight]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -109,6 +112,8 @@ export default function WeightEdit() {
     </SafeAreaView>
   );
 }
+
+export default memo(WeightEdit);
 
 const styles = StyleSheet.create({
   header: {

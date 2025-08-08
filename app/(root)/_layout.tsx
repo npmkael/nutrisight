@@ -1,7 +1,8 @@
 import { Stack } from "expo-router";
+import { memo } from "react";
 import AuthProtect from "../../lib/AuthProtect";
 
-export default function RootLayout() {
+function RootLayout() {
   return (
     <AuthProtect>
       <Stack>
@@ -12,3 +13,5 @@ export default function RootLayout() {
     </AuthProtect>
   );
 }
+
+export default memo(RootLayout);

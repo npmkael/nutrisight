@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useEffect, useRef, useState } from "react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Image,
@@ -152,7 +152,7 @@ const CustomCircularProgress = () => {
   );
 };
 
-export default function Home() {
+function Home() {
   const { user } = useAuth();
   const router = useRouter();
 
@@ -372,3 +372,5 @@ export default function Home() {
     </SafeAreaView>
   );
 }
+
+export default memo(Home);

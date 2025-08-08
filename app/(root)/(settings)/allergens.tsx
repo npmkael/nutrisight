@@ -2,7 +2,7 @@ import AllergensSelection from "@/components/onboarding/AllergensSelection";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo, useCallback, useMemo, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,24 +11,27 @@ import {
   View,
 } from "react-native";
 
-export default function AllergensEdit() {
+function AllergensEdit() {
   const { user } = useAuth();
   const router = useRouter();
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     user?.allergens || []
   );
 
-  const back = () => {
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Here you would save the allergens to the backend
     console.log("Saving allergens:", selectedAllergens);
     router.back();
-  };
+  }, [router, selectedAllergens]);
 
-  const isValid = selectedAllergens.length > 0;
+  const isValid = useMemo(
+    () => selectedAllergens.length > 0,
+    [selectedAllergens]
+  );
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -86,6 +89,8 @@ export default function AllergensEdit() {
     </SafeAreaView>
   );
 }
+
+export default memo(AllergensEdit);
 
 const styles = StyleSheet.create({
   header: {

@@ -41,3 +41,12 @@ export function scanForAllergen(
 export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
+
+// Chunk into groups of 6 for the slider
+export function chunkArray(array: any[], size: number) {
+  const result = [];
+  for (let i = 0; i < array.length; i += size) {
+    result.push(array.slice(i, i + size));
+  }
+  return result;
+}

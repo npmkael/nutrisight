@@ -1,4 +1,5 @@
 import { ButtonProps } from "@/types/type";
+import { memo } from "react";
 import { Text, TouchableOpacity } from "react-native";
 import Loading from "./Loading";
 
@@ -69,4 +70,4 @@ const CustomButton = ({
     </TouchableOpacity>
   );
 };
-export default CustomButton;
+export default memo(CustomButton);

@@ -2,6 +2,7 @@ import { CameraTabButton } from "@/components/CameraTabButton";
 import { HapticTab } from "@/components/HapticTab";
 import { icons } from "@/constants";
 import { Tabs } from "expo-router";
+import { memo } from "react";
 import { Image } from "react-native";
 
 const TabIcon = ({
@@ -24,7 +25,7 @@ const TabIcon = ({
   );
 };
 
-export default function Layout() {
+function Layout() {
   return (
     <Tabs
       screenOptions={{
@@ -122,3 +123,5 @@ export default function Layout() {
     </Tabs>
   );
 }
+
+export default memo(Layout);

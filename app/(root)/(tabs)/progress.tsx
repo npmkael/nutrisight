@@ -4,11 +4,12 @@ import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";
 import { useRouter } from "expo-router";
+import { memo } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Loading from "../../../components/Loading";
 
-export default function Progress() {
+function Progress() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
@@ -101,3 +102,5 @@ export default function Progress() {
     </SafeAreaView>
   );
 }
+
+export default memo(Progress);

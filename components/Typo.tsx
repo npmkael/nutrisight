@@ -1,12 +1,12 @@
 import { verticalScale } from "@/utils/styling";
-import React from "react";
-import { StyleSheet, Text, TextProps, TextStyle } from "react-native";
+import { memo, ReactNode, useMemo } from "react";
+import { Text, TextProps, TextStyle } from "react-native";
 
 type TypoProps = {
   size?: number;
   color?: string;
   fontWeight?: TextStyle["fontWeight"];
-  children: any | null;
+  children: ReactNode | null;
   style?: TextStyle;
   textProps?: TextProps;
   className?: string;
@@ -21,11 +21,15 @@ const Typo = ({
   textProps = {},
   className,
 }: TypoProps) => {
-  const textStyle: TextStyle = {
-    fontSize: size ? verticalScale(size) : verticalScale(18),
-    color,
-    fontWeight,
-  };
+  // use memoization for performance optimization
+  const textStyle: TextStyle = useMemo(
+    () => ({
+      fontSize: size ? verticalScale(size) : verticalScale(18),
+      color,
+      fontWeight,
+    }),
+    [size, color, fontWeight]
+  );
 
   return (
     <Text style={[textStyle, style]} {...textProps} className={className}>
@@ -34,6 +38,6 @@ const Typo = ({
   );
 };
 
-export default Typo;
+export default memo(Typo);
 
-const styles = StyleSheet.create({});
+// const styles = StyleSheet.create({});

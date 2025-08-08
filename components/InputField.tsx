@@ -1,4 +1,5 @@
 import { InputFieldProps } from "@/types/type";
+import { memo } from "react";
 import {
   Image,
   Keyboard,
@@ -49,4 +50,4 @@ const InputField = ({
   );
 };
 
-export default InputField;
+export default memo(InputField);

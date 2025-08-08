@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { ActivityIndicator, ActivityIndicatorProps, View } from "react-native";
 
 const Loading = ({
@@ -12,4 +12,4 @@ const Loading = ({
   );
 };
 
-export default Loading;
+export default memo(Loading);

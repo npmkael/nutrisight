@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -11,13 +11,13 @@ import {
   View,
 } from "react-native";
 
-export default function Name() {
+function Name() {
   const [name, setName] = useState("");
   const router = useRouter();
 
-  const back = () => {
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
   return (
     <KeyboardAvoidingView
@@ -55,6 +55,8 @@ export default function Name() {
     </KeyboardAvoidingView>
   );
 }
+
+export default memo(Name);
 
 const styles = StyleSheet.create({
   container: {

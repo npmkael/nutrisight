@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import { StyleSheet, View, ViewStyle } from "react-native";
 
 interface LineProgressBarProps {
@@ -46,4 +46,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default LineProgressBar;
+export default memo(LineProgressBar);

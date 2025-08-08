@@ -1,13 +1,13 @@
 import { UserProvider } from "@/context/AuthContext";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
-import { useEffect } from "react";
+import { memo, useEffect } from "react";
 import Loading from "../components/Loading";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-export default function RootLayout() {
+function RootLayout() {
   const [loaded, error] = useFonts({
     Poppins: require("../assets/fonts/Poppins-Regular.ttf"),
     PoppinsMedium: require("../assets/fonts/Poppins-Medium.ttf"),
@@ -55,3 +55,5 @@ export default function RootLayout() {
     </UserProvider>
   );
 }
+
+export default memo(RootLayout);

@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
-import React from "react";
+import React, { memo, useMemo } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Typo from "./Typo";
 
@@ -24,12 +24,8 @@ interface BMIClassificationProps {
   onLogWeight: () => void;
 }
 
-export default function BMIClassification({
-  bmi,
-  name,
-  onLogWeight,
-}: BMIClassificationProps) {
-  const category = getClassification(bmi);
+function BMIClassification({ bmi, name, onLogWeight }: BMIClassificationProps) {
+  const category = useMemo(() => getClassification(bmi), [bmi]);
 
   // Calculate marker position based on actual BMI category distributions
   // The gradient represents: Underweight (0-18.49), Normal (18.5-24.99), Overweight (25-29.99), Obese (30+)
@@ -49,7 +45,7 @@ export default function BMIClassification({
     markerPos = 0.74 + Math.min((bmi - 30) / 10, 1) * 0.26;
   }
 
-  markerPos = Math.min(Math.max(markerPos, 0), 1);
+  markerPos = useMemo(() => Math.min(Math.max(markerPos, 0), 1), [markerPos]);
 
   return (
     <>
@@ -168,6 +164,8 @@ export default function BMIClassification({
     </>
   );
 }
+
+export default memo(BMIClassification);
 
 const styles = StyleSheet.create({
   linearGradient: {

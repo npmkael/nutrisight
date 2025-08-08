@@ -1,7 +1,7 @@
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { useState } from "react";
+import { memo, useCallback, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -10,20 +10,20 @@ import {
   View,
 } from "react-native";
 
-export default function GenderEdit() {
+function GenderEdit() {
   const { user } = useAuth();
   const router = useRouter();
   const [selectedGender, setSelectedGender] = useState(user?.gender || "");
 
-  const back = () => {
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Here you would save the gender to the backend
     console.log("Saving gender:", selectedGender);
     router.back();
-  };
+  }, [selectedGender, router]);
 
   const isValid = selectedGender.length > 0;
 
@@ -130,6 +130,8 @@ export default function GenderEdit() {
     </SafeAreaView>
   );
 }
+
+export default memo(GenderEdit);
 
 const styles = StyleSheet.create({
   header: {

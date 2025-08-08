@@ -7,7 +7,7 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { useRef, useState } from "react";
+import { memo, useRef, useState } from "react";
 import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Loading from "../../../components/Loading";
 
@@ -19,7 +19,7 @@ export type ScanResultType = {
   nutrition: any[][][];
 };
 
-export default function App() {
+function App() {
   const { user } = useAuth();
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
@@ -308,6 +308,8 @@ export default function App() {
     </View>
   );
 }
+
+export default memo(App);
 
 const styles = StyleSheet.create({
   container: {

@@ -6,8 +6,9 @@ import CustomButton from "./CustomButton";
 // icons and images
 import { icons } from "@/constants/index";
 import { useAuth } from "@/context/AuthContext";
+import { memo } from "react";
 
-export default function OAuth() {
+function OAuth() {
   const { signWithGoogle } = useAuth();
 
   return (
@@ -35,3 +36,5 @@ export default function OAuth() {
     </View>
   );
 }
+
+export default memo(OAuth);
