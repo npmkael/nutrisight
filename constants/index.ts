@@ -7,6 +7,8 @@ import person from "@/assets/icons/person.png";
 
 import accountFill from "@/assets/icons/acc-fill.png";
 import accountOutline from "@/assets/icons/acc-outline.png";
+import forkFill from "@/assets/icons/fork-fill.png";
+import forkOutline from "@/assets/icons/fork-outline.png";
 import homeFill from "@/assets/icons/home-fill.png";
 import homeOutline from "@/assets/icons/home-outline.png";
 import progressFill from "@/assets/icons/prog-fill.png";
@@ -31,6 +33,8 @@ export const icons = {
   accountOutline,
   settingsFill,
   settingsOutline,
+  forkFill,
+  forkOutline,
 };
 
 export const images = {

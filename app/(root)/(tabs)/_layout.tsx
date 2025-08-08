@@ -61,14 +61,14 @@ function Layout() {
         }}
       />
       <Tabs.Screen
-        name="progress"
+        name="meals"
         options={{
-          tabBarLabel: "Progress",
+          tabBarLabel: "Meal",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
-              iconFill={icons.progressFill}
-              iconOutline={icons.progressOutline}
+              iconFill={icons.forkFill}
+              iconOutline={icons.forkOutline}
               focused={focused}
               className="w-7 h-7"
             />
@@ -86,14 +86,14 @@ function Layout() {
         }}
       />
       <Tabs.Screen
-        name="account"
+        name="progress"
         options={{
-          tabBarLabel: "Account",
+          tabBarLabel: "Progress",
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon
-              iconFill={icons.accountFill}
-              iconOutline={icons.accountOutline}
+              iconFill={icons.progressFill}
+              iconOutline={icons.progressOutline}
               focused={focused}
               className="w-7 h-7"
             />
