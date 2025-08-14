@@ -1,6 +1,8 @@
+import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -12,12 +14,31 @@ import {
 } from "react-native";
 
 function Name() {
+  const { user, setUser } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
   const [name, setName] = useState("");
   const router = useRouter();
+
+  useEffect(() => {
+    if (user) {
+      setName(user?.name || "");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (response?.data) {
+      setUser((prev) => (prev ? { ...prev, name: response.data.name } : prev));
+    }
+  }, [response]);
 
   const back = useCallback(() => {
     router.back();
   }, [router]);
+
+  const handleDone = useCallback(async () => {
+    await updateAccount({ name });
+    if (!error) router.back();
+  }, [name, router, updateAccount, error]);
 
   return (
     <KeyboardAvoidingView
@@ -47,10 +68,21 @@ function Name() {
       <View style={styles.bottomBar}>
         <TouchableOpacity
           style={[styles.doneButton, !name && styles.doneButtonDisabled]}
-          disabled={!name}
+          disabled={!name || isLoading}
+          onPress={handleDone}
         >
-          <Text style={styles.doneButtonText}>Done</Text>
+          <Text style={styles.doneButtonText}>
+            {isLoading ? "Saving..." : "Done"}
+          </Text>
         </TouchableOpacity>
+        {error && (
+          <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
+        )}
+        {response?.message && (
+          <Text style={{ color: "green", textAlign: "center" }}>
+            {response.message}
+          </Text>
+        )}
       </View>
     </KeyboardAvoidingView>
   );

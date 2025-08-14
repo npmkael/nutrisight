@@ -52,6 +52,7 @@ export interface UserType {
 export interface AuthContextType {
   checkingSession: boolean;
   user: UserType | null;
+  setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
   loading: boolean;
   registered?: boolean;
   login: (email: string, password: string) => Promise<void>;
@@ -471,7 +472,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setUser((prev) =>
           prev ? { ...prev, profileLink: data.profileLink } : prev
         );
-        router.replace("/(root)/(tabs)/account");
+        router.replace("/(root)/(tabs)/settings");
       } catch (error) {
         console.error("Upload profile picture error:", error);
         throw error;
@@ -497,6 +498,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       agreement,
       registered,
       checkingSession: checkingSession,
+      setUser,
     }),
     [
       user,
@@ -512,6 +514,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       agreement,
       registered,
       checkingSession,
+      setUser,
     ]
   );
 

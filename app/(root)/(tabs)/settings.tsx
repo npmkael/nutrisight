@@ -17,9 +17,7 @@ function Settings() {
   const { user, loading, logout } = useAuth();
   const router = useRouter();
 
-  if (loading && !user) {
-    return <Loading />;
-  }
+  if (loading && !user) return <Loading />;
 
   if (!user) {
     router.replace("/(auth)/sign-in");
