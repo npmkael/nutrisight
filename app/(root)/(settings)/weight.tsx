@@ -1,8 +1,9 @@
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,20 +15,39 @@ import {
 } from "react-native";
 
 function WeightEdit() {
-  const { user } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
+  const { user, setUser } = useAuth();
   const router = useRouter();
   const [weight, setWeight] = useState(user?.weight?.toString() || "");
-  const [weightUnit, setWeightUnit] = useState("lbs");
+  const [weightUnit, setWeightUnit] = useState("kg");
+
+  useEffect(() => {
+    if (user) {
+      setWeight(user.weight?.toString() || "");
+      setWeightUnit("kg");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (response) {
+      setUser((prev) =>
+        prev ? { ...prev, weight: response.data.weight } : prev
+      );
+    }
+  }, [response]);
 
   const back = useCallback(() => {
     router.back();
   }, [router]);
 
-  const handleSave = useCallback(() => {
-    // Here you would save the weight to the backend
-    console.log("Saving weight:", weight, weightUnit);
-    router.back();
-  }, [weight, weightUnit, router]);
+  const handleSave = useCallback(async () => {
+    let weightKg = parseFloat(weight);
+    if (weightUnit === "lbs") {
+      weightKg = +(weightKg * 0.453592).toFixed(2); // Convert to kg, round to 2 decimals
+    }
+    await updateAccount({ weight: weightKg });
+    if (!error) router.back();
+  }, [weight, weightUnit, router, updateAccount, setUser, error]);
 
   const toggleWeightUnit = useCallback(() => {
     setWeightUnit((prev) => (prev === "lbs" ? "kg" : "lbs"));
@@ -94,7 +114,7 @@ function WeightEdit() {
         <View className="p-4">
           <TouchableOpacity
             onPress={handleSave}
-            disabled={!isValid}
+            disabled={!isValid || isLoading}
             className={`p-4 rounded-lg items-center ${
               isValid ? "bg-black" : "bg-gray-300"
             }`}
@@ -104,9 +124,17 @@ function WeightEdit() {
                 isValid ? "text-white" : "text-gray-500"
               }`}
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </Text>
           </TouchableOpacity>
+          {error && (
+            <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
+          )}
+          {response?.message && (
+            <Text style={{ color: "green", textAlign: "center" }}>
+              {response.message}
+            </Text>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

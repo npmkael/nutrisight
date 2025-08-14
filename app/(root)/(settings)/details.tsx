@@ -95,7 +95,7 @@ function Details() {
             </View>
             <View className="flex-row items-center gap-1">
               <Text className="font-PoppinsSemiBold text-sm">
-                {user?.weight || "60"} lbs
+                {user?.weight || "60"} kg
               </Text>
               <Ionicons name="pencil" size={14} color="#E4E4E4" />
             </View>
@@ -112,7 +112,7 @@ function Details() {
             </View>
             <View className="flex-row items-center gap-1">
               <Text className="font-PoppinsSemiBold text-sm">
-                {user?.height || "182"} cm
+                {user?.height || "182"} ft
               </Text>
               <Ionicons name="pencil" size={14} color="#E4E4E4" />
             </View>

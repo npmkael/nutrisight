@@ -1,8 +1,9 @@
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,24 +15,55 @@ import {
 } from "react-native";
 
 function HeightEdit() {
-  const { user } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
+  const { user, setUser } = useAuth();
   const router = useRouter();
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
-  const [heightCm, setHeightCm] = useState(user?.height?.toString() || "");
-  const [heightUnit, setHeightUnit] = useState("cm");
+  const [heightCm, setHeightCm] = useState("");
+  const [heightUnit, setHeightUnit] = useState("ft/in");
+
+  useEffect(() => {
+    if (user) {
+      setHeightFeet(Math.floor(user.height || 0).toString());
+      setHeightInches((((user.height || 0) % 1) * 12).toFixed(0));
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (response) {
+      setUser((prev) =>
+        prev ? { ...prev, height: response.data.height } : prev
+      );
+    }
+  }, [response]);
 
   const back = useCallback(() => {
     router.back();
   }, [router]);
 
-  const handleSave = useCallback(() => {
-    // Here you would save the height to the backend
-    const height =
-      heightUnit === "cm" ? heightCm : `${heightFeet}'${heightInches}"`;
-    console.log("Saving height:", height);
-    router.back();
-  }, [heightFeet, heightInches, heightCm, heightUnit, router]);
+  const handleSave = useCallback(async () => {
+    let feetValue = 0;
+    if (heightUnit === "ft/in") {
+      const feet = parseInt(heightFeet) || 0;
+      const inches = parseInt(heightInches) || 0;
+      feetValue = parseFloat(`${feet}.${inches}`);
+    } else {
+      // cm to feet: 1 cm = 0.0328084 ft
+      feetValue = +(parseFloat(heightCm) * 0.0328084).toFixed(2);
+    }
+    const res = await updateAccount({ height: feetValue });
+    if (!error) router.back();
+  }, [
+    heightFeet,
+    heightInches,
+    heightCm,
+    heightUnit,
+    router,
+    updateAccount,
+    setUser,
+    error,
+  ]);
 
   const toggleHeightUnit = useCallback(() => {
     setHeightUnit(heightUnit === "ft/in" ? "cm" : "ft/in");
@@ -118,7 +150,7 @@ function HeightEdit() {
         <View className="p-4">
           <TouchableOpacity
             onPress={handleSave}
-            disabled={!isValid()}
+            disabled={!isValid() || isLoading}
             className={`p-4 rounded-lg items-center ${
               isValid() ? "bg-black" : "bg-gray-300"
             }`}
@@ -128,9 +160,17 @@ function HeightEdit() {
                 isValid() ? "text-white" : "text-gray-500"
               }`}
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </Text>
           </TouchableOpacity>
+          {error && (
+            <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
+          )}
+          {response?.message && (
+            <Text style={{ color: "green", textAlign: "center" }}>
+              {response.message}
+            </Text>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>
