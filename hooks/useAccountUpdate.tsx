@@ -7,6 +7,7 @@ type UpdatePayload = Partial<{
   age: number;
   height: number;
   weight: number;
+  allergens: string[];
   // Add other allowed fields as needed
 }>;
 

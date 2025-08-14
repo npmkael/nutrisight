@@ -1,8 +1,9 @@
 import AllergensSelection from "@/components/onboarding/AllergensSelection";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -12,21 +13,35 @@ import {
 } from "react-native";
 
 function AllergensEdit() {
-  const { user } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
+  const { user, setUser } = useAuth();
   const router = useRouter();
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>(
     user?.allergens || []
   );
 
+  useEffect(() => {
+    if (user) {
+      setSelectedAllergens(user.allergens || []);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (response) {
+      setUser((prev) =>
+        prev ? { ...prev, allergens: response.data.allergens } : prev
+      );
+    }
+  }, [response]);
+
   const back = useCallback(() => {
     router.back();
   }, [router]);
 
-  const handleSave = useCallback(() => {
-    // Here you would save the allergens to the backend
-    console.log("Saving allergens:", selectedAllergens);
-    router.back();
-  }, [router, selectedAllergens]);
+  const handleSave = useCallback(async () => {
+    const res = await updateAccount({ allergens: selectedAllergens });
+    if (!error) router.back();
+  }, [router, selectedAllergens, updateAccount, setUser, error]);
 
   const isValid = useMemo(
     () => selectedAllergens.length > 0,
@@ -72,7 +87,7 @@ function AllergensEdit() {
       <View className="p-4">
         <TouchableOpacity
           onPress={handleSave}
-          disabled={!isValid}
+          disabled={!isValid || isLoading}
           className={`p-4 rounded-lg items-center ${
             isValid ? "bg-black" : "bg-gray-300"
           }`}
@@ -82,9 +97,17 @@ function AllergensEdit() {
               isValid ? "text-white" : "text-gray-500"
             }`}
           >
-            Save
+            {isLoading ? "Saving..." : "Save"}
           </Text>
         </TouchableOpacity>
+        {error && (
+          <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
+        )}
+        {response?.message && (
+          <Text style={{ color: "green", textAlign: "center" }}>
+            {response.message}
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );

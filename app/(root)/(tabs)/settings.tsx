@@ -54,13 +54,7 @@ function Settings() {
                 </View>
               </Link>
               <Text className="font-Poppins text-sm">
-                {user.birthdate
-                  ? `${Math.floor(
-                      (new Date().getTime() -
-                        new Date(user.birthdate).getTime()) /
-                        (1000 * 60 * 60 * 24 * 365.25)
-                    )} years old`
-                  : "Age: N/A"}
+                {user.age ? `${user.age} years old` : "Age: N/A"}
               </Text>
             </View>
           </View>

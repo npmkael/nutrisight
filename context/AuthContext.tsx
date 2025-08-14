@@ -31,7 +31,7 @@ export interface UserType {
   gmailId?: string; // (dynamic)
   profileLink?: string; // (dynamic)
   gender?: string; // (dynamic)
-  birthdate?: Date; // (dynamic)
+  age?: number; // (dynamic)
   height?: number; // in feet (dynamic)
   weight?: number; // in kg (dynamic)
   targetWeight?: number; // in kg (dynamic)

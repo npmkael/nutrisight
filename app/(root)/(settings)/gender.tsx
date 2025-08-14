@@ -1,7 +1,8 @@
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import {
   SafeAreaView,
   StyleSheet,
@@ -11,19 +12,34 @@ import {
 } from "react-native";
 
 function GenderEdit() {
-  const { user } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
+  const { user, setUser } = useAuth();
   const router = useRouter();
   const [selectedGender, setSelectedGender] = useState(user?.gender || "");
+
+  useEffect(() => {
+    if (user) {
+      setSelectedGender(user.gender || "");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (response) {
+      setUser((prev) =>
+        prev ? { ...prev, gender: response.data.gender } : prev
+      );
+    }
+  }, [response]);
 
   const back = useCallback(() => {
     router.back();
   }, [router]);
 
-  const handleSave = useCallback(() => {
-    // Here you would save the gender to the backend
-    console.log("Saving gender:", selectedGender);
+  const handleSave = useCallback(async () => {
+    await updateAccount({ gender: selectedGender });
+    if (!error) router.back();
     router.back();
-  }, [selectedGender, router]);
+  }, [selectedGender, updateAccount, setUser, router, error]);
 
   const isValid = selectedGender.length > 0;
 
@@ -113,7 +129,7 @@ function GenderEdit() {
       <View className="p-4">
         <TouchableOpacity
           onPress={handleSave}
-          disabled={!isValid}
+          disabled={!isValid || isLoading}
           className={`p-4 rounded-lg items-center ${
             isValid ? "bg-black" : "bg-gray-300"
           }`}
@@ -123,9 +139,17 @@ function GenderEdit() {
               isValid ? "text-white" : "text-gray-500"
             }`}
           >
-            Save
+            {isLoading ? "Saving..." : "Save"}
           </Text>
         </TouchableOpacity>
+        {error && (
+          <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
+        )}
+        {response?.message && (
+          <Text style={{ color: "green", textAlign: "center" }}>
+            {response.message}
+          </Text>
+        )}
       </View>
     </SafeAreaView>
   );

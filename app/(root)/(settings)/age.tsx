@@ -1,8 +1,9 @@
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { memo, useCallback, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -14,26 +15,33 @@ import {
 } from "react-native";
 
 function AgeEdit() {
-  const { user } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
+  const { user, setUser } = useAuth();
   const router = useRouter();
-  const currentAge = useMemo(() => {
-    if (!user?.birthdate) return "";
-    return Math.floor(
-      (new Date().getTime() - new Date(user.birthdate).getTime()) /
-        (1000 * 60 * 60 * 24 * 365.25)
-    );
-  }, [user?.birthdate]);
-  const [age, setAge] = useState(currentAge.toString() || "");
+
+  useEffect(() => {
+    if (user) {
+      setAge(user?.age?.toString() || "");
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (response) {
+      setUser((prev) => (prev ? { ...prev, age: response.data.age } : prev));
+    }
+  }, [response]);
+
+  const [age, setAge] = useState(user?.age?.toString() || "");
 
   const back = useCallback(() => {
     router.back();
   }, [router]);
 
-  const handleSave = useCallback(() => {
-    // Here you would save the age to the backend
-    console.log("Saving age:", age);
-    router.back();
-  }, [router, age]);
+  const handleSave = useCallback(async () => {
+    const ageNum = parseInt(age);
+    const res = await updateAccount({ age: ageNum });
+    if (!error) router.back();
+  }, [age, updateAccount, setUser, router, error]);
 
   const isValid = useCallback(() => {
     const ageNum = parseInt(age);
@@ -88,7 +96,7 @@ function AgeEdit() {
         <View className="p-4">
           <TouchableOpacity
             onPress={handleSave}
-            disabled={!isValid()}
+            disabled={!isValid() || isLoading}
             className={`p-4 rounded-lg items-center ${
               isValid() ? "bg-black" : "bg-gray-300"
             }`}
@@ -98,9 +106,17 @@ function AgeEdit() {
                 isValid() ? "text-white" : "text-gray-500"
               }`}
             >
-              Save
+              {isLoading ? "Saving..." : "Save"}
             </Text>
           </TouchableOpacity>
+          {error && (
+            <Text style={{ color: "red", textAlign: "center" }}>{error}</Text>
+          )}
+          {response?.message && (
+            <Text style={{ color: "green", textAlign: "center" }}>
+              {response.message}
+            </Text>
+          )}
         </View>
       </KeyboardAvoidingView>
     </SafeAreaView>

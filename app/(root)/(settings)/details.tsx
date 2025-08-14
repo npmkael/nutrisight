@@ -44,7 +44,7 @@ function Details() {
       return user.allergens.join(", ");
     }
 
-    return user.allergens.slice(0, 4).join(", ") + ", ...";
+    return user.allergens.slice(0, 2).join(", ") + ", ..."; // mejo mahaba ibang names pag naka 3 or 4, lumalagpas sa small screens
   }, [user]);
 
   return (
@@ -129,13 +129,7 @@ function Details() {
             </View>
             <View className="flex-row items-center gap-1">
               <Text className="font-PoppinsSemiBold text-sm">
-                {user?.birthdate
-                  ? Math.floor(
-                      (new Date().getTime() -
-                        new Date(user.birthdate).getTime()) /
-                        (1000 * 60 * 60 * 24 * 365.25)
-                    )
-                  : "23"}
+                {user?.age || "N/A"}
               </Text>
               <Ionicons name="pencil" size={14} color="#E4E4E4" />
             </View>
