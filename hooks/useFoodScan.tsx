@@ -13,7 +13,7 @@ export function useFoodScan() {
       setFoodScanData(null);
       try {
         const res = await fetch(
-          "https://nutrisight-microservice-89ab7ccf2966.herokuapp.com/food-scan",
+          "https://nutrisight-backend-dd22d1bd9780.herokuapp.com/food-scan",
           {
             method: "POST",
             headers: {

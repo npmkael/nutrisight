@@ -9,7 +9,7 @@ export function useBarcodeScan() {
       setBarcodeData(null);
       try {
         const res = await fetch(
-          "https://nutrisight-microservice-89ab7ccf2966.herokuapp.com/barcode",
+          "https://nutrisight-backend-dd22d1bd9780.herokuapp.com/barcode",
           {
             method: "POST",
             headers: {
