@@ -73,6 +73,7 @@ export {
 };
 
 export default {
+  primary: "#A1CE4F",
   white: "#FFFFFF",
   black: "#323232",
   black60: "#B6B6B6",

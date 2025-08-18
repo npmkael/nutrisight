@@ -14,9 +14,9 @@ function OAuth() {
   return (
     <View>
       <View className="flex flex-row justify-center items-center mt-4 gap-x-3">
-        <View className="flex-1 h-[1px] bg-general-100" />
-        <Text className="text-lg">Or</Text>
-        <View className="flex-1 h-[1px] bg-general-100" />
+        <View className="flex-1 h-[1px] bg-gray-100" />
+        <Text className="text-lg text-gray-500">or continue with</Text>
+        <View className="flex-1 h-[1px] bg-gray-100" />
       </View>
 
       <CustomButton

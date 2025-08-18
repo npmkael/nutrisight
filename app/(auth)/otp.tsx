@@ -71,9 +71,9 @@ function Otp() {
       </View>
 
       {/* Main Content */}
-      <View className="flex-1 px-6">
+      <View className="flex-1">
         {/* Title Section */}
-        <View className="mt-8">
+        <View className="mt-8 px-4">
           <Text className="text-3xl text-gray-900 mb-2 font-PoppinsSemiBold">
             Verification Code
           </Text>
@@ -84,18 +84,20 @@ function Otp() {
         </View>
 
         {/* OTP Input Section */}
-        <OTPTextInput
-          handleTextChange={setOtpCode}
-          containerStyle={{
-            marginTop: moderateScale(48),
-            marginBottom: moderateScale(24),
-          }}
-          textInputStyle={styles.textInputStyle}
-          inputCount={4}
-          tintColor={colors.btnColor}
-          offTintColor={colors.offColor}
-          keyboardType="number-pad"
-        />
+        <View className="px-4">
+          <OTPTextInput
+            handleTextChange={setOtpCode}
+            containerStyle={{
+              marginTop: moderateScale(48),
+              marginBottom: moderateScale(24),
+            }}
+            textInputStyle={styles.textInputStyle}
+            inputCount={4}
+            tintColor={colors.primary}
+            offTintColor={colors.offColor}
+            keyboardType="number-pad"
+          />
+        </View>
 
         {/* Resend Section */}
         <View className="mt-8 items-center">
@@ -120,7 +122,7 @@ function Otp() {
         </View>
 
         {/* Continue Button */}
-        <View className="mt-auto mb-8">
+        <View className="mt-auto px-4 py-8 border-t border-t-gray-100">
           <CustomButton
             title="Continue"
             onPress={onContinuePress}

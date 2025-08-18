@@ -1,6 +1,6 @@
-import { Link } from "expo-router";
+import { Link, router } from "expo-router";
 import { memo, useState } from "react";
-import { Image, ScrollView, Text, View } from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 // custom components
 import CustomButton from "@/components/CustomButton";
@@ -8,8 +8,11 @@ import InputField from "@/components/InputField";
 import OAuth from "@/components/OAuth";
 
 // icons and images
-import { icons, images } from "@/constants";
+import { icons } from "@/constants";
 import { useAuth } from "@/context/AuthContext";
+
+import { Ionicons } from "@expo/vector-icons";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 function SignIn() {
   const { login, loading } = useAuth();
@@ -20,51 +23,53 @@ function SignIn() {
   });
 
   return (
-    <ScrollView className="flex-1 bg-white">
-      <View className="flex-1 bg-white">
-        <View className="relative w-full h-[200px]">
-          <Image source={images.signUpFood} className="z-0 w-full h-[200px]" />
-          <Text className="text-2xl text-black font-PoppinsMedium absolute bottom-5 left-5">
-            Welcome 👋🏻
-          </Text>
+    <SafeAreaView className="flex-1">
+      <View className="flex-row items-center p-4 gap-4 bg-white">
+        <TouchableOpacity
+          onPress={() => router.back()}
+          className="p-2 rounded-full bg-[#F4F4F4]"
+        >
+          <Ionicons name="arrow-back" size={20} color="black" />
+        </TouchableOpacity>
+      </View>
+      <ScrollView className="flex-1 bg-white">
+        <View className="p-5">
+          <InputField
+            label="Email"
+            placeholder="Enter your email"
+            icon={icons.email}
+            value={form.email}
+            onChangeText={(value) => setForm({ ...form, email: value })}
+          />
+          <InputField
+            label="Password"
+            placeholder="Enter your password"
+            icon={icons.lock}
+            secureTextEntry={true}
+            value={form.password}
+            onChangeText={(value) => setForm({ ...form, password: value })}
+          />
+
+          <CustomButton
+            title="Sign In"
+            disabled={loading}
+            loading={loading}
+            onPress={() => login(form.email, form.password)}
+            className="mt-6"
+          />
+
+          {/* OAuth */}
+          <OAuth />
+
+          <Link href="/sign-up" className="mt-10">
+            <Text className="text-base text-center text-gray-600">
+              Don't have an account?{" "}
+              <Text className="font-semibold text-[#A1CE4F]">Sign Up</Text>
+            </Text>
+          </Link>
         </View>
-      </View>
-      <View className="p-5">
-        <InputField
-          label="Email"
-          placeholder="Enter your email"
-          icon={icons.email}
-          value={form.email}
-          onChangeText={(value) => setForm({ ...form, email: value })}
-        />
-        <InputField
-          label="Password"
-          placeholder="Enter your password"
-          icon={icons.lock}
-          secureTextEntry={true}
-          value={form.password}
-          onChangeText={(value) => setForm({ ...form, password: value })}
-        />
-
-        <CustomButton
-          title="Sign In"
-          disabled={loading}
-          loading={loading}
-          onPress={() => login(form.email, form.password)}
-          className="mt-6"
-        />
-
-        {/* OAuth */}
-        <OAuth />
-
-        <Link href="/sign-up" className="mt-10">
-          <Text className="text-base text-center text-gray-600">
-            Don't have an account?{" "}
-            <Text className="font-semibold text-[#2D3644]">Sign Up</Text>
-          </Text>
-        </Link>
-      </View>
-    </ScrollView>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
 
