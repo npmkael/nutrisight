@@ -35,6 +35,7 @@ export interface UserType {
   height?: number; // in feet (dynamic)
   weight?: number; // in kg (dynamic)
   targetWeight?: number; // in kg (dynamic)
+  weightGoal?: string; // gain/maintain/lose (dynamic)
   bmi?: number; // Body Mass Index (dynamic)
   allergens?: string[]; // Array of allergens (dynamic)
   medicalConditions?: string[]; // Array of medical conditions (dynamic)
@@ -74,7 +75,9 @@ export interface AuthContextType {
     age: number,
     height: number,
     weight: number,
-    email: string
+    email: string,
+    weightGoal: string,
+    targetWeight: number
   ) => Promise<void>;
   agreement: (email: string) => Promise<void>;
 }
@@ -346,7 +349,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       age: number,
       height: number,
       weight: number,
-      email: string
+      email: string,
+      weightGoal: string,
+      targetWeight: number
     ) => {
       try {
         setLoading(true);
@@ -363,6 +368,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             height,
             weight,
             email,
+            weightGoal,
+            targetWeight,
           }),
         });
         if (!res.ok) {
@@ -472,7 +479,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setUser((prev) =>
           prev ? { ...prev, profileLink: data.profileLink } : prev
         );
-        router.replace("/(root)/(tabs)/settings");
+        router.replace("/(root)/(tabs)/account");
       } catch (error) {
         console.error("Upload profile picture error:", error);
         throw error;

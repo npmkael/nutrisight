@@ -51,7 +51,7 @@ const Welcome = () => {
         entering={FadeInDown.duration(1000).delay(300).springify().damping(12)}
       >
         <TouchableOpacity style={styles.signInButton} onPress={handleLogin}>
-          <Text style={styles.buttonText}>Sign In</Text>
+          <Text style={styles.signInButtonText}>Sign In</Text>
         </TouchableOpacity>
       </Animated.View>
 
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     justifyContent: "flex-end",
   },
   signUpButton: {
-    backgroundColor: "#A1CE4F",
+    backgroundColor: "#2D3644",
     borderWidth: 1,
     borderColor: "transparent",
     paddingHorizontal: 30,
@@ -85,12 +85,18 @@ const styles = StyleSheet.create({
   signInButton: {
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#A1CE4F",
+    borderColor: "#2D3644",
     paddingHorizontal: 30,
     paddingVertical: 15,
     borderRadius: 25,
   },
   buttonText: {
+    color: "#fff",
+    textAlign: "center",
+    fontSize: 14,
+    fontFamily: "PoppinsSemiBold",
+  },
+  signInButtonText: {
     color: "#000",
     textAlign: "center",
     fontSize: 14,

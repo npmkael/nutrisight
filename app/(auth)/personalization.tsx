@@ -7,6 +7,8 @@ import HeightAndWeight from "@/components/onboarding/HeightAndWeight";
 import InputName from "@/components/onboarding/InputName";
 import { LoadingScreen } from "@/components/onboarding/LoadingScreen";
 import SuccessAccount from "@/components/onboarding/SuccessAccount";
+import TargetWeightSelection from "@/components/onboarding/TargetWeightSelection";
+import WeightGoalSelection from "@/components/onboarding/WeightGoalSelection";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -14,7 +16,7 @@ import { useLocalSearchParams /*useRouter*/ } from "expo-router";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const totalSteps = 5;
+const totalSteps = 7;
 
 const Onboarding = () => {
   const { onboardingSubmission, loading, registered, agreement } = useAuth();
@@ -30,6 +32,8 @@ const Onboarding = () => {
   const [heightInches, setHeightInches] = useState("");
   const [weight, setWeight] = useState("");
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
+  const [weightGoal, setWeightGoal] = useState("");
+  const [targetWeight, setTargetWeight] = useState("");
 
   const progress = useMemo(
     () => (currentStep / totalSteps) * 100,
@@ -37,7 +41,7 @@ const Onboarding = () => {
   );
 
   useEffect(() => {
-    if (currentStep === 5 && !registered) {
+    if (currentStep === 7 && !registered) {
       onboardingSubmission(
         name,
         selectedAllergens,
@@ -45,7 +49,9 @@ const Onboarding = () => {
         parseInt(age),
         parseFloat(`${heightFeet}.${heightInches === "" ? "0" : heightInches}`),
         parseFloat(weight),
-        email
+        email,
+        weightGoal,
+        parseFloat(targetWeight)
       )
         .then(() => {
           console.log("Onboarding submission successful.");
@@ -64,6 +70,8 @@ const Onboarding = () => {
     heightFeet,
     heightInches,
     weight,
+    weightGoal,
+    targetWeight,
     onboardingSubmission,
     registered,
   ]);
@@ -99,6 +107,29 @@ const Onboarding = () => {
     return selectedAllergens.length > 0;
   }, [selectedAllergens]);
 
+  const isStep5Valid = useCallback(() => {
+    return weightGoal.length > 0;
+  }, [weightGoal]);
+
+  const isStep6Valid = useCallback(() => {
+    const targetWeightNum = parseFloat(targetWeight);
+    const currentWeightNum = parseFloat(weight);
+
+    if (!targetWeight || isNaN(targetWeightNum) || targetWeightNum <= 0) {
+      return false;
+    }
+
+    // Additional validation based on weight goal
+    if (weightGoal === "lose" && targetWeightNum >= currentWeightNum) {
+      return false;
+    }
+    if (weightGoal === "gain" && targetWeightNum <= currentWeightNum) {
+      return false;
+    }
+
+    return true;
+  }, [targetWeight, weight, weightGoal]);
+
   const isCurrentStepValid = useCallback(() => {
     if (registered) return true;
     switch (currentStep) {
@@ -110,6 +141,10 @@ const Onboarding = () => {
         return isStep3Valid();
       case 4:
         return isStep4Valid();
+      case 5:
+        return isStep5Valid();
+      case 6:
+        return isStep6Valid();
       default:
         return true;
     }
@@ -120,10 +155,12 @@ const Onboarding = () => {
     isStep2Valid,
     isStep3Valid,
     isStep4Valid,
+    isStep5Valid,
+    isStep6Valid,
   ]);
 
   const renderContent = useCallback(() => {
-    if (loading || currentStep === 5) return <LoadingScreen />;
+    if (loading || currentStep === 7) return <LoadingScreen />;
 
     if (registered) return <SuccessAccount />;
 
@@ -159,6 +196,24 @@ const Onboarding = () => {
           setSelectedAllergens={setSelectedAllergens}
         />
       );
+
+    if (currentStep === 5)
+      return (
+        <WeightGoalSelection
+          selectedGoal={weightGoal}
+          setSelectedGoal={setWeightGoal}
+        />
+      );
+
+    if (currentStep === 6)
+      return (
+        <TargetWeightSelection
+          targetWeight={targetWeight}
+          setTargetWeight={setTargetWeight}
+          currentWeight={weight}
+          weightGoal={weightGoal}
+        />
+      );
   }, [
     currentStep,
     registered,
@@ -169,6 +224,8 @@ const Onboarding = () => {
     heightInches,
     weight,
     selectedAllergens,
+    weightGoal,
+    targetWeight,
   ]);
 
   console.log("Current step:", currentStep);
@@ -212,6 +269,9 @@ const Onboarding = () => {
               style={{ width: `${progress}%` }}
             />
           </View>
+          <Text className="text-black font-PoppinsMedium">
+            {currentStep} / {totalSteps}
+          </Text>
         </View>
       )}
 
@@ -219,12 +279,15 @@ const Onboarding = () => {
       {renderContent()}
 
       {/* Footer */}
-      {currentStep <= totalSteps + 2 && currentStep !== 5 && (
-        <Animated.View entering={FadeIn.duration(600)}>
+      {currentStep <= totalSteps + 2 && currentStep !== 7 && (
+        <Animated.View
+          className="mt-auto px-4 py-8 border-t border-t-gray-100"
+          entering={FadeIn.duration(600)}
+        >
           <TouchableOpacity
             onPress={registered ? () => agreement(email) : handleContinue}
             disabled={!isCurrentStepValid()}
-            className={`p-4 m-2 rounded-lg items-center ${
+            className={`p-4 rounded-lg items-center ${
               isCurrentStepValid() ? "bg-black" : "bg-gray-300"
             }`}
           >

@@ -1,4 +1,3 @@
-import { CameraTabButton } from "@/components/CameraTabButton";
 import { HapticTab } from "@/components/HapticTab";
 import { icons } from "@/constants";
 import { Tabs } from "expo-router";
@@ -33,7 +32,7 @@ function Layout() {
         tabBarActiveTintColor: "#000",
         tabBarInactiveTintColor: "#898989",
         tabBarStyle: {
-          height: 80,
+          height: 60,
           borderWidth: 1,
           borderColor: "rgba(0, 0, 0, 0.3)",
         },
@@ -61,31 +60,6 @@ function Layout() {
         }}
       />
       <Tabs.Screen
-        name="meals"
-        options={{
-          tabBarLabel: "Meal",
-          headerShown: false,
-          tabBarIcon: ({ focused }) => (
-            <TabIcon
-              iconFill={icons.forkFill}
-              iconOutline={icons.forkOutline}
-              focused={focused}
-              className="w-7 h-7"
-            />
-          ),
-          tabBarLabelStyle: {
-            fontSize: 12,
-          },
-        }}
-      />
-      {/* Custom Tab */}
-      <Tabs.Screen
-        name="camera"
-        options={{
-          tabBarButton: CameraTabButton,
-        }}
-      />
-      <Tabs.Screen
         name="progress"
         options={{
           tabBarLabel: "Progress",
@@ -104,13 +78,13 @@ function Layout() {
         }}
       />
       <Tabs.Screen
-        name="settings"
+        name="account"
         options={{
-          tabBarLabel: "Settings",
+          tabBarLabel: "Account",
           tabBarIcon: ({ focused }) => (
             <TabIcon
-              iconFill={icons.settingsFill}
-              iconOutline={icons.settingsOutline}
+              iconFill={icons.accountFill}
+              iconOutline={icons.accountOutline}
               focused={focused}
               className="w-7 h-7"
             />

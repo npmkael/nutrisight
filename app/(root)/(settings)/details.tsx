@@ -1,12 +1,16 @@
 import { useAuth } from "@/context/AuthContext";
+import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { memo /*useState*/, useCallback } from "react";
+import { memo, useCallback, useState } from "react";
 import {
+  Image,
   KeyboardAvoidingView,
   Platform,
+  ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -26,154 +30,105 @@ const Container = ({
 };
 
 function Details() {
-  // const [name, setName] = useState("");
   const router = useRouter();
   const { user } = useAuth();
+
+  const [fullName, setFullName] = useState(user?.name || "Andrew Ainsley");
+  const [email, setEmail] = useState(
+    user?.email || "andrew.ainsley@yourdomain.com"
+  );
+  const [gender, setGender] = useState(user?.gender || "Male");
+  const [dateOfBirth, setDateOfBirth] = useState("12-25-1995");
 
   const back = useCallback(() => {
     router.back();
   }, [router]);
 
-  // Format allergens display - show first 4, then "..." if more
-  const formatAllergens = useCallback(() => {
-    if (!user?.allergens || user.allergens.length === 0) {
-      return "None";
-    }
-
-    if (user.allergens.length <= 4) {
-      return user.allergens.join(", ");
-    }
-
-    return user.allergens.slice(0, 2).join(", ") + ", ..."; // mejo mahaba ibang names pag naka 3 or 4, lumalagpas sa small screens
-  }, [user]);
-
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#fafafa" }}
+      style={{ flex: 1, backgroundColor: "#f8f9fa" }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
-      <View style={styles.container}>
-        {/* Header with Back Button and Title */}
+      <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        {/* Header with Back Button */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={back}>
-            <Ionicons name="arrow-back" size={18} color="black" />
+            <Ionicons name="arrow-back" size={20} color="black" />
           </TouchableOpacity>
-
-          <Text
-            style={styles.titleText}
-            className="font-PoppinsSemiBold text-2xl"
-          >
-            Personal details
-          </Text>
+          <Text style={styles.title}>Personal Info</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
-        <Container className="px-4 py-2 mb-6">
-          <View className="flex-row justify-between items-center">
-            <View className="flex-col gap-1">
-              <Text className="font-Poppins text-sm text-gray-400">
-                Goal Weight
-              </Text>
-              <Text className="font-PoppinsSemiBold text-sm text-black">
-                129 lbs
-              </Text>
-            </View>
-            <TouchableOpacity className="bg-black rounded-full px-2 py-1">
-              <Text className="font-Poppins text-white text-[10px]">
-                Change Goal
-              </Text>
+        {/* Profile Photo Section */}
+        <View style={styles.profileSection}>
+          <View style={styles.profileImageContainer}>
+            <Image
+              source={require("@/assets/images/sample-profile.jpg")}
+              style={styles.profileImage}
+            />
+            <TouchableOpacity style={styles.editPhotoButton}>
+              <View style={styles.editIcon}>
+                <Ionicons name="pencil" size={12} color="white" />
+              </View>
             </TouchableOpacity>
           </View>
-        </Container>
+        </View>
 
-        <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity
-            className="flex-row items-center justify-between gap-2"
-            onPress={() => router.push("/(root)/(settings)/weight")}
-          >
-            <View className="flex-row items-center gap-2">
-              <Text className="text-sm font-Poppins">Current Weight</Text>
+        {/* Form Fields */}
+        <View style={styles.formContainer}>
+          {/* Full Name */}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.fieldLabel}>Full Name</Text>
+            <TextInput
+              style={styles.textInput}
+              value={fullName}
+              onChangeText={setFullName}
+              placeholder="Enter your full name"
+            />
+          </View>
+
+          {/* Email */}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.fieldLabel}>Email</Text>
+            <View style={styles.inputWithIcon}>
+              <Ionicons
+                name="mail-outline"
+                size={20}
+                color="#9CA3AF"
+                style={styles.inputIcon}
+              />
+              <TextInput
+                style={[styles.textInput, styles.textInputWithIcon]}
+                value={email}
+                onChangeText={setEmail}
+                placeholder="Enter your email"
+                keyboardType="email-address"
+                autoCapitalize="none"
+              />
             </View>
-            <View className="flex-row items-center gap-1">
-              <Text className="font-PoppinsSemiBold text-sm">
-                {user?.weight || "60"} kg
+          </View>
+
+          {/* Gender */}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.fieldLabel}>Gender</Text>
+            <TouchableOpacity style={styles.dropdownContainer}>
+              <Text style={styles.dropdownText}>
+                {gender.charAt(0).toUpperCase() + gender.slice(1)}
               </Text>
-              <Ionicons name="pencil" size={14} color="#E4E4E4" />
-            </View>
-          </TouchableOpacity>
+              <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
+          </View>
 
-          <View className="h-[1px] bg-gray-200 my-[10px]" />
-
-          <TouchableOpacity
-            className="flex-row justify-between items-center gap-2"
-            onPress={() => router.push("/(root)/(settings)/height")}
-          >
-            <View className="flex-row items-center gap-2">
-              <Text className="text-sm font-Poppins">Height</Text>
-            </View>
-            <View className="flex-row items-center gap-1">
-              <Text className="font-PoppinsSemiBold text-sm">
-                {user?.height || "182"} ft
-              </Text>
-              <Ionicons name="pencil" size={14} color="#E4E4E4" />
-            </View>
-          </TouchableOpacity>
-
-          <View className="h-[1px] bg-gray-200 my-[10px]" />
-
-          <TouchableOpacity
-            className="flex-row justify-between items-center gap-2"
-            onPress={() => router.push("/(root)/(settings)/age")}
-          >
-            <View className="flex-row items-center gap-2">
-              <Text className="text-sm font-Poppins">Age</Text>
-            </View>
-            <View className="flex-row items-center gap-1">
-              <Text className="font-PoppinsSemiBold text-sm">
-                {user?.age || "N/A"}
-              </Text>
-              <Ionicons name="pencil" size={14} color="#E4E4E4" />
-            </View>
-          </TouchableOpacity>
-
-          <View className="h-[1px] bg-gray-200 my-[10px]" />
-
-          <TouchableOpacity
-            className="flex-row justify-between items-center gap-2"
-            onPress={() => router.push("/(root)/(settings)/gender")}
-          >
-            <View className="flex-row items-center gap-2">
-              <Text className="text-sm font-Poppins">Gender</Text>
-            </View>
-            <View className="flex-row items-center gap-1">
-              <Text className="font-PoppinsSemiBold text-sm">
-                {user?.gender || "Male"}
-              </Text>
-              <Ionicons name="pencil" size={14} color="#E4E4E4" />
-            </View>
-          </TouchableOpacity>
-
-          <View className="h-[1px] bg-gray-200 my-[10px]" />
-
-          <TouchableOpacity
-            className="flex-row justify-between items-center gap-2"
-            onPress={() => router.push("/(root)/(settings)/allergens")}
-          >
-            <View className="flex-row items-center gap-2">
-              <Text className="text-sm font-Poppins">Allergens</Text>
-            </View>
-            <View className="flex-row items-center gap-1">
-              <Text
-                className="font-PoppinsSemiBold text-sm"
-                numberOfLines={1}
-                ellipsizeMode="tail"
-              >
-                {formatAllergens()}
-              </Text>
-              <Ionicons name="pencil" size={14} color="#E4E4E4" />
-            </View>
-          </TouchableOpacity>
-        </Container>
-      </View>
+          {/* Date of Birth */}
+          <View style={styles.fieldContainer}>
+            <Text style={styles.fieldLabel}>Date of Birth</Text>
+            <TouchableOpacity style={styles.dateInputContainer}>
+              <Text style={styles.dateText}>{dateOfBirth}</Text>
+              <Ionicons name="calendar-outline" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </ScrollView>
     </KeyboardAvoidingView>
   );
 }
@@ -183,67 +138,148 @@ export default memo(Details);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: 32,
-    paddingHorizontal: 20,
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
+    paddingHorizontal: 15,
   },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    marginBottom: 32,
-    position: "relative",
+    justifyContent: "space-between",
+    marginBottom: 40,
   },
-  backButton: {
-    width: 35,
-    height: 35,
-    borderRadius: 20,
-    backgroundColor: "#EAEAEA",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  titleText: {
+  title: {
+    fontSize: 24,
+    fontFamily: "PoppinsSemiBold",
+    color: colors.primary,
+    textAlign: "center",
+    flex: 1,
     position: "absolute",
     left: 0,
     right: 0,
-    textAlign: "center",
   },
-  backArrow: {
-    fontSize: 22,
-    color: "#222",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#222",
-    marginBottom: 28,
-  },
-  input: {
-    borderWidth: 2,
-    borderColor: "#222",
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 14,
-    fontSize: 16,
-    color: "#222",
-  },
-  bottomBar: {
-    padding: 16,
-    backgroundColor: "#FAFAFA",
-  },
-  doneButton: {
-    backgroundColor: "#E5E4E6",
-    borderRadius: 24,
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
-    height: 48,
-    opacity: 1,
+    zIndex: 1,
   },
-  doneButtonDisabled: {
-    opacity: 0.5,
+  headerSpacer: {
+    width: 40,
   },
-  doneButtonText: {
-    color: "#fff",
-    fontWeight: "600",
+  profileSection: {
+    alignItems: "center",
+    marginBottom: 40,
+  },
+  profileImageContainer: {
+    position: "relative",
+  },
+  profileImage: {
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+  },
+  editPhotoButton: {
+    position: "absolute",
+    bottom: 0,
+    right: 0,
+  },
+  editIcon: {
+    width: 24,
+    height: 24,
+    borderRadius: 12,
+    backgroundColor: colors.primary,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  formContainer: {
+    flex: 1,
+  },
+  fieldContainer: {
+    marginBottom: 24,
+  },
+  fieldLabel: {
     fontSize: 16,
+    fontWeight: "500",
+    color: "#374151",
+    marginBottom: 8,
+    fontFamily: "PoppinsMedium",
+  },
+  textInput: {
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    fontSize: 16,
+    color: "#111827",
+    backgroundColor: "white",
+    fontFamily: "Poppins",
+  },
+  inputWithIcon: {
+    position: "relative",
+  },
+  inputIcon: {
+    position: "absolute",
+    left: 16,
+    top: 18,
+    zIndex: 1,
+  },
+  textInputWithIcon: {
+    paddingLeft: 48,
+  },
+  phoneInputContainer: {
+    flexDirection: "row",
+    gap: 12,
+  },
+  countryFlag: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: "white",
+    gap: 8,
+  },
+  flagEmoji: {
+    fontSize: 18,
+  },
+  phoneInput: {
+    flex: 1,
+  },
+  dropdownContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: "white",
+  },
+  dropdownText: {
+    fontSize: 16,
+    color: "#111827",
+    fontFamily: "Poppins",
+  },
+  dateInputContainer: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+    borderRadius: 12,
+    paddingHorizontal: 16,
+    paddingVertical: 16,
+    backgroundColor: "white",
+  },
+  dateText: {
+    fontSize: 16,
+    color: "#111827",
+    fontFamily: "Poppins",
   },
 });

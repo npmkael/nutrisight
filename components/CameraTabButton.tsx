@@ -8,7 +8,7 @@ export const CameraTabButton = () => {
   // function is not recreated on every render
   const handlePress = useCallback(() => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    router.push("/camera");
+    router.push("/(root)/main-camera");
   }, []);
 
   return (

@@ -1,21 +1,15 @@
-import { icons } from "@/constants";
-import { router, useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useState } from "react";
-import {
-  Alert,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-import colors from "@/lib/utils";
+import { colors } from "@/lib/utils";
 
-import CustomButton from "@/components/CustomButton";
 import { useAuth } from "@/context/AuthContext";
 import { moderateScale, textScale } from "@/lib/utils";
+// components
+import BackHeader from "@/components/BackHeader";
+import CustomButton from "@/components/CustomButton";
 import OTPTextInput from "react-native-otp-textinput";
 
 function Otp() {
@@ -60,15 +54,7 @@ function Otp() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View className="flex-row items-center px-4 py-2">
-        <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
-          <Image
-            source={icons.backArrow}
-            className="w-6 h-6"
-            resizeMode="contain"
-          />
-        </TouchableOpacity>
-      </View>
+      <BackHeader />
 
       {/* Main Content */}
       <View className="flex-1">

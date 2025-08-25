@@ -8,7 +8,14 @@ function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(settings)" options={{ headerShown: false }} />
-        <Stack.Screen name="result" options={{ headerShown: false }} />
+        <Stack.Screen
+          name="(meals)"
+          options={{ headerShown: false, presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="main-camera"
+          options={{ headerShown: false, presentation: "modal" }}
+        />
       </Stack>
     </AuthProtect>
   );

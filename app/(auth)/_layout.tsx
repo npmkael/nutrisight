@@ -31,6 +31,12 @@ function RootLayout() {
             headerShown: false,
           }}
         />
+        <Stack.Screen
+          name="personalization"
+          options={{
+            headerShown: false,
+          }}
+        />
       </Stack>
     </NonAuthProtect>
   );

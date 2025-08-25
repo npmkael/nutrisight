@@ -1,17 +1,18 @@
+import Loading from "@/components/Loading";
 import PhotoPreviewSection from "@/components/PhotoPreviewSection";
 import { useAuth } from "@/context/AuthContext";
 import { useBarcodeScan } from "@/hooks/useBarcodeScan";
 import { useFoodScan } from "@/hooks/useFoodScan";
-import { Ionicons, MaterialIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import {
   CameraCapturedPicture,
   CameraType,
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import { router } from "expo-router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
-import { Button, StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Loading from "../../../components/Loading";
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export type ScanResultType = {
   name: string;
@@ -102,15 +103,23 @@ function App() {
   if (!permission) return <View />;
 
   // Camera permissions are not granted yet.
-  if (!permission.granted)
-    return (
-      <View style={styles.container}>
-        <Text style={styles.message}>
-          We need your permission to show the camera
-        </Text>
-        <Button onPress={requestPermission} title="grant permission" />
-      </View>
+  if (!permission.granted) {
+    Alert.alert(
+      "Camera Permission Required",
+      "We need your permission to access the camera to scan food items and barcodes.",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Grant Permission",
+          onPress: requestPermission,
+        },
+      ]
     );
+    return <View style={styles.container} />;
+  }
 
   if (photo && scanResult)
     return (
@@ -136,7 +145,6 @@ function App() {
       {/* Camera Scan Indicator */}
       <View style={styles.scanOverlay}>
         <View style={styles.scanFrame}>
-          {/* Corner markers */}
           <View style={[styles.corner, styles.topLeft]} />
           <View style={[styles.corner, styles.topRight]} />
           <View style={[styles.corner, styles.bottomLeft]} />
@@ -145,9 +153,6 @@ function App() {
 
         {/* Scanning Mode Selector */}
         <View style={styles.modeSelector}>
-          <Text className="font-Poppins text-white text-xl mb-4">
-            Select a Scanning Mode:
-          </Text>
           <View style={styles.modeButtons}>
             <TouchableOpacity
               style={[
@@ -197,45 +202,32 @@ function App() {
                 Barcode
               </Text>
             </TouchableOpacity>
-
-            <TouchableOpacity
-              style={[
-                styles.modeButton,
-                scanMode === "nutrition" && styles.modeButtonActive,
-              ]}
-              onPress={() => setScanMode("nutrition")}
-            >
-              <View style={styles.modeIcon}>
-                <MaterialIcons
-                  name="document-scanner"
-                  size={24}
-                  color={scanMode === "nutrition" ? "black" : "white"}
-                />
-              </View>
-              <Text
-                style={[
-                  styles.modeText,
-                  scanMode === "nutrition" && styles.modeTextActive,
-                ]}
-              >
-                Nutrition Facts
-              </Text>
-            </TouchableOpacity>
           </View>
         </View>
       </View>
 
       {/* Circular Camera Button */}
-      {!loading && scanMode !== "barcode" && (
-        <View style={styles.cameraButtonContainer}>
+      <View style={styles.cameraButtonContainer} className="flex-row">
+        <TouchableOpacity style={styles.flashButton} onPress={() => {}}>
+          <Ionicons name="flash-outline" size={24} color="white" />
+        </TouchableOpacity>
+        {!loading && scanMode !== "barcode" && (
           <TouchableOpacity
             style={styles.cameraButton}
             onPress={handleTakePhoto}
           >
             <View style={styles.cameraButtonInner} />
           </TouchableOpacity>
-        </View>
-      )}
+        )}
+        <TouchableOpacity
+          style={styles.closeButton}
+          onPress={() => {
+            router.back();
+          }}
+        >
+          <Ionicons name="close-outline" size={24} color="white" />
+        </TouchableOpacity>
+      </View>
 
       {/* Add loading overlay */}
       {loading && (
@@ -253,10 +245,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: "center",
-  },
-  message: {
-    textAlign: "center",
-    paddingBottom: 10,
+    backgroundColor: "black",
   },
   camera: {
     ...StyleSheet.absoluteFillObject, // Make camera fill the container
@@ -293,8 +282,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderColor: "#fff",
-    borderWidth: 6,
-    // borderRadius: 12, fix later pukingina ayaw mag ismooth
+    borderWidth: 5,
   },
   topLeft: {
     top: 0,
@@ -396,7 +384,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: "center",
-    justifyContent: "center",
+    justifyContent: "space-evenly",
   },
   cameraButton: {
     width: 80,
@@ -429,11 +417,30 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.22,
     shadowRadius: 2.22,
     elevation: 3,
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexDirection: "row",
   },
   loadingOverlay: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: "rgba(0, 0, 0, 0.6)",
     justifyContent: "center",
     alignItems: "center",
+  },
+  flashButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 40,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  closeButton: {
+    width: 60,
+    height: 60,
+    borderRadius: 40,
+    backgroundColor: "rgba(0, 0, 0, 0.5)",
+    alignItems: "center",
+    justifyContent: "center",
   },
 });

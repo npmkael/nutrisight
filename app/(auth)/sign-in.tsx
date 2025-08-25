@@ -26,7 +26,7 @@ function SignIn() {
     <SafeAreaView className="flex-1">
       <View className="flex-row items-center p-4 gap-4 bg-white">
         <TouchableOpacity
-          onPress={() => router.back()}
+          onPress={() => router.replace("/(auth)/welcome")}
           className="p-2 rounded-full bg-[#F4F4F4]"
         >
           <Ionicons name="arrow-back" size={20} color="black" />
@@ -64,7 +64,7 @@ function SignIn() {
           <Link href="/sign-up" className="mt-10">
             <Text className="text-base text-center text-gray-600">
               Don't have an account?{" "}
-              <Text className="font-semibold text-[#A1CE4F]">Sign Up</Text>
+              <Text className="font-semibold text-[#2D3644]">Sign Up</Text>
             </Text>
           </Link>
         </View>

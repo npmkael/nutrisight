@@ -2,10 +2,9 @@ import Typo from "@/components/Typo";
 import { Ionicons } from "@expo/vector-icons";
 import Feather from "@expo/vector-icons/Feather";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import Octicons from "@expo/vector-icons/Octicons";
 
-import { Link, useRouter } from "expo-router";
-import { Alert, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { useRouter } from "expo-router";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -39,41 +38,31 @@ function Settings() {
         contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
       >
         <Container className="px-4 py-4 mb-6">
-          <View className="flex-row gap-4 items-center">
-            <View className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center">
-              <Ionicons name="person" size={18} color="black" />
-            </View>
-
-            <View className="flex-1">
-              <Link href="/(root)/(settings)/name" className=" gap-2">
-                <View className="flex-row items-center gap-1">
-                  <Text className="font-PoppinsMedium text-lg text-gray-500 mb-1">
-                    {user.name ? `${user.name}` : "Enter your name"}
-                  </Text>
-                  <Octicons name="pencil" size={10} color="black" />
-                </View>
-              </Link>
-              <Text className="font-Poppins text-sm">
-                {user.age ? `${user.age} years old` : "Age: N/A"}
-              </Text>
-            </View>
-          </View>
-        </Container>
-
-        <Container className="px-4 py-4 mb-6">
           <TouchableOpacity
             className="flex-row items-center justify-between gap-2"
             onPress={() => router.push("/(root)/(settings)/details")}
           >
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="person" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Personal details</Text>
+            <View className="flex-row items-center gap-4">
+              <View>
+                <Image
+                  source={require("../../../assets/images/sample-profile.jpg")}
+                  className="w-16 h-16 rounded-full"
+                />
+              </View>
+              <View className="flex-col gap-1">
+                <Text className="text-md font-PoppinsSemiBold">
+                  {user.name ? user.name : "N/A"}
+                </Text>
+                <Text className="text-sm font-Poppins text-gray-500">
+                  {user.email ? user.email : "No email"}
+                </Text>
+              </View>
             </View>
             <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>
+        </Container>
 
-          <View className="h-[1px] bg-gray-200 my-4" />
-
+        <Container className="px-4 py-4 mb-6">
           <TouchableOpacity className="flex-row items-center justify-between gap-2">
             <View className="flex-row items-center gap-2">
               <MaterialIcons name="adjust" size={18} color="black" />
@@ -124,25 +113,6 @@ function Settings() {
               <Text className="text-sm font-Poppins">Support Email</Text>
             </View>
             <Ionicons name="chevron-forward" size={14} color="grey" />
-          </TouchableOpacity>
-
-          <View className="h-[1px] bg-gray-200 my-4" />
-
-          <TouchableOpacity
-            className="flex-row items-center gap-2"
-            onPress={() =>
-              Alert.alert(
-                "Delete Account",
-                "Are you sure you want to delete your account?",
-                [
-                  { text: "Cancel", style: "cancel" },
-                  { text: "Delete", onPress: () => console.log("Delete") },
-                ]
-              )
-            }
-          >
-            <Feather name="user-minus" size={18} color="black" />
-            <Text className="text-sm font-Poppins">Delete Account</Text>
           </TouchableOpacity>
         </Container>
 
