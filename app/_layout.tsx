@@ -13,6 +13,10 @@ function RootLayout() {
     PoppinsMedium: require("../assets/fonts/Poppins-Medium.ttf"),
     PoppinsSemiBold: require("../assets/fonts/Poppins-SemiBold.ttf"),
     PoppinsBold: require("../assets/fonts/Poppins-Bold.ttf"),
+    GeistBold: require("../assets/fonts/Geist-Bold.ttf"),
+    GeistSemiBold: require("../assets/fonts/Geist-SemiBold.ttf"),
+    GeistMedium: require("../assets/fonts/Geist-Medium.ttf"),
+    GeistRegular: require("../assets/fonts/Geist-Regular.ttf"),
   });
 
   // Expo Router uses Error Boundaries to catch errors in the navigation tree.

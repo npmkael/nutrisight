@@ -1,19 +1,62 @@
-import { icons } from "@/constants";
+import { colors } from "@/lib/utils";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { Image, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export default function BackHeader() {
+type BackHeaderProps = {
+  title?: string;
+  backButton?: boolean;
+};
+
+export default function BackHeader({
+  title,
+  backButton = true,
+}: BackHeaderProps) {
   const router = useRouter();
 
   return (
-    <View className="flex-row items-center px-4 py-2">
-      <TouchableOpacity onPress={() => router.back()} className="p-2 -ml-2">
-        <Image
-          source={icons.backArrow}
-          className="w-6 h-6"
-          resizeMode="contain"
-        />
+    <View style={styles.header}>
+      <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
+        <Ionicons name="arrow-back" size={18} color="black" />
       </TouchableOpacity>
+      {title && (
+        <>
+          <Text style={styles.title}>{title}</Text>
+          <View style={styles.headerSpacer} />
+        </>
+      )}
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 20,
+    padding: 10,
+  },
+  backButton: {
+    width: 35,
+    height: 35,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 1,
+    backgroundColor: "#F4F4F4",
+  },
+  headerSpacer: {
+    width: 40,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "PoppinsSemiBold",
+    color: colors.primary,
+    textAlign: "center",
+    flex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
+  },
+});

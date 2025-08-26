@@ -93,12 +93,7 @@ function PhotoPreviewSection({
           className="w-[320px] h-[250px] rounded-2xl object-cover shadow-xl"
         />
       </View>
-      {/* Card */}
-      <ScrollView
-        className="flex-1 bg-white mt-[-24px] rounded-t-3xl px-4 shadow-xl"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 5 }}
-      >
+      <View className="flex-1 bg-white mt-[-24px] rounded-t-3xl px-4 shadow-xl">
         {/* Date/Time */}
         <View className="bg-[#F3F4F7] rounded-2xl flex-row items-center justify-center mb-2 gap-2 px-2 py-2 w-32">
           <AntDesign name="instagram" size={24} color="black" />
@@ -115,166 +110,173 @@ function PhotoPreviewSection({
             </Text>
           </View>
         </View>
-        {/* Food Name */}
-        <Typo size={28} className="font-Poppins text-gray-900 mb-6">
-          {`${capitalizeFirstLetter(scanResult?.name || "")}`}
-        </Typo>
-        {/* Calories Card */}
-        <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 shadow border border-gray-100 mb-6">
-          <View className="bg-gray-100 rounded-2xl p-4">
-            <MaterialCommunityIcons
-              name="silverware-fork-knife"
-              size={36}
-              color="black"
-            />
-          </View>
-          <View className="ml-4">
-            <Text className="text-gray-500 font-Poppins">
-              Estimated Total Calories
-            </Text>
-            <Text className="text-gray-500 font-Poppins">
-              {scanResult?.servingSize
-                ? `${scanResult.servingSize} Serving Size`
-                : ""}
-            </Text>
-            <Text className="font-PoppinsBold text-gray-900 text-4xl">
-              {nutritionChunks
-                .flat() // flatten the 2D array
-                .filter((item: any) =>
-                  ["energy", "calories", "energy kcal"].includes(
-                    (item.name as string).toLowerCase()
-                  )
-                )
-                .reduce(
-                  (sum: number, item: any) => sum + Number(item.amount || 0),
-                  0
-                )}{" "}
-              kcal
-            </Text>
-          </View>
-        </View>
-
-        {/* Estimated Nutrients Summary */}
-        <View className="flex-col bg-white rounded-2xl pt-4 shadow border border-gray-100 mb-4">
-          <View className="flex-col mx-4 mb-4">
-            <Text
-              className="font-Poppins"
-              style={{
-                lineHeight: 10,
-              }}
-            >
-              Estimated Nutrients
-            </Text>
-            <Text className="font-PoppinsSemiBold text-3xl">Summary</Text>
-          </View>
-
-          <Swiper
-            loop={false}
-            className="h-[265px]"
-            dot={
-              <View className="w-[32px] h-[4px] mx-1 bg-[#f1f1f1] rounded-full" />
-            }
-            activeDot={
-              <View className="w-[32px] h-[4px] mx-1 bg-black rounded-full" />
-            }
-          >
-            {/* add ka nalang another view kung gusto mo pa ng isang swiper */}
-
-            {nutritionChunks.map((chunk: any[], idx) => (
-              <View className="mx-4" key={idx}>
-                {[0, 1].map((rowIdx) => (
-                  <View
-                    key={rowIdx}
-                    className="flex-row items-center gap-2 mb-2"
-                  >
-                    {chunk
-                      .slice(rowIdx * 3, rowIdx * 3 + 3)
-                      .map((nutrient: any, colIdx: number) => (
-                        <View
-                          key={colIdx}
-                          className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1"
-                        >
-                          <Text
-                            className="font-PoppinsSemiBold tracking-widest text-md mb-1 text-center"
-                            numberOfLines={1}
-                            ellipsizeMode="tail"
-                          >
-                            {nutrient.name}
-                          </Text>
-                          <CircularProgressBar
-                            progress={nutrient.amount}
-                            size={55}
-                            strokeWidth={4}
-                            color={
-                              COLORS[(rowIdx * 3 + colIdx) % COLORS.length]
-                            }
-                            backgroundColor="rgba(0,0,0,0.05)"
-                            showPercentage={true}
-                            percentageTextSize={10}
-                            percentageTextColor="black"
-                            label={nutrient.unit}
-                          />
-                        </View>
-                      ))}
-                  </View>
-                ))}
-              </View>
-            ))}
-          </Swiper>
-        </View>
-
-        {/* Healthiness Rating */}
-        <View className="flex-row bg-white rounded-2xl p-4 shadow border items-center border-gray-100 gap-2 justify-evenly mb-4">
-          <View className="bg-gray-100 rounded-2xl p-4">
-            <FontAwesome5 name="heartbeat" size={36} color="black" />
-          </View>
-          <View className="flex-col gap-2">
-            <Text className="font-Poppins text-xl">Healthiness Rating</Text>
-            <LineProgressBar progress={30} height={5} />
-          </View>
-
-          <Text className="font-PoppinsBold text-4xl">3/10</Text>
-        </View>
-
-        {/* Allergens */}
-        {allergensDetected.length > 0 && (
-          <View className="rounded-2xl p-4 shadow border border-[#FFA4A4] bg-[#FFEEEE] mb-6">
-            <View className="flex-row gap-4">
-              <FontAwesome
-                name="warning"
-                size={18}
-                color="red"
-                className="mt-1"
+        {/* Card */}
+        <ScrollView
+          className="flex-1"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 5 }}
+        >
+          {/* Food Name */}
+          <Typo size={28} className="font-Poppins text-gray-900 mb-6">
+            {`${capitalizeFirstLetter(scanResult?.name || "")}`}
+          </Typo>
+          {/* Calories Card */}
+          <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 shadow border border-gray-100 mb-6">
+            <View className="bg-gray-100 rounded-2xl p-4">
+              <MaterialCommunityIcons
+                name="silverware-fork-knife"
+                size={36}
+                color="black"
               />
+            </View>
+            <View className="ml-4">
+              <Text className="text-gray-500 font-Poppins">
+                Estimated Total Calories
+              </Text>
+              <Text className="text-gray-500 font-Poppins">
+                {scanResult?.servingSize
+                  ? `${scanResult.servingSize} Serving Size`
+                  : ""}
+              </Text>
+              <Text className="font-PoppinsBold text-gray-900 text-4xl">
+                {nutritionChunks
+                  .flat() // flatten the 2D array
+                  .filter((item: any) =>
+                    ["energy", "calories", "energy kcal"].includes(
+                      (item.name as string).toLowerCase()
+                    )
+                  )
+                  .reduce(
+                    (sum: number, item: any) => sum + Number(item.amount || 0),
+                    0
+                  )}{" "}
+                kcal
+              </Text>
+            </View>
+          </View>
 
-              <View className="flex-col gap-1 flex-1 min-w-0">
-                <Text className="font-PoppinsBold text-2xl mb-2">
-                  Allergens:
-                </Text>
-                <View className="flex-row flex-wrap gap-1 mb-2">
-                  {allergensDetected.map((a, idx) => (
+          {/* Estimated Nutrients Summary */}
+          <View className="flex-col bg-white rounded-2xl pt-4 shadow border border-gray-100 mb-4">
+            <View className="flex-col mx-4 mb-4">
+              <Text
+                className="font-Poppins"
+                style={{
+                  lineHeight: 10,
+                }}
+              >
+                Estimated Nutrients
+              </Text>
+              <Text className="font-PoppinsSemiBold text-3xl">Summary</Text>
+            </View>
+
+            <Swiper
+              loop={false}
+              className="h-[265px]"
+              dot={
+                <View className="w-[32px] h-[4px] mx-1 bg-[#f1f1f1] rounded-full" />
+              }
+              activeDot={
+                <View className="w-[32px] h-[4px] mx-1 bg-black rounded-full" />
+              }
+            >
+              {/* add ka nalang another view kung gusto mo pa ng isang swiper */}
+
+              {nutritionChunks.map((chunk: any[], idx) => (
+                <View className="mx-4" key={idx}>
+                  {[0, 1].map((rowIdx) => (
                     <View
-                      key={idx}
-                      className="bg-[#FFA4A4] px-3 py-1 rounded-xl"
+                      key={rowIdx}
+                      className="flex-row items-center gap-2 mb-2"
                     >
-                      <Text className="font-Poppins text-black">
-                        {capitalizeFirstLetter(a)}
-                      </Text>
+                      {chunk
+                        .slice(rowIdx * 3, rowIdx * 3 + 3)
+                        .map((nutrient: any, colIdx: number) => (
+                          <View
+                            key={colIdx}
+                            className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1"
+                          >
+                            <Text
+                              className="font-PoppinsSemiBold tracking-widest text-md mb-1 text-center"
+                              numberOfLines={1}
+                              ellipsizeMode="tail"
+                            >
+                              {nutrient.name}
+                            </Text>
+                            <CircularProgressBar
+                              progress={nutrient.amount}
+                              size={55}
+                              strokeWidth={4}
+                              color={
+                                COLORS[(rowIdx * 3 + colIdx) % COLORS.length]
+                              }
+                              backgroundColor="rgba(0,0,0,0.05)"
+                              showPercentage={true}
+                              percentageTextSize={10}
+                              percentageTextColor="black"
+                              label={nutrient.unit}
+                            />
+                          </View>
+                        ))}
                     </View>
                   ))}
                 </View>
-                <Text
-                  className="font-Poppins"
-                  style={{ flexWrap: "wrap", width: "100%" }}
-                >
-                  Please read all labels carefully and consult with a healthcare
-                  provider if you have any concerns.
-                </Text>
+              ))}
+            </Swiper>
+          </View>
+
+          {/* Healthiness Rating */}
+          <View className="flex-row bg-white rounded-2xl p-4 shadow border items-center border-gray-100 gap-2 justify-evenly mb-4">
+            <View className="bg-gray-100 rounded-2xl p-4">
+              <FontAwesome5 name="heartbeat" size={36} color="black" />
+            </View>
+            <View className="flex-col gap-2">
+              <Text className="font-Poppins text-xl">Healthiness Rating</Text>
+              <LineProgressBar progress={30} height={5} />
+            </View>
+
+            <Text className="font-PoppinsBold text-4xl">3/10</Text>
+          </View>
+
+          {/* Allergens */}
+          {allergensDetected.length > 0 && (
+            <View className="rounded-2xl p-4 shadow border border-[#FFA4A4] bg-[#FFEEEE] mb-6">
+              <View className="flex-row gap-4">
+                <FontAwesome
+                  name="warning"
+                  size={18}
+                  color="red"
+                  className="mt-1"
+                />
+
+                <View className="flex-col gap-1 flex-1 min-w-0">
+                  <Text className="font-PoppinsBold text-2xl mb-2">
+                    Allergens:
+                  </Text>
+                  <View className="flex-row flex-wrap gap-1 mb-2">
+                    {allergensDetected.map((a, idx) => (
+                      <View
+                        key={idx}
+                        className="bg-[#FFA4A4] px-3 py-1 rounded-xl"
+                      >
+                        <Text className="font-Poppins text-black">
+                          {capitalizeFirstLetter(a)}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                  <Text
+                    className="font-Poppins"
+                    style={{ flexWrap: "wrap", width: "100%" }}
+                  >
+                    Please read all labels carefully and consult with a
+                    healthcare provider if you have any concerns.
+                  </Text>
+                </View>
               </View>
             </View>
-          </View>
-        )}
-      </ScrollView>
+          )}
+        </ScrollView>
+      </View>
       <View className="flex-row gap-2 bg-white p-4 border-t border-t-gray-100">
         <TouchableOpacity className="bg-transparent rounded-full px-6 py-4 border border-[#2D3644] flex-1">
           <Text className="font-Poppins text-center text-black uppercase">

@@ -16,6 +16,10 @@ function RootLayout() {
           name="main-camera"
           options={{ headerShown: false, presentation: "modal" }}
         />
+        <Stack.Screen
+          name="predictions"
+          options={{ headerShown: false, presentation: "modal" }}
+        />
       </Stack>
     </AuthProtect>
   );
