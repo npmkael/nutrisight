@@ -1,5 +1,4 @@
 import Loading from "@/components/Loading";
-import PhotoPreviewSection from "@/components/PhotoPreviewSection";
 import { useAuth } from "@/context/AuthContext";
 import { useBarcodeScan } from "@/hooks/useBarcodeScan";
 import { useFoodScan } from "@/hooks/useFoodScan";
@@ -15,7 +14,8 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export type ScanResultType = {
-  name: string;
+  name?: string;
+  foodName?: string;
   brand?: string;
   servingSize: string;
   ingredients: string;
@@ -47,12 +47,26 @@ function App() {
   }, [barcodeData]); // The effect runs only when barcodeData changes
 
   useEffect(() => {
+    if (scanResult && photo) {
+      router.replace({
+        pathname: "/results",
+        params: {
+          scanResult: JSON.stringify(scanResult),
+          image: photo.uri,
+          userAllergens: JSON.stringify(user?.allergens),
+        },
+      });
+    }
+  }, [scanResult, photo, router]);
+
+  useEffect(() => {
     if (foodScanData && photo) {
       router.replace({
         pathname: "/predictions",
         params: {
           predictions: JSON.stringify(foodScanData),
           image: photo.uri,
+          userAllergens: user?.allergens,
         },
       });
     }
@@ -130,17 +144,6 @@ function App() {
       ]
     );
     return <View style={styles.container} />;
-  }
-
-  if (photo && scanResult) {
-    return (
-      <PhotoPreviewSection
-        userAllergens={user?.allergens || []}
-        photo={photo}
-        scanResult={scanResult}
-        handleRetakePhoto={handleRetakePhoto}
-      />
-    );
   }
 
   return (

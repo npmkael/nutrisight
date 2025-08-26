@@ -1,10 +1,7 @@
-import { CameraCapturedPicture } from "expo-camera";
-
 import Typo from "@/components/Typo";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
-import { ScanResultType } from "@/app/(root)/main-camera";
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
 import {
@@ -16,8 +13,10 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { memo, useMemo } from "react";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { memo, useCallback, useMemo } from "react";
 import Swiper from "react-native-swiper";
+import { ScanResultType } from "./main-camera";
 
 const COLORS = [
   "#30B0C7", // blue
@@ -30,49 +29,51 @@ const COLORS = [
   "#FF9500", // amber
 ];
 
-function PhotoPreviewSection({
-  userAllergens,
-  photo,
-  scanResult,
-  handleRetakePhoto,
-}: {
-  userAllergens: string[];
-  photo: CameraCapturedPicture | null;
-  scanResult: ScanResultType | null;
-  handleRetakePhoto: () => void;
-}) {
-  console.log("PhotoPreviewSection");
-  console.log("ingredients:", scanResult?.ingredients);
+function Results() {
+  const router = useRouter();
+  const { image, name, userAllergens, scanResult } = useLocalSearchParams();
+  const result: ScanResultType = scanResult
+    ? JSON.parse(scanResult as string)
+    : null;
+
+  const handleBack = useCallback(() => {
+    if (name) {
+      router.back();
+    } else {
+      router.replace("/(root)/main-camera");
+    }
+  }, [name, router]);
 
   // This calculation only runs when nutrition changes
   const nutritionChunks = useMemo(() => {
-    if (!scanResult?.nutrition) return [];
+    if (!result?.nutrition) return [];
     // Flatten the 3D array into a single array of nutrients
     const parsedNutrition: any[][][] =
-      typeof scanResult.nutrition === "string"
-        ? JSON.parse(scanResult.nutrition)
-        : Array.isArray(scanResult.nutrition)
-          ? scanResult.nutrition
+      typeof result.nutrition === "string"
+        ? JSON.parse(result.nutrition)
+        : Array.isArray(result.nutrition)
+          ? result.nutrition
           : [];
 
     // Flatten all nutrients into a single array
     const flatNutritionArr: any[] = parsedNutrition.flat(2); // flatten 2 levels
 
     return chunkArray(flatNutritionArr, 6);
-  }, [scanResult?.nutrition]);
-
-  console.log("nutritionChunks:", nutritionChunks);
+  }, [result?.nutrition]);
 
   // this only runs when userAllergens or ingredients change
   const allergensDetected = useMemo(() => {
-    return scanForAllergen(userAllergens, scanResult?.ingredients || "");
-  }, [userAllergens, scanResult?.ingredients]);
+    return scanForAllergen(
+      (userAllergens as string).split(","),
+      result?.ingredients || ""
+    );
+  }, [userAllergens, result?.ingredients]);
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
       <Image
         className="absolute top-0 left-0 right-0"
-        source={{ uri: "data:image/jpg;base64," + photo?.base64 }}
+        source={{ uri: image as string }}
         style={{ height: 400, width: "100%" }}
         blurRadius={30}
         resizeMode="cover"
@@ -80,8 +81,8 @@ function PhotoPreviewSection({
       {/* Header */}
       <View className="flex-row items-center justify-between px-4 pt-8 pb-2">
         <TouchableOpacity
-          onPress={handleRetakePhoto}
           className="bg-black/50 rounded-full p-2"
+          onPress={handleBack}
         >
           <Entypo name="chevron-left" size={28} color="white" />
         </TouchableOpacity>
@@ -89,7 +90,7 @@ function PhotoPreviewSection({
       {/* Image */}
       <View className="items-center mt-2">
         <Image
-          source={{ uri: "data:image/jpg;base64," + photo?.base64 }}
+          source={{ uri: image as string }}
           className="w-[320px] h-[250px] rounded-2xl object-cover shadow-xl"
         />
       </View>
@@ -118,7 +119,7 @@ function PhotoPreviewSection({
         >
           {/* Food Name */}
           <Typo size={28} className="font-Poppins text-gray-900 mb-6">
-            {`${capitalizeFirstLetter(scanResult?.name || "")}`}
+            {`${capitalizeFirstLetter(result.name || result.foodName || "")}`}
           </Typo>
           {/* Calories Card */}
           <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 shadow border border-gray-100 mb-6">
@@ -134,8 +135,8 @@ function PhotoPreviewSection({
                 Estimated Total Calories
               </Text>
               <Text className="text-gray-500 font-Poppins">
-                {scanResult?.servingSize
-                  ? `${scanResult.servingSize} Serving Size`
+                {result?.servingSize
+                  ? `${result.servingSize} Serving Size`
                   : ""}
               </Text>
               <Text className="font-PoppinsBold text-gray-900 text-4xl">
@@ -293,4 +294,4 @@ function PhotoPreviewSection({
   );
 }
 
-export default memo(PhotoPreviewSection);
+export default memo(Results);

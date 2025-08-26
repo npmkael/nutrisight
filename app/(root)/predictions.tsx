@@ -1,24 +1,68 @@
 import BackHeader from "@/components/BackHeader";
+import Loading from "@/components/Loading";
 import PredictionCard from "@/components/PredictionCard";
+import { BACKEND_URL } from "@/context/AuthContext";
+import { replaceUnderscoreWithSpace } from "@/utils/helpers";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { memo, useMemo } from "react";
+import { memo, useCallback, useState } from "react";
 import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PredictionType } from "./main-camera";
 
 function Predictions() {
-  const { predictions, image } = useLocalSearchParams();
+  const { predictions, image, userAllergens } = useLocalSearchParams();
   const router = useRouter();
+  const [loading, setLoading] = useState(false);
 
-  const parsedPredictions: PredictionType[] = useMemo(() => {
-    if (typeof predictions === "string") {
-      return JSON.parse(predictions);
-    } else if (Array.isArray(predictions)) {
-      return predictions;
-    } else {
-      return [];
-    }
-  }, [predictions]);
+  const parsedPredictions: PredictionType[] = (
+    JSON.parse(predictions as string) as PredictionType[]
+  ).map((i) => ({
+    label: replaceUnderscoreWithSpace(i.label),
+    prob: i.prob,
+  }));
+
+  const redirectToResult = useCallback(
+    async (name: string) => {
+      setLoading(true);
+      try {
+        const res = await fetch(`${BACKEND_URL}/camera/get-food-data`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            foodName: name,
+          }),
+        });
+
+        if (!res.ok) throw new Error("Failed to fetch food data");
+
+        const data = await res.json();
+
+        console.log(`${name} data:`, data);
+
+        router.push({
+          pathname: "/results",
+          params: {
+            name,
+            image,
+            userAllergens: userAllergens,
+            scanResult: JSON.stringify(data.data),
+          },
+        });
+      } catch (error) {
+        console.log("Error fetching food data:", error);
+        alert("An error occurred. Please try again.");
+      } finally {
+        setLoading(false);
+      }
+    },
+    [router, image, userAllergens]
+  );
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return (
     <SafeAreaView className="bg-white flex-1">
@@ -58,16 +102,12 @@ function Predictions() {
               key={prediction.label}
               predictionLabel={prediction.label}
               predictionValue={Number((prediction.prob * 100).toFixed(2))}
+              redirectToResults={redirectToResult}
             />
           ))
         ) : (
           <Text>No predictions available</Text>
         )}
-        {/* <PredictionCard predictionLabel="An Yujin" predictionValue={100} />
-        <PredictionCard predictionLabel="Yuna" predictionValue={76.5} />
-        <PredictionCard predictionLabel="Wonyoung" predictionValue={64.5} />
-        <PredictionCard predictionLabel="Karina" predictionValue={48.5} />
-        <PredictionCard predictionLabel="Winter" predictionValue={12.5} /> */}
       </ScrollView>
     </SafeAreaView>
   );

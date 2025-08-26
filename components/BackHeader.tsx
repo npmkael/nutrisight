@@ -1,6 +1,7 @@
 import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { usePathname, useRouter } from "expo-router";
+import { useCallback } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type BackHeaderProps = {
@@ -15,14 +16,14 @@ export default function BackHeader({
   const router = useRouter();
   const pathname = usePathname();
 
-  const handleBackPress = () => {
+  const handleBackPress = useCallback(() => {
     // check routes if in main-camera, go to home
     if (pathname.includes("main-camera") || pathname.includes("predictions")) {
       router.replace("/(root)/main-camera");
     } else {
       router.back();
     }
-  };
+  }, [pathname, router]);
 
   return (
     <View style={styles.header}>

@@ -1,20 +1,28 @@
+import { capitalizeFirstLetter } from "@/utils/helpers";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 type PredictionCardProps = {
   predictionLabel: string;
   predictionValue: number;
+  redirectToResults: (name: string) => void;
 };
 
 export default function PredictionCard({
   predictionLabel,
   predictionValue,
+  redirectToResults,
 }: PredictionCardProps) {
   return (
     <View className="space-y-3 mb-2">
-      <TouchableOpacity style={styles.card}>
+      <TouchableOpacity
+        style={styles.card}
+        onPressIn={() => redirectToResults(predictionLabel)}
+      >
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
-            <Text style={styles.predictionLabel}>{predictionLabel}</Text>
+            <Text style={styles.predictionLabel}>
+              {capitalizeFirstLetter(predictionLabel)}
+            </Text>
             <View style={styles.barContainer}>
               <View
                 className="h-full bg-black"

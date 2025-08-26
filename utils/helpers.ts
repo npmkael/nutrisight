@@ -42,6 +42,10 @@ export function capitalizeFirstLetter(str: string) {
   return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
+export function replaceUnderscoreWithSpace(str: string) {
+  return str.replace(/_/g, " ");
+}
+
 // Chunk into groups of 6 for the slider
 export function chunkArray(array: any[], size: number) {
   const result = [];

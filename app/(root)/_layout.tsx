@@ -20,6 +20,10 @@ function RootLayout() {
           name="predictions"
           options={{ headerShown: false, presentation: "modal" }}
         />
+        <Stack.Screen
+          name="results"
+          options={{ headerShown: false, presentation: "modal" }}
+        />
       </Stack>
     </AuthProtect>
   );
