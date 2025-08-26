@@ -10,7 +10,7 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { router } from "expo-router";
+import { useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -22,6 +22,11 @@ export type ScanResultType = {
   nutrition: any[][][];
 };
 
+export type PredictionType = {
+  label: string;
+  prob: number;
+};
+
 function App() {
   const { user } = useAuth();
   const { scanBarcode, barcodeData } = useBarcodeScan();
@@ -29,21 +34,29 @@ function App() {
   const [facing, setFacing] = useState<CameraType>("back");
   const [permission, requestPermission] = useCameraPermissions();
   const [photo, setPhoto] = useState<CameraCapturedPicture | null>(null);
-  const [scanMode, setScanMode] = useState<"food" | "barcode" | "nutrition">(
-    "food"
-  );
+  const [scanMode, setScanMode] = useState<"food" | "barcode">("food");
   const cameraRef = useRef<CameraView | null>(null);
   const [loading, setLoading] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null); // State to hold scan result
   const [barcodeScanned, setBarcodeScanned] = useState(false);
+
+  const router = useRouter();
 
   useEffect(() => {
     if (barcodeData) setScanResult(barcodeData);
   }, [barcodeData]); // The effect runs only when barcodeData changes
 
   useEffect(() => {
-    if (foodScanData) setScanResult(foodScanData);
-  }, [foodScanData]); // The effect runs only when foodScanData changes
+    if (foodScanData && photo) {
+      router.replace({
+        pathname: "/predictions",
+        params: {
+          predictions: JSON.stringify(foodScanData),
+          image: photo.uri,
+        },
+      });
+    }
+  }, [foodScanData, photo, router]);
 
   const handleRetakePhoto = useCallback(() => {
     setPhoto(null);
@@ -92,9 +105,7 @@ function App() {
       setLoading(true);
       setPhoto(takedPhoto);
 
-      if (scanMode === "food") {
-        await foodScan(takedPhoto, handleRetakePhoto);
-      }
+      await foodScan(takedPhoto, handleRetakePhoto);
     }
     setLoading(false);
   }, [foodScan, handleRetakePhoto]);
@@ -121,7 +132,7 @@ function App() {
     return <View style={styles.container} />;
   }
 
-  if (photo && scanResult)
+  if (photo && scanResult) {
     return (
       <PhotoPreviewSection
         userAllergens={user?.allergens || []}
@@ -130,6 +141,7 @@ function App() {
         handleRetakePhoto={handleRetakePhoto}
       />
     );
+  }
 
   return (
     <View style={styles.container}>

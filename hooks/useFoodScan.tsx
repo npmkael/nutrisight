@@ -1,9 +1,11 @@
-import { ScanResultType } from "@/app/(root)/(tabs)/camera";
+import { PredictionType } from "@/app/(root)/main-camera";
 import { CameraCapturedPicture } from "expo-camera";
 import { useCallback, useState } from "react";
 
 export function useFoodScan() {
-  const [foodScanData, setFoodScanData] = useState<ScanResultType | null>(null);
+  const [foodScanData, setFoodScanData] = useState<PredictionType[] | null>(
+    null
+  );
 
   const foodScan = useCallback(
     async (
@@ -32,7 +34,7 @@ export function useFoodScan() {
         }
 
         const data = await res.json();
-        console.log("Food scan result:", data);
+        console.log("Predictions:", data);
 
         if (!data || !data.data) {
           alert("No data found in the scan result. Please try again.");
@@ -40,12 +42,7 @@ export function useFoodScan() {
           return;
         }
 
-        setFoodScanData({
-          name: data.data.foodName,
-          ingredients: data.data.ingredients,
-          servingSize: data.data.servingSize,
-          nutrition: data.data.nutrition,
-        });
+        setFoodScanData(data.data as PredictionType[]);
       } catch (error: any) {
         console.error("Error scanning food:", error);
         alert(error.message || "Unknown error occurred while scanning food.");

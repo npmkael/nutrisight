@@ -1,4 +1,4 @@
-import { ScanResultType } from "@/app/(root)/(tabs)/camera";
+import { ScanResultType } from "@/app/(root)/main-camera";
 import { useCallback, useState } from "react";
 
 export function useBarcodeScan() {
