@@ -244,25 +244,9 @@ function Home() {
 
         {/* Content */}
         <View className="bg-transparent p-4 rounded-lg mx-4 absolute left-0 right-0 top-[70px] z-10">
-          <View className="items-center flex-row justify-between">
-            <View className="flex-col gap-1 justify-center items-center">
-              <Text className="text-white text-4xl font-PoppinsSemiBold">
-                467
-              </Text>
-              <Text className="font-Poppins text-white text-xs">
-                Calories Taken
-              </Text>
-            </View>
+          <View className="items-center flex-row justify-center">
             <View>
               <CustomCircularProgress />
-            </View>
-            <View className="flex-col gap-1 items-center justify-center">
-              <Text className="text-white text-4xl font-PoppinsSemiBold">
-                45
-              </Text>
-              <Text className="font-Poppins text-white text-xs">
-                Calories Burned
-              </Text>
             </View>
           </View>
 
@@ -413,7 +397,7 @@ function Home() {
               <View className="flex-col">
                 <View className="flex-row items-center gap-1">
                   <Text className="text-black text-lg font-PoppinsMedium">
-                    Add Breakfast
+                    Breakfast
                   </Text>
 
                   <View className="p-1 bg-[#2D3644] rounded-full items-center justify-items-center">
@@ -500,6 +484,40 @@ function Home() {
                     />
                   </View>
                   <Text style={styles.progressText}>0 / 548 kcal</Text>
+                </View>
+              </View>
+            </View>
+
+            <TouchableOpacity className="p-2 rounded-full bg-transparent border border-[#a0a0a0]">
+              <Ionicons name="add" size={24} color="#a0a0a0" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Snacks */}
+          {/* Dinner */}
+          <View className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between">
+            <View className="flex-row items-center gap-2">
+              <MaterialCommunityIcons
+                name="silverware-fork-knife"
+                size={30}
+                color="black"
+              />
+
+              <View className="flex-col">
+                <Text className="text-black text-lg font-PoppinsMedium">
+                  Add Snacks
+                </Text>
+                <View className="flex-row items-center gap-2">
+                  <View className="w-16">
+                    <Progress
+                      min={0}
+                      max={100}
+                      height={4}
+                      color={colors.primary}
+                      backgroundColor="rgba(0, 0, 0, 0.1)"
+                    />
+                  </View>
+                  <Text style={styles.progressText}>0 / 248 kcal</Text>
                 </View>
               </View>
             </View>

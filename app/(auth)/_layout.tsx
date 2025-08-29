@@ -14,6 +14,12 @@ function RootLayout() {
           }}
         />
         <Stack.Screen
+          name="onboarding"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="welcome"
           options={{
             headerShown: false,

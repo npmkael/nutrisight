@@ -233,7 +233,7 @@ function SetupLayout() {
     <OnboardingContext.Provider value={value}>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
         {/* header */}
-        {currentStep > 0 && currentStep < totalSteps && (
+        {currentStep > 0 && currentStep <= totalSteps && (
           <View
             style={{ flexDirection: "row", alignItems: "center", padding: 16 }}
           >

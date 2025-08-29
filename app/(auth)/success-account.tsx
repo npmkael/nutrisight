@@ -84,32 +84,6 @@ function SuccessAccount() {
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* header */}
-      {
-        <View
-          style={{ flexDirection: "row", alignItems: "center", padding: 16 }}
-        >
-          <View
-            style={{
-              flex: 1,
-              height: 6,
-              backgroundColor: "#E0E0E0",
-              borderRadius: 8,
-              marginHorizontal: 12,
-            }}
-          >
-            <View
-              style={{
-                height: "100%",
-                backgroundColor: "#000",
-                width: `100%`,
-              }}
-            />
-          </View>
-          <Text>7 / 7</Text>
-        </View>
-      }
-
       {/* child page renders here */}
       <View style={{ flex: 1 }}>
         {loading ? (
