@@ -28,6 +28,7 @@ const Progress = ({
   color: string;
   backgroundColor: string;
 }) => {
+  const { user } = useAuth();
   const [width, setWidth] = useState(0);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const reactive = useRef(new Animated.Value(-1000)).current;

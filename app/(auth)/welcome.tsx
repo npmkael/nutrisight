@@ -6,6 +6,7 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const Welcome = () => {
+  console.log("Welcome component rendered");
   const router = useRouter();
 
   const handleLogin = () => {

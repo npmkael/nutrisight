@@ -1,25 +1,27 @@
-import React, { useState } from "react";
+import React, { memo, useEffect } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
-import TextInputField from "../TextInputField";
+import TextInputField from "../../../components/TextInputField";
+import { useOnboarding } from "./_layout";
 
-interface TargetWeightSelectionProps {
-  targetWeight: string;
-  setTargetWeight: (weight: string) => void;
-  currentWeight: string;
-  weightGoal: string;
-}
+function TargetWeightSelection() {
+  const {
+    targetWeight,
+    setTargetWeight,
+    weightUnit: currentWeightUnit,
+    weightGoal,
+    weight: currentWeight,
+  } = useOnboarding();
 
-export default function TargetWeightSelection({
-  targetWeight,
-  setTargetWeight,
-  currentWeight,
-  weightGoal,
-}: TargetWeightSelectionProps) {
-  const [weightUnit, setWeightUnit] = useState("lb");
-
-  const toggleWeightUnit = () => {
-    setWeightUnit(weightUnit === "lb" ? "kg" : "lb");
-  };
+  // Automatically set targetWeight to currentWeight for maintain goal
+  useEffect(() => {
+    if (
+      weightGoal === "maintain" &&
+      currentWeight &&
+      targetWeight !== currentWeight
+    ) {
+      setTargetWeight(currentWeight);
+    }
+  }, [weightGoal, currentWeight]);
 
   const getGoalMessage = () => {
     switch (weightGoal) {
@@ -50,9 +52,9 @@ export default function TargetWeightSelection({
     const difference = Math.abs(targetWeightNum - currentWeightNum);
 
     if (weightGoal === "lose" && targetWeightNum < currentWeightNum) {
-      return `Goal: Lose ${difference.toFixed(1)} ${weightUnit}`;
+      return `Goal: Lose ${difference.toFixed(1)} ${currentWeightUnit}`;
     } else if (weightGoal === "gain" && targetWeightNum > currentWeightNum) {
-      return `Goal: Gain ${difference.toFixed(1)} ${weightUnit}`;
+      return `Goal: Gain ${difference.toFixed(1)} ${currentWeightUnit}`;
     } else if (weightGoal === "maintain") {
       return `Goal: Maintain current weight`;
     } else {
@@ -77,7 +79,7 @@ export default function TargetWeightSelection({
 
           {currentWeight && (
             <Text className="font-Poppins text-sm text-gray-400 mb-3">
-              Current weight: {currentWeight} {weightUnit}
+              Current weight: {currentWeight} {currentWeightUnit}
             </Text>
           )}
 
@@ -86,13 +88,11 @@ export default function TargetWeightSelection({
               value={targetWeight}
               onChangeText={setTargetWeight}
               keyboardType="numeric"
+              editable={weightGoal !== "maintain"}
             />
-            <TouchableOpacity
-              className="bg-black rounded-lg px-6 py-4 justify-center items-center max-w-[75px] min-w-[75px]"
-              onPress={toggleWeightUnit}
-            >
+            <TouchableOpacity className="bg-black rounded-lg px-6 py-4 justify-center items-center max-w-[75px] min-w-[75px]">
               <Text className="font-PoppinsMedium font-sm text-white">
-                {weightUnit}
+                {currentWeightUnit}
               </Text>
             </TouchableOpacity>
           </View>
@@ -119,3 +119,5 @@ export default function TargetWeightSelection({
     </SafeAreaView>
   );
 }
+
+export default memo(TargetWeightSelection);

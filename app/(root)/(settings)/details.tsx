@@ -33,10 +33,8 @@ function Details() {
   const router = useRouter();
   const { user } = useAuth();
 
-  const [fullName, setFullName] = useState(user?.name || "Andrew Ainsley");
-  const [email, setEmail] = useState(
-    user?.email || "andrew.ainsley@yourdomain.com"
-  );
+  const [fullName, setFullName] = useState(user?.name || "Uncle Bob");
+  const [email, setEmail] = useState(user?.email || "uncle.bob@yourdomain.com");
   const [gender, setGender] = useState(user?.gender || "Male");
   const [dateOfBirth, setDateOfBirth] = useState("12-25-1995");
 

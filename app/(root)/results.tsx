@@ -279,7 +279,10 @@ function Results() {
         </ScrollView>
       </View>
       <View className="flex-row gap-2 bg-white p-4 border-t border-t-gray-100">
-        <TouchableOpacity className="bg-transparent rounded-full px-6 py-4 border border-[#2D3644] flex-1">
+        <TouchableOpacity
+          className="bg-transparent rounded-full px-6 py-4 border border-[#2D3644] flex-1"
+          onPress={handleBack}
+        >
           <Text className="font-Poppins text-center text-black uppercase">
             Discard
           </Text>

@@ -1,14 +1,11 @@
-import React, { useState } from "react";
+import React, { memo } from "react";
 import { SafeAreaView, Text, View } from "react-native";
-import TextInputField from "../TextInputField";
+import TextInputField from "../../../components/TextInputField";
+import { useOnboarding } from "./_layout";
 
-interface InputNameProps {
-  value: string;
-  onChangeText: (text: string) => void;
-}
-
-export default function InputName({ value, onChangeText }: InputNameProps) {
-  const [isFocused, setIsFocused] = useState(false);
+function InputName() {
+  console.log("InputName rendered");
+  const { name, setName } = useOnboarding();
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -30,8 +27,8 @@ export default function InputName({ value, onChangeText }: InputNameProps) {
           </Text>
           <View className="flex-row items-center">
             <TextInputField
-              value={value}
-              onChangeText={onChangeText}
+              value={name}
+              onChangeText={setName}
               maxLength={20}
               keyboardType="default"
             />
@@ -41,3 +38,5 @@ export default function InputName({ value, onChangeText }: InputNameProps) {
     </SafeAreaView>
   );
 }
+
+export default memo(InputName);

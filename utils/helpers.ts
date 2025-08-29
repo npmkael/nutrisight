@@ -54,3 +54,46 @@ export function chunkArray(array: any[], size: number) {
   }
   return result;
 }
+
+// Example usage:
+// const date = new Date("1995-12-25");
+// const formatted = formatDateToMMDDYYYY(date); // "12-25-1995"
+export function formatDateToMMDDYYYY(date: Date): string {
+  const mm = String(date.getMonth() + 1).padStart(2, "0");
+  const dd = String(date.getDate()).padStart(2, "0");
+  const yyyy = date.getFullYear();
+  return `${mm}-${dd}-${yyyy}`;
+}
+
+// const date = parseMMDDYYYYToDate("12-25-1995"); // Date object for December 25, 1995
+export function parseMMDDYYYYToDate(dateStr: string): Date | null {
+  // Expects dateStr in "MM-DD-YYYY" format
+  const [mm, dd, yyyy] = dateStr.split("-");
+  if (!mm || !dd || !yyyy) return null;
+  // Note: Months are 0-based in JS Date
+  return new Date(Number(yyyy), Number(mm) - 1, Number(dd));
+}
+
+export function getAgeFromDOB(dob: Date): number {
+  const today = new Date();
+  let age = today.getFullYear() - dob.getFullYear();
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < dob.getDate())) {
+    age--;
+  }
+  return age;
+}
+
+export function cmToFeetAndInches(cm: number): {
+  feet: number;
+  inches: number;
+} {
+  const totalInches = cm / 2.54;
+  const feet = Math.floor(totalInches / 12);
+  const inches = Math.round(totalInches % 12);
+  return { feet, inches };
+}
+
+export function lbsToKg(lbs: number): number {
+  return lbs * 0.45359237;
+}

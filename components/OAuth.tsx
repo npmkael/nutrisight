@@ -9,7 +9,7 @@ import { useAuth } from "@/context/AuthContext";
 import { memo } from "react";
 
 function OAuth() {
-  const { signWithGoogle } = useAuth();
+  const { signWithGoogle, loading } = useAuth();
 
   return (
     <View>
@@ -31,6 +31,7 @@ function OAuth() {
         )}
         bgVariant="outline"
         textVariant="primary"
+        disabled={loading}
         onPress={signWithGoogle}
       />
     </View>

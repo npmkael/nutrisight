@@ -1,7 +1,9 @@
+import { memo } from "react";
 import { ActivityIndicator, StyleSheet, Text } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
-export function LoadingScreen() {
+function LoadingScreen() {
+  console.log("LoadingScreen rendered");
   return (
     <Animated.View
       entering={FadeIn.duration(600)}
@@ -12,6 +14,8 @@ export function LoadingScreen() {
     </Animated.View>
   );
 }
+
+export default memo(LoadingScreen);
 
 const styles = StyleSheet.create({
   centeredContainer: {

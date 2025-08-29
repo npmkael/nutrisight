@@ -1,5 +1,5 @@
 import { Link, router } from "expo-router";
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 // custom components
@@ -22,6 +22,23 @@ function SignUp() {
     email: "",
     password: "",
   });
+
+  const handleRegister = useCallback(async () => {
+    const success = await register(
+      form.firstName,
+      form.lastName,
+      form.email,
+      form.password
+    );
+    if (!success) {
+      router.replace("/(auth)/sign-up");
+      return;
+    }
+    router.replace({
+      pathname: "/(auth)/otp",
+      params: { email: form.email },
+    });
+  }, [form]);
 
   return (
     <SafeAreaView className="flex-1">
@@ -68,14 +85,7 @@ function SignUp() {
 
             <CustomButton
               title="Sign Up"
-              onPress={() =>
-                register(
-                  form.firstName,
-                  form.lastName,
-                  form.email,
-                  form.password
-                )
-              }
+              onPress={handleRegister}
               className="mt-6"
               disabled={loading}
               loading={loading}

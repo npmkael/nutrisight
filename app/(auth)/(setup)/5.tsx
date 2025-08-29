@@ -1,15 +1,10 @@
-import React from "react";
+import React, { memo } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { useOnboarding } from "./_layout";
 
-interface WeightGoalSelectionProps {
-  selectedGoal: string;
-  setSelectedGoal: (goal: string) => void;
-}
+function WeightGoalSelection() {
+  const { weightGoal, setWeightGoal } = useOnboarding();
 
-export default function WeightGoalSelection({
-  selectedGoal,
-  setSelectedGoal,
-}: WeightGoalSelectionProps) {
   const goals = [
     {
       id: "lose",
@@ -46,27 +41,25 @@ export default function WeightGoalSelection({
             <TouchableOpacity
               key={goal.id}
               className={`p-4 rounded-lg border-2 ${
-                selectedGoal === goal.id
+                weightGoal === goal.id
                   ? "bg-black border-black"
                   : "bg-white border-gray-200"
               }`}
-              onPress={() => setSelectedGoal(goal.id)}
+              onPress={() => setWeightGoal(goal.id)}
             >
               <View className="flex-row items-center">
                 <Text className="text-2xl mr-4">{goal.icon}</Text>
                 <View className="flex-1">
                   <Text
                     className={`text-lg font-PoppinsSemiBold ${
-                      selectedGoal === goal.id ? "text-white" : "text-black"
+                      weightGoal === goal.id ? "text-white" : "text-black"
                     }`}
                   >
                     {goal.title}
                   </Text>
                   <Text
                     className={`text-sm font-Poppins ${
-                      selectedGoal === goal.id
-                        ? "text-gray-200"
-                        : "text-gray-500"
+                      weightGoal === goal.id ? "text-gray-200" : "text-gray-500"
                     }`}
                   >
                     {goal.description}
@@ -80,3 +73,5 @@ export default function WeightGoalSelection({
     </SafeAreaView>
   );
 }
+
+export default memo(WeightGoalSelection);

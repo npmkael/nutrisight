@@ -1,4 +1,4 @@
-import React from "react";
+import React, { memo } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
+import { useOnboarding } from "./_layout";
 
 interface Allergen {
   id: string;
@@ -45,10 +46,9 @@ const otherAllergens: Allergen[] = [
   { id: "none", name: "No allergies", category: "other" },
 ];
 
-export default function AllergensSelection({
-  selectedAllergens,
-  setSelectedAllergens,
-}: AllergensSelectionProps) {
+function AllergensSelection() {
+  const { selectedAllergens, setSelectedAllergens } = useOnboarding();
+
   const toggleAllergen = (allergenId: string) => {
     setSelectedAllergens((prev: string[]) => {
       if (allergenId === "none") {
@@ -123,3 +123,5 @@ export default function AllergensSelection({
     </SafeAreaView>
   );
 }
+
+export default memo(AllergensSelection);

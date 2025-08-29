@@ -1,0 +1,312 @@
+import { useAuth } from "@/context/AuthContext";
+import { cmToFeetAndInches, lbsToKg } from "@/utils/helpers";
+import { Ionicons } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { router, Slot, usePathname } from "expo-router";
+import React, {
+  createContext,
+  memo,
+  useCallback,
+  useContext,
+  useMemo,
+  useState,
+} from "react";
+import { Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+const totalSteps = 6;
+
+type OnboardingContextType = {
+  name: string;
+  setName: (v: string) => void;
+  gender: string;
+  setGender: (v: string) => void;
+  birthDate: Date;
+  setBirthDate: (d: Date) => void;
+  heightUnit: string;
+  setHeightUnit: (u: string) => void;
+  heightFeet: string;
+  setHeightFeet: (v: string) => void;
+  heightInches: string;
+  setHeightInches: (v: string) => void;
+  weightUnit: string;
+  setWeightUnit: (u: string) => void;
+  weight: string;
+  setWeight: (v: string) => void;
+  selectedAllergens: string[];
+  setSelectedAllergens: React.Dispatch<React.SetStateAction<string[]>>;
+  weightGoal: string;
+  setWeightGoal: (g: string) => void;
+  targetWeight: string;
+  setTargetWeight: (w: string) => void;
+};
+
+const OnboardingContext = createContext<OnboardingContextType | undefined>(
+  undefined
+);
+
+export function useOnboarding() {
+  const ctx = useContext(OnboardingContext);
+  if (!ctx) throw new Error("useOnboarding must be used within provider");
+  return ctx;
+}
+
+function SetupLayout() {
+  const { onboardingSubmission, agreement, onboardingEmail } = useAuth();
+  const pathname = usePathname();
+
+  // shared onboarding state
+  const [name, setName] = useState("");
+  const [gender, setGender] = useState("");
+  const [birthDate, setBirthDate] = useState(new Date());
+  const [heightUnit, setHeightUnit] = useState("cm");
+  const [heightFeet, setHeightFeet] = useState("");
+  const [heightInches, setHeightInches] = useState("");
+  const [weightUnit, setWeightUnit] = useState("lb");
+  const [weight, setWeight] = useState("");
+  const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
+  const [weightGoal, setWeightGoal] = useState("");
+  const [targetWeight, setTargetWeight] = useState("");
+  const [currentStep, setCurrentStep] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [onboardingComplete, setOnboardingComplete] = useState(false);
+
+  const value = useMemo(
+    () => ({
+      name,
+      setName,
+      gender,
+      setGender,
+      birthDate,
+      setBirthDate,
+      heightUnit,
+      setHeightUnit,
+      heightFeet,
+      setHeightFeet,
+      heightInches,
+      setHeightInches,
+      weightUnit,
+      setWeightUnit,
+      weight,
+      setWeight,
+      selectedAllergens,
+      setSelectedAllergens,
+      weightGoal,
+      setWeightGoal,
+      targetWeight,
+      setTargetWeight,
+    }),
+    [
+      name,
+      gender,
+      birthDate,
+      heightUnit,
+      heightFeet,
+      heightInches,
+      weightUnit,
+      weight,
+      selectedAllergens,
+      weightGoal,
+      targetWeight,
+    ]
+  );
+
+  const progress = useMemo(
+    () => (currentStep / totalSteps) * 100,
+    [currentStep]
+  );
+
+  const handleContinue = useCallback(async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    if (currentStep < totalSteps) {
+      setCurrentStep((s) => s + 1);
+
+      const strStep = (currentStep + 1).toString() as
+        | "1"
+        | "2"
+        | "3"
+        | "4"
+        | "5"
+        | "6";
+
+      console.log(currentStep);
+
+      router.push(`/(auth)/(setup)/${strStep}`);
+    }
+  }, [currentStep, onboardingEmail, router]);
+
+  const handleBack = useCallback(() => {
+    Haptics.selectionAsync();
+    if (currentStep > 1) {
+      setCurrentStep((s) => Math.max(1, s - 1));
+
+      router.back();
+      return;
+    }
+  }, [currentStep, onboardingEmail, router]);
+
+  const handleOnboardSubmission = useCallback(async () => {
+    if (currentStep === totalSteps && !onboardingComplete) {
+      if (onboardingEmail!.length < 5) {
+        alert("Please enter a valid email address.");
+        return;
+      }
+      try {
+        setLoading(true);
+        const height =
+          heightUnit === "ft/in"
+            ? parseFloat(
+                `${heightFeet}.${heightInches === "" ? "0" : heightInches}`
+              )
+            : parseFloat(
+                cmToFeetAndInches(parseFloat(heightFeet)).feet.toFixed(2)
+              );
+
+        const finalWeight =
+          weightUnit === "kg"
+            ? Math.round(parseFloat(weight))
+            : Math.round(parseFloat(lbsToKg(Number(weight)).toFixed(2)));
+
+        const finalTarget =
+          weightUnit === "kg"
+            ? parseFloat(Number(targetWeight).toFixed(2))
+            : parseFloat(lbsToKg(Number(targetWeight)).toFixed(2));
+
+        console.log("Submitting onboarding:", {
+          name,
+          selectedAllergens,
+          gender,
+          birthDate,
+          height,
+          finalWeight,
+          onboardingEmail,
+          weightGoal,
+          finalTarget,
+        });
+
+        const result = await onboardingSubmission(
+          name,
+          selectedAllergens,
+          gender,
+          birthDate,
+          height,
+          finalWeight,
+          onboardingEmail!,
+          weightGoal,
+          finalTarget
+        );
+
+        console.log("Onboarding submission result:", result);
+        if (!result) {
+          alert("Onboarding submission failed, please try again.");
+          return;
+        }
+        router.replace({
+          pathname: "/(auth)/success-account",
+          params: { onboardingEmail: result },
+        });
+      } catch (err) {
+        console.error("Onboarding final submit error:", err);
+      } finally {
+        setLoading(false);
+      }
+      return;
+    }
+  }, [
+    name,
+    selectedAllergens,
+    gender,
+    birthDate,
+    heightUnit,
+    heightFeet,
+    heightInches,
+    weightUnit,
+    weight,
+    targetWeight,
+    weightGoal,
+    onboardingComplete,
+    router,
+  ]);
+
+  return (
+    <OnboardingContext.Provider value={value}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+        {/* header */}
+        {currentStep > 0 && currentStep < totalSteps && (
+          <View
+            style={{ flexDirection: "row", alignItems: "center", padding: 16 }}
+          >
+            <TouchableOpacity
+              onPress={handleBack}
+              style={{
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: "#F4F4F4",
+              }}
+            >
+              <Ionicons name="arrow-back" size={20} color="black" />
+            </TouchableOpacity>
+            <View
+              style={{
+                flex: 1,
+                height: 6,
+                backgroundColor: "#E0E0E0",
+                borderRadius: 8,
+                marginHorizontal: 12,
+              }}
+            >
+              <View
+                style={{
+                  height: "100%",
+                  backgroundColor: "#000",
+                  width: `${pathname === "7" ? 100 : progress}%`,
+                }}
+              />
+            </View>
+            <Text>
+              {currentStep} / {totalSteps}
+            </Text>
+          </View>
+        )}
+
+        {/* child page renders here */}
+        <View style={{ flex: 1 }}>
+          <Slot />
+        </View>
+
+        {/* footer */}
+        <Animated.View
+          entering={FadeIn.duration(600)}
+          style={{ padding: 16, borderTopWidth: 1, borderTopColor: "#eee" }}
+        >
+          <TouchableOpacity
+            onPress={
+              currentStep < totalSteps
+                ? handleContinue
+                : handleOnboardSubmission
+            }
+            style={{
+              backgroundColor: "#000",
+              padding: 14,
+              borderRadius: 12,
+              alignItems: "center",
+              opacity: loading ? 0.6 : 1,
+            }}
+            disabled={loading}
+          >
+            <Text style={{ color: "#fff", fontSize: 16 }}>
+              {loading
+                ? "Loading..."
+                : currentStep < totalSteps
+                  ? "Next"
+                  : "Finish"}
+            </Text>
+          </TouchableOpacity>
+        </Animated.View>
+      </SafeAreaView>
+    </OnboardingContext.Provider>
+  );
+}
+
+export default memo(SetupLayout);

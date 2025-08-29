@@ -8,6 +8,12 @@ function RootLayout() {
     <NonAuthProtect>
       <Stack>
         <Stack.Screen
+          name="(setup)"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
           name="welcome"
           options={{
             headerShown: false,
@@ -32,7 +38,7 @@ function RootLayout() {
           }}
         />
         <Stack.Screen
-          name="personalization"
+          name="success-account"
           options={{
             headerShown: false,
           }}

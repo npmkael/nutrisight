@@ -40,12 +40,18 @@ function Otp() {
   }, [email, resendOtp]);
 
   const onContinuePress = useCallback(async () => {
+    if (!email) {
+      alert("Email is required");
+      return;
+    }
     if (otpCode.length !== 4) {
       Alert.alert("Invalid OTP", "Please enter a 4-digit OTP.");
       return;
     }
     try {
+      console.log("Sending OTP to:", email);
       await verifyOtp(otpCode, email);
+      return;
     } catch (error) {
       Alert.alert("Verification Failed", "The OTP you entered is incorrect.");
     }

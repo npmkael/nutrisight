@@ -31,7 +31,7 @@ export interface UserType {
   gmailId?: string; // (dynamic)
   profileLink?: string; // (dynamic)
   gender?: string; // (dynamic)
-  age?: number; // (dynamic)
+  birthDate?: Date; // (dynamic)
   height?: number; // in feet (dynamic)
   weight?: number; // in kg (dynamic)
   targetWeight?: number; // in kg (dynamic)
@@ -55,7 +55,6 @@ export interface AuthContextType {
   user: UserType | null;
   setUser: React.Dispatch<React.SetStateAction<UserType | null>>;
   loading: boolean;
-  registered?: boolean;
   login: (email: string, password: string) => Promise<void>;
   signWithGoogle: () => Promise<void>;
   register: (
@@ -68,17 +67,18 @@ export interface AuthContextType {
   logout: () => Promise<void>;
   resendOtp: (email: string) => Promise<void>;
   uploadProfilePicture: (imageUri: string) => Promise<void>;
+  onboardingEmail: string | null;
   onboardingSubmission: (
     name: string,
     allergens: string[],
     gender: string,
-    age: number,
+    birthDate: Date,
     height: number,
     weight: number,
     email: string,
     weightGoal: string,
     targetWeight: number
-  ) => Promise<void>;
+  ) => Promise<string>;
   agreement: (email: string) => Promise<void>;
 }
 
@@ -90,7 +90,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<UserType | null>(null);
   const [loading, setLoading] = useState(true);
   const [checkingSession, setCheckingSession] = useState(true);
-  const [registered, setRegistered] = useState<boolean>(false);
+  const [onboardingEmail, setOnboardingEmail] = useState<string | null>(null);
 
   const router = useRouter();
 
@@ -199,10 +199,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             router.replace("/(auth)/sign-in");
             throw new Error("Google Sign-In failed, please try again.");
           }
-          router.replace({
-            pathname: "/(auth)/welcome",
-            params: { email: data.email },
-          });
+          setOnboardingEmail(data.email);
+          router.replace("/(auth)/(setup)/1");
         } else {
           router.replace("/(auth)/sign-in");
           throw new Error(
@@ -256,25 +254,17 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           const errorData = !response.ok ? await response.json() : null;
           console.error("Registration failed:", errorData || response);
           if (response.status === 409) {
-            router.replace("/(auth)/sign-up");
             throw new Error("Email is already registered.");
           }
-          router.replace("/(auth)/sign-up");
           throw new Error(errorData?.message || "Registration failed");
         }
 
         const data = await response.json();
-        if (data.userId) {
-          router.replace({ pathname: "/(auth)/otp", params: { email } });
-          return true;
-        } else {
-          router.replace("/(auth)/sign-up");
-          throw new Error("Registration failed, please try again.");
-        }
+        return !!data?.userId;
       } catch (error) {
         console.error("Registration error:", error);
-        router.replace("/(auth)/sign-up");
-        throw new Error("Registration failed, please try again.");
+        alert("Registration failed, please try again.");
+        return false;
       } finally {
         setLoading(false);
       }
@@ -303,7 +293,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         if (!data.success) {
           throw new Error("OTP verification failed, please try again.");
         }
-        router.replace({ pathname: "/(auth)/welcome", params: { email } });
+        console.log("OTP verification successful:", data);
+        setOnboardingEmail(data.email);
+        router.replace("/(auth)/(setup)/1");
       } catch (error) {
         console.error("OTP verification error:", error);
         router.replace("/(auth)/sign-up");
@@ -346,7 +338,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       name: string,
       allergens: string[],
       gender: string,
-      age: number,
+      birthDate: Date,
       height: number,
       weight: number,
       email: string,
@@ -354,6 +346,35 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       targetWeight: number
     ) => {
       try {
+        if (
+          !email ||
+          !name ||
+          !gender ||
+          !birthDate ||
+          !height ||
+          !weight ||
+          !weightGoal ||
+          targetWeight === null ||
+          targetWeight === undefined
+        ) {
+          // find the missing
+          const missingFields = [
+            !email && "email",
+            !name && "name",
+            !gender && "gender",
+            !birthDate && "birthDate",
+            !height && "height",
+            !weight && "weight",
+            !weightGoal && "weightGoal",
+            targetWeight === null && "targetWeight",
+            targetWeight === undefined && "targetWeight",
+          ].filter(Boolean) as string[];
+
+          throw new Error(
+            `All fields are required: ${missingFields.join(", ")}`
+          );
+        }
+
         setLoading(true);
         const res = await fetch(`${BACKEND_URL}/auth/onboarding`, {
           method: "POST",
@@ -364,7 +385,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             name,
             allergens,
             gender,
-            age,
+            birthDate,
             height,
             weight,
             email,
@@ -382,10 +403,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           throw new Error("Onboarding submission failed, please try again.");
         }
         console.log("Onboarding submission successful:", data);
-        setRegistered(true);
+        return data.email;
       } catch (error) {
         console.error("Onboarding submission error:", error);
-        throw new Error("Onboarding submission failed, please try again.");
+        return null;
       } finally {
         setLoading(false);
       }
@@ -405,7 +426,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error("Agreement submission failed");
+        const data = await response.json();
+        throw new Error(data.message || "Agreement submission failed");
       }
 
       const data = await response.json();
@@ -436,7 +458,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       }
 
       setUser(null);
-      setRegistered(false);
+      setOnboardingEmail(null);
       router.replace("/(auth)/sign-in");
     } catch (error) {
       console.error("Logout error:", error);
@@ -503,9 +525,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       uploadProfilePicture,
       onboardingSubmission,
       agreement,
-      registered,
-      checkingSession: checkingSession,
+      checkingSession,
       setUser,
+      onboardingEmail,
     }),
     [
       user,
@@ -519,9 +541,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       uploadProfilePicture,
       onboardingSubmission,
       agreement,
-      registered,
       checkingSession,
       setUser,
+      onboardingEmail,
     ]
   );
 

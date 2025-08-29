@@ -6,11 +6,13 @@ function TextInputField({
   onChangeText,
   maxLength,
   keyboardType = "numeric",
+  editable = true,
 }: {
   value: string;
   onChangeText: (text: string) => void;
   maxLength?: number;
   keyboardType?: "numeric" | "default";
+  editable?: boolean;
 }) {
   const [isFocused, setIsFocused] = useState(false);
 
@@ -25,6 +27,7 @@ function TextInputField({
       maxLength={maxLength}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
+      editable={editable}
     />
   );
 }

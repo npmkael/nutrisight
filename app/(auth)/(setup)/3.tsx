@@ -1,31 +1,27 @@
-import React, { useState } from "react";
+import React, { memo } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 
-import TextInputField from "../TextInputField";
+import TextInputField from "../../../components/TextInputField";
+import { useOnboarding } from "./_layout";
 
-interface HeightAndWeightProps {
-  heightFeet: string;
-  setHeightFeet: (height: string) => void;
-  heightInches: string;
-  setHeightInches: (height: string) => void;
-  weight: string;
-  setWeight: (weight: string) => void;
-}
-
-export default function HeightAndWeight({
-  heightFeet,
-  setHeightFeet,
-  heightInches,
-  setHeightInches,
-  weight,
-  setWeight,
-}: HeightAndWeightProps) {
-  const [heightUnit, setHeightUnit] = useState("ft/in");
-  const [weightUnit, setWeightUnit] = useState("lb");
-  const [isFocused, setIsFocused] = useState(false);
+function HeightAndWeight() {
+  const {
+    heightFeet,
+    heightInches,
+    heightUnit,
+    weight,
+    weightUnit,
+    setHeightFeet,
+    setHeightInches,
+    setHeightUnit,
+    setWeight,
+    setWeightUnit,
+  } = useOnboarding();
 
   const toggleHeightUnit = () => {
     setHeightUnit(heightUnit === "ft/in" ? "cm" : "ft/in");
+    setHeightFeet(""); // feet on unit cm is cm
+    setHeightInches("");
   };
 
   const toggleWeightUnit = () => {
@@ -97,3 +93,5 @@ export default function HeightAndWeight({
     </SafeAreaView>
   );
 }
+
+export default memo(HeightAndWeight);
