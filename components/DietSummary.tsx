@@ -170,27 +170,6 @@ export default function DietSummary() {
                 ))}
               </View>
             </View>
-            <View className="flex-row justify-between items-center">
-              <Text className="font-Poppins text-gray-400 text-sm">
-                Current Weight
-              </Text>
-              <Text className="font-PoppinsSemiBold text-sm">68kg</Text>
-            </View>
-            <View className="flex-row justify-between items-center mb-2">
-              <Text className="font-Poppins text-gray-400 text-sm">
-                Target Weight
-              </Text>
-              <Text className="font-PoppinsSemiBold text-sm">198kg</Text>
-            </View>
-
-            <View className="w-full h-[1px] bg-gray-200 rounded-full" />
-
-            <View className="flex-row justify-between items-center mt-2">
-              <Text className="font-Poppins text-gray-400 text-sm">
-                To gain
-              </Text>
-              <Text className="font-PoppinsSemiBold text-sm">52kg</Text>
-            </View>
           </>
         ) : (
           <View className="flex-col">

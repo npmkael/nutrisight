@@ -6,7 +6,7 @@ import Typo from "./Typo";
 
 const BMI_CATEGORIES = [
   { label: "Underweight", color: "#4F8CFF", min: 0, max: 18.49 },
-  { label: "Normal Weight", color: "#7ED957", min: 18.5, max: 24.99 },
+  { label: "Normal", color: "#7ED957", min: 18.5, max: 24.99 },
   { label: "Overweight", color: "#FFD600", min: 25, max: 29.99 },
   { label: "Obese", color: "#FF4B4B", min: 30, max: 100 },
 ];
@@ -142,13 +142,6 @@ function BMIClassification({ bmi, name, onLogWeight }: BMIClassificationProps) {
         </View>
         {/* BMI Value and Classification */}
         <View className="flex-col gap-2">
-          <View className="flex-row justify-between items-center">
-            <Text className="font-Poppins text-gray-400 text-sm">
-              Current BMI
-            </Text>
-            <Text className="font-PoppinsSemiBold text-sm">{bmi}</Text>
-          </View>
-
           <View className="w-full h-[1px] bg-gray-200 rounded-full" />
 
           <View className="flex-row justify-between items-center">

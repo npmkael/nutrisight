@@ -116,8 +116,8 @@ const CustomCircularProgress = () => {
 
       {/* Center content */}
       <View className="absolute items-center justify-center">
-        <Text className="text-5xl font-PoppinsBold text-white">1560</Text>
-        <Text className="text-white text-sm font-Poppins mt-1">
+        <Text className="text-4xl font-PoppinsBold text-white">1560</Text>
+        <Text className="text-white text-xs font-Poppins mt-1">
           Calorie Goal
         </Text>
       </View>

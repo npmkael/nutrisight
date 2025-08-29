@@ -51,19 +51,6 @@ function TargetWeightProgress() {
             />
           </View>
 
-          <View className="flex-row justify-between items-center">
-            <Text className="font-Poppins text-gray-400 text-sm">
-              Current Weight
-            </Text>
-            <Text className="font-PoppinsSemiBold text-sm">68kg</Text>
-          </View>
-          <View className="flex-row justify-between items-center">
-            <Text className="font-Poppins text-gray-400 text-sm mb-2">
-              Target Weight
-            </Text>
-            <Text className="font-PoppinsSemiBold text-sm">198kg</Text>
-          </View>
-
           <View className="w-full h-[1px] bg-gray-200 rounded-full" />
 
           <View className="flex-row justify-between items-center mt-2">
