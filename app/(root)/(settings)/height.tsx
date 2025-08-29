@@ -25,8 +25,8 @@ function HeightEdit() {
 
   useEffect(() => {
     if (user) {
-      setHeightFeet(Math.floor(user.height || 0).toString());
-      setHeightInches((((user.height || 0) % 1) * 12).toFixed(0));
+      setHeightFeet(user.heightFeet?.toLocaleString()!);
+      setHeightInches(user.heightInches?.toLocaleString()!);
     }
   }, [user]);
 
