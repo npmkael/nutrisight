@@ -154,31 +154,35 @@ function SetupLayout() {
       }
       try {
         setLoading(true);
-        const height =
-          heightUnit === "ft/in"
-            ? parseFloat(
-                `${heightFeet}.${heightInches === "" ? "0" : heightInches}`
-              )
-            : parseFloat(
-                cmToFeetAndInches(parseFloat(heightFeet)).feet.toFixed(2)
-              );
+        // Height conversion
+        let finalFeet = Number(heightFeet);
+        let finalInch = Number(heightInches);
 
-        const finalWeight =
-          weightUnit === "kg"
-            ? Math.round(parseFloat(weight))
-            : Math.round(parseFloat(lbsToKg(Number(weight)).toFixed(2)));
+        if (heightUnit !== "ft/in") {
+          const { feet, inches } = cmToFeetAndInches(Number(heightFeet));
+          finalFeet = feet;
+          finalInch = inches;
+        }
 
-        const finalTarget =
-          weightUnit === "kg"
-            ? parseFloat(Number(targetWeight).toFixed(2))
-            : parseFloat(lbsToKg(Number(targetWeight)).toFixed(2));
+        // Weight conversion
+        let finalWeight = Number(parseFloat(weight).toFixed(2));
+        if (weightUnit !== "kg") {
+          finalWeight = Number(lbsToKg(Number(weight)));
+        }
+
+        // Target weight conversion
+        let finalTarget = Number(targetWeight);
+        if (weightUnit !== "kg") {
+          finalTarget = Number(lbsToKg(Number(targetWeight)));
+        }
 
         console.log("Submitting onboarding:", {
           name,
           selectedAllergens,
           gender,
           birthDate,
-          height,
+          finalFeet,
+          finalInch,
           finalWeight,
           onboardingEmail,
           weightGoal,
@@ -190,7 +194,8 @@ function SetupLayout() {
           selectedAllergens,
           gender,
           birthDate,
-          height,
+          finalFeet,
+          finalInch,
           finalWeight,
           onboardingEmail!,
           weightGoal,
@@ -233,42 +238,40 @@ function SetupLayout() {
     <OnboardingContext.Provider value={value}>
       <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
         {/* header */}
-        {currentStep > 0 && currentStep <= totalSteps && (
-          <View
-            style={{ flexDirection: "row", alignItems: "center", padding: 16 }}
+        <View
+          style={{ flexDirection: "row", alignItems: "center", padding: 16 }}
+        >
+          <TouchableOpacity
+            onPress={handleBack}
+            style={{
+              padding: 8,
+              borderRadius: 20,
+              backgroundColor: "#F4F4F4",
+            }}
           >
-            <TouchableOpacity
-              onPress={handleBack}
-              style={{
-                padding: 8,
-                borderRadius: 20,
-                backgroundColor: "#F4F4F4",
-              }}
-            >
-              <Ionicons name="arrow-back" size={20} color="black" />
-            </TouchableOpacity>
+            <Ionicons name="arrow-back" size={20} color="black" />
+          </TouchableOpacity>
+          <View
+            style={{
+              flex: 1,
+              height: 6,
+              backgroundColor: "#E0E0E0",
+              borderRadius: 8,
+              marginHorizontal: 12,
+            }}
+          >
             <View
               style={{
-                flex: 1,
-                height: 6,
-                backgroundColor: "#E0E0E0",
-                borderRadius: 8,
-                marginHorizontal: 12,
+                height: "100%",
+                backgroundColor: "#000",
+                width: `${progress}%`,
               }}
-            >
-              <View
-                style={{
-                  height: "100%",
-                  backgroundColor: "#000",
-                  width: `${pathname === "7" ? 100 : progress}%`,
-                }}
-              />
-            </View>
-            <Text>
-              {currentStep} / {totalSteps}
-            </Text>
+            />
           </View>
-        )}
+          <Text>
+            {currentStep} / {totalSteps}
+          </Text>
+        </View>
 
         {/* child page renders here */}
         <View style={{ flex: 1 }}>

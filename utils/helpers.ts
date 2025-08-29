@@ -84,16 +84,14 @@ export function getAgeFromDOB(dob: Date): number {
   return age;
 }
 
-export function cmToFeetAndInches(cm: number): {
-  feet: number;
-  inches: number;
-} {
+export function cmToFeetAndInches(cm: number) {
   const totalInches = cm / 2.54;
   const feet = Math.floor(totalInches / 12);
-  const inches = Math.round(totalInches % 12);
+  const inches = +(totalInches % 12).toFixed(2);
   return { feet, inches };
 }
 
-export function lbsToKg(lbs: number): number {
-  return lbs * 0.45359237;
+// Convert lbs to kg
+export function lbsToKg(lbs: number) {
+  return +(lbs * 0.45359237).toFixed(2);
 }

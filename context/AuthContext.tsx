@@ -32,7 +32,8 @@ export interface UserType {
   profileLink?: string; // (dynamic)
   gender?: string; // (dynamic)
   birthDate?: Date; // (dynamic)
-  height?: number; // in feet (dynamic)
+  heightFeet?: number; // in feet (dynamic)
+  heightInches?: number; // in inches (dynamic)
   weight?: number; // in kg (dynamic)
   targetWeight?: number; // in kg (dynamic)
   weightGoal?: string; // gain/maintain/lose (dynamic)
@@ -73,7 +74,8 @@ export interface AuthContextType {
     allergens: string[],
     gender: string,
     birthDate: Date,
-    height: number,
+    heightFeet: number,
+    heightInches: number,
     weight: number,
     email: string,
     weightGoal: string,
@@ -339,7 +341,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       allergens: string[],
       gender: string,
       birthDate: Date,
-      height: number,
+      heightFeet: number,
+      heightInches: number,
       weight: number,
       email: string,
       weightGoal: string,
@@ -351,7 +354,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           !name ||
           !gender ||
           !birthDate ||
-          !height ||
+          !heightFeet ||
+          !heightInches ||
           !weight ||
           !weightGoal ||
           targetWeight === null ||
@@ -363,7 +367,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             !name && "name",
             !gender && "gender",
             !birthDate && "birthDate",
-            !height && "height",
+            !heightFeet && "heightFeet",
+            !heightInches && "heightInches",
             !weight && "weight",
             !weightGoal && "weightGoal",
             targetWeight === null && "targetWeight",
@@ -386,7 +391,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             allergens,
             gender,
             birthDate,
-            height,
+            heightFeet,
+            heightInches,
             weight,
             email,
             weightGoal,
