@@ -17,11 +17,11 @@ import {
 export const BACKEND_URL =
   "https://nutrisight-backend-dd22d1bd9780.herokuapp.com";
 
-interface NutritionalData {
+export interface NutritionalData {
   [key: string]: number;
 }
 
-interface DietHistory {
+export interface DietHistory {
   date: Date;
   nutritionalData: NutritionalData[];
 }

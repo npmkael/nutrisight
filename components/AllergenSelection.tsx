@@ -8,11 +8,16 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-import { useOnboarding } from "./_layout";
 
-function AllergensSelection() {
-  const { selectedAllergens, setSelectedAllergens } = useOnboarding();
+interface AllergensSelectionProps {
+  selectedAllergens: string[];
+  setSelectedAllergens: React.Dispatch<React.SetStateAction<string[]>>;
+}
 
+function AllergensSelection({
+  selectedAllergens,
+  setSelectedAllergens,
+}: AllergensSelectionProps) {
   const toggleAllergen = (allergenId: string) => {
     setSelectedAllergens((prev: string[]) => {
       if (allergenId === "none") {

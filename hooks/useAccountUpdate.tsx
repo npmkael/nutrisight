@@ -30,7 +30,7 @@ export function useAccountUpdate() {
       const res = await fetch(
         "https://nutrisight-backend-dd22d1bd9780.herokuapp.com/account/update",
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
             // Add auth headers if needed, e.g. Authorization

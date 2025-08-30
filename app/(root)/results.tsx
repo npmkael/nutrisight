@@ -4,6 +4,8 @@ import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
+import Loading from "@/components/Loading";
+import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
 import {
   capitalizeFirstLetter,
   chunkArray,
@@ -13,8 +15,8 @@ import AntDesign from "@expo/vector-icons/AntDesign";
 import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { memo, useCallback, useMemo } from "react";
+import { router, useLocalSearchParams } from "expo-router";
+import { memo, useCallback, useMemo, useState } from "react";
 import Swiper from "react-native-swiper";
 import { ScanResultType } from "./main-camera";
 
@@ -30,8 +32,10 @@ const COLORS = [
 ];
 
 function Results() {
-  const router = useRouter();
+  const { setUser } = useAuth();
   const { image, name, userAllergens, scanResult } = useLocalSearchParams();
+  const [loading, setLoading] = useState(false);
+
   const result: ScanResultType = scanResult
     ? JSON.parse(scanResult as string)
     : null;
@@ -68,6 +72,54 @@ function Results() {
       result?.ingredients || ""
     );
   }, [userAllergens, result?.ingredients]);
+
+  const handleSave = useCallback(async () => {
+    // Save the result or perform any action
+    const dietHistoryPayload: DietHistory = {
+      date: new Date(),
+      nutritionalData: nutritionChunks.flat().map((nutrient) => ({
+        [(nutrient.name as string).toLowerCase()]: nutrient.amount,
+      })),
+    };
+
+    console.log("Saving diet history:", dietHistoryPayload);
+
+    try {
+      setLoading(true);
+      const res = await fetch(`${BACKEND_URL}/account/update-diet-history`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          dietHistoryPayload,
+        }),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.log("Error saving results:", errorData);
+        alert("Error saving results. Please try again.");
+        return;
+      }
+      const data = await res.json();
+      setUser((prevUser) => {
+        if (!prevUser) return prevUser;
+        return {
+          ...prevUser,
+          dietHistory: data.dietHistory, // <-- replace, not append
+        };
+      });
+      console.log("Successfully saved results:", data.dietHistory);
+      alert("Successfully saved results.");
+      router.replace("/(root)/(tabs)/home");
+    } catch (error) {
+      console.log("Error saving results:", error);
+      alert("Error saving results. Please try again.");
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
@@ -282,14 +334,19 @@ function Results() {
         <TouchableOpacity
           className="bg-transparent rounded-full px-6 py-4 border border-[#2D3644] flex-1"
           onPress={handleBack}
+          disabled={loading}
         >
           <Text className="font-Poppins text-center text-black uppercase">
             Discard
           </Text>
         </TouchableOpacity>
-        <TouchableOpacity className="bg-[#2D3644] rounded-full px-6 py-4 border border-black flex-1">
+        <TouchableOpacity
+          className="bg-[#2D3644] rounded-full px-6 py-4 border border-black flex-1"
+          onPress={handleSave}
+          disabled={loading}
+        >
           <Text className="font-Poppins text-center text-white uppercase">
-            Save
+            {loading ? <Loading /> : "Save"}
           </Text>
         </TouchableOpacity>
       </View>

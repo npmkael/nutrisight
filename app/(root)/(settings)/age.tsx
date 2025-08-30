@@ -1,6 +1,7 @@
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
 import { useAccountUpdate } from "@/hooks/useAccountUpdate";
+import { getAgeFromDOB } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useState } from "react";
@@ -18,10 +19,15 @@ function AgeEdit() {
   const { updateAccount, isLoading, error, response } = useAccountUpdate();
   const { user, setUser } = useAuth();
   const router = useRouter();
+  const [age, setAge] = useState(
+    getAgeFromDOB(user?.birthDate!).toString() || ""
+  );
 
   useEffect(() => {
-    if (user) {
-      setAge(user?.age?.toString() || "");
+    if (user && user.birthDate) {
+      const userAge = getAgeFromDOB(user.birthDate);
+
+      setAge(userAge.toString() || "");
     }
   }, [user]);
 
@@ -30,8 +36,6 @@ function AgeEdit() {
       setUser((prev) => (prev ? { ...prev, age: response.data.age } : prev));
     }
   }, [response]);
-
-  const [age, setAge] = useState(user?.age?.toString() || "");
 
   const back = useCallback(() => {
     router.back();

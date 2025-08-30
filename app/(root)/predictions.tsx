@@ -40,6 +40,7 @@ function Predictions() {
         const data = await res.json();
 
         console.log(`${name} data:`, data);
+        console.log("Nutrients:", data.nutrition);
 
         router.push({
           pathname: "/results",

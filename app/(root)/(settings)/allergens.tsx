@@ -1,4 +1,4 @@
-import AllergensSelection from "@/app/(auth)/(setup)/4";
+import AllergensSelection from "@/components/AllergenSelection";
 import { useAuth } from "@/context/AuthContext";
 import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";

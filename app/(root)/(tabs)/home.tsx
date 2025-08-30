@@ -1,8 +1,8 @@
-import { useAuth } from "@/context/AuthContext";
+import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { memo, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
   Animated,
   Image,
@@ -28,7 +28,6 @@ const Progress = ({
   color: string;
   backgroundColor: string;
 }) => {
-  const { user } = useAuth();
   const [width, setWidth] = useState(0);
   const animatedValue = useRef(new Animated.Value(0)).current;
   const reactive = useRef(new Animated.Value(-1000)).current;
@@ -76,14 +75,19 @@ const Progress = ({
   );
 };
 
-const CustomCircularProgress = () => {
+const CustomCircularProgress = ({
+  progress = 50,
+  calorieGoal = 1000,
+}: {
+  progress?: number;
+  calorieGoal?: number;
+}) => {
   const size = 140;
   const strokeWidth = 4;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
 
   // Calculate progress: assuming 70% progress for the goal
-  const progress = 50;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
 
   return (
@@ -116,7 +120,9 @@ const CustomCircularProgress = () => {
 
       {/* Center content */}
       <View className="absolute items-center justify-center">
-        <Text className="text-5xl font-PoppinsBold text-white">1560</Text>
+        <Text className="text-5xl font-PoppinsBold text-white">
+          {calorieGoal}
+        </Text>
         <Text className="text-white text-sm font-Poppins mt-1">
           Calorie Goal
         </Text>
@@ -129,9 +135,52 @@ function Home() {
   const { user } = useAuth();
   const router = useRouter();
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [dietHistory, setDietHistory] = useState<DietHistory | null>(null);
+  const [macros, setMacros] = useState<{
+    carbs: number;
+    protein: number;
+    fats: number;
+  } | null>(null);
+
+  useEffect(() => {
+    console.log("Diet history updated:", dietHistory);
+  }, [dietHistory]);
+
+  useEffect(() => {
+    if (user) {
+      // get the user's diet history date
+      const userDietHistory = user.dietHistory?.find((h) => {
+        const historyDate = new Date(h.date);
+        return (
+          historyDate.getFullYear() === selectedDate.getFullYear() &&
+          historyDate.getMonth() === selectedDate.getMonth() &&
+          historyDate.getDate() === selectedDate.getDate()
+        );
+      });
+      setDietHistory(userDietHistory || null);
+
+      if (Array.isArray(userDietHistory?.nutritionalData)) {
+        const carbsObj = userDietHistory.nutritionalData.find((item) =>
+          Object.keys(item)[0].toLowerCase().includes("carb")
+        );
+        const proteinObj = userDietHistory.nutritionalData.find((item) =>
+          Object.keys(item)[0].toLowerCase().includes("protein")
+        );
+        const fatsObj = userDietHistory.nutritionalData.find((item) =>
+          Object.keys(item)[0].toLowerCase().includes("fat")
+        );
+
+        setMacros({
+          carbs: carbsObj ? Object.values(carbsObj)[0] : 0,
+          protein: proteinObj ? Object.values(proteinObj)[0] : 0,
+          fats: fatsObj ? Object.values(fatsObj)[0] : 0,
+        });
+      }
+    }
+  }, [selectedDate, user]);
 
   // Generate 7 days starting from current week
-  const generateWeekDays = () => {
+  const generateWeekDays = useCallback(() => {
     const today = new Date();
     const startDate = new Date(selectedDate);
 
@@ -162,20 +211,23 @@ function Home() {
       });
     }
     return days;
-  };
+  }, [selectedDate]);
 
-  const handleDateSelect = (date: Date) => {
+  const handleDateSelect = useCallback((date: Date) => {
     setSelectedDate(date);
-  };
+  }, []);
 
-  const navigateWeek = (direction: "prev" | "next") => {
-    const newDate = new Date(selectedDate);
-    const daysToAdd = direction === "next" ? 7 : -7;
-    newDate.setDate(selectedDate.getDate() + daysToAdd);
-    setSelectedDate(newDate);
-  };
+  const navigateWeek = useCallback(
+    (direction: "prev" | "next") => {
+      const newDate = new Date(selectedDate);
+      const daysToAdd = direction === "next" ? 7 : -7;
+      newDate.setDate(selectedDate.getDate() + daysToAdd);
+      setSelectedDate(newDate);
+    },
+    [selectedDate]
+  );
 
-  const formatSelectedDate = (date: Date) => {
+  const formatSelectedDate = useCallback((date: Date) => {
     const today = new Date();
     const isToday = date.toDateString() === today.toDateString();
 
@@ -198,7 +250,7 @@ function Home() {
         day: "numeric",
       })
       .toUpperCase();
-  };
+  }, []);
 
   if (!user) {
     router.replace("/(auth)/sign-in");
@@ -272,7 +324,9 @@ function Home() {
                     backgroundColor="rgba(255, 255, 255, 0.3)"
                   />
                 </View>
-                <Text className="text-white text-sm font-Poppins">124g</Text>
+                <Text className="text-white text-sm font-Poppins">
+                  {macros?.carbs || 0}g
+                </Text>
               </View>
 
               {/* Protein */}
@@ -289,13 +343,15 @@ function Home() {
                     backgroundColor="rgba(255, 255, 255, 0.3)"
                   />
                 </View>
-                <Text className="text-white text-sm font-Poppins">15g</Text>
+                <Text className="text-white text-sm font-Poppins">
+                  {macros?.protein || 0}g
+                </Text>
               </View>
 
-              {/* Fiber */}
+              {/* Fats */}
               <View className="flex-col items-center justify-center gap-1">
                 <Text className="text-white text-xs font-Poppins text-center uppercase tracking-wider">
-                  FIBER
+                  FATS
                 </Text>
                 <View className="w-16">
                   <Progress
@@ -306,13 +362,11 @@ function Home() {
                     backgroundColor="rgba(255, 255, 255, 0.3)"
                   />
                 </View>
-                <Text className="text-white text-sm font-Poppins">4g</Text>
+                <Text className="text-white text-sm font-Poppins">
+                  {macros?.fats || 0}g
+                </Text>
               </View>
             </View>
-          </View>
-
-          <View className="justify-center items-center mt-4">
-            <Ionicons name="chevron-down" size={24} color="white" />
           </View>
         </View>
 
