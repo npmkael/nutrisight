@@ -1,19 +1,28 @@
 import { capitalizeFirstLetter } from "@/utils/helpers";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 
 type PredictionCardProps = {
   predictionLabel: string;
   predictionValue: number;
   redirectToResults: (name: string) => void;
+  index: number;
 };
 
 export default function PredictionCard({
   predictionLabel,
   predictionValue,
   redirectToResults,
+  index,
 }: PredictionCardProps) {
   return (
-    <View className="space-y-3 mb-2">
+    <Animated.View
+      className="space-y-3 mb-2"
+      entering={FadeIn.duration(1000)
+        .delay(index * 200)
+        .springify()
+        .damping(12)}
+    >
       <TouchableOpacity
         style={styles.card}
         onPressIn={() => redirectToResults(predictionLabel)}
@@ -30,13 +39,13 @@ export default function PredictionCard({
               />
             </View>
           </View>
-          <View className="ml-4 text-right">
+          <View className="ml-4 items-center w-[80px]">
             <Text style={styles.predictionValue}>{predictionValue}%</Text>
             <Text style={styles.predictionConfidence}>confidence</Text>
           </View>
         </View>
       </TouchableOpacity>
-    </View>
+    </Animated.View>
   );
 }
 
@@ -47,14 +56,8 @@ const styles = StyleSheet.create({
     gap: 10,
     borderRadius: 10,
     padding: 12,
-    shadowColor: "#000",
-    shadowOffset: {
-      width: 0,
-      height: 0.5,
-    },
-    shadowOpacity: 0.05,
-    shadowRadius: 1,
-    elevation: 0.5,
+    borderWidth: 1,
+    borderColor: "#e1e1e1",
   },
   predictionLabel: {
     fontSize: 16,

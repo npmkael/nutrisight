@@ -40,7 +40,7 @@ function WeightGoalSelection() {
           {goals.map((goal) => (
             <TouchableOpacity
               key={goal.id}
-              className={`p-4 rounded-lg border-2 ${
+              className={`p-4 rounded-lg border ${
                 weightGoal === goal.id
                   ? "bg-black border-black"
                   : "bg-white border-gray-200"

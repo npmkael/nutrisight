@@ -10,15 +10,30 @@ function RootLayout() {
         <Stack.Screen name="(settings)" options={{ headerShown: false }} />
         <Stack.Screen
           name="(meals)"
-          options={{ headerShown: false, presentation: "modal" }}
+          options={{
+            headerShown: false,
+            presentation: "modal",
+            statusBarStyle: "dark",
+            statusBarBackgroundColor: "#fff",
+          }}
         />
         <Stack.Screen
           name="main-camera"
-          options={{ headerShown: false, presentation: "modal" }}
+          options={{
+            headerShown: false,
+            presentation: "modal",
+            statusBarStyle: "light",
+            statusBarBackgroundColor: "#000",
+          }}
         />
         <Stack.Screen
           name="predictions"
-          options={{ headerShown: false, presentation: "modal" }}
+          options={{
+            headerShown: false,
+            presentation: "modal",
+            statusBarStyle: "light",
+            statusBarBackgroundColor: "#000",
+          }}
         />
         <Stack.Screen
           name="results"

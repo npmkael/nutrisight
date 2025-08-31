@@ -1,11 +1,18 @@
-import BackHeader from "@/components/BackHeader";
 import Loading from "@/components/Loading";
 import PredictionCard from "@/components/PredictionCard";
 import { BACKEND_URL } from "@/context/AuthContext";
 import { replaceUnderscoreWithSpace } from "@/utils/helpers";
+import { Feather } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { memo, useCallback, useState } from "react";
-import { Image, ScrollView, StyleSheet, Text, View } from "react-native";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { PredictionType } from "./main-camera";
 
@@ -67,49 +74,48 @@ function Predictions() {
 
   return (
     <SafeAreaView className="bg-white flex-1">
+      {/* Header */}
+      <TouchableOpacity
+        className="absolute left-4 right-0 top-4 w-10 h-10 rounded-full bg-black/50 z-10 items-center justify-center"
+        onPress={() => router.back()}
+      >
+        <View className="items-center justify-center">
+          <Feather name="chevron-left" size={18} color="white" />
+        </View>
+      </TouchableOpacity>
       <Image
-        className="absolute top-0 left-0 right-0"
-        source={require("@/assets/images/an-yujin-sample.jpg")}
-        style={{ height: 400, width: "100%" }}
-        blurRadius={50}
+        className=""
+        source={{ uri: image as string }}
+        style={{ height: 300, width: "100%" }}
         resizeMode="cover"
       />
 
-      {/* Header */}
-      <BackHeader />
+      <View className="p-4 bg-white flex-1">
+        <View className="px-2 pb-2 mb-2">
+          <Text style={styles.title}>Top Predictions</Text>
+          <Text style={styles.subtitle}>Analysis results for your photo</Text>
+        </View>
 
-      {/* Captured Image */}
-      <View className="items-center mt-2">
-        <Image
-          source={{ uri: image as string }}
-          className="w-[320px] rounded-tl-2xl rounded-tr-2xl object-cover shadow-xl"
-          style={{ height: 318 }}
-        />
+        <ScrollView
+          className="flex-1"
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingBottom: 20 }}
+        >
+          {parsedPredictions.length > 0 ? (
+            parsedPredictions.map((prediction, index) => (
+              <PredictionCard
+                index={index}
+                key={prediction.label}
+                predictionLabel={prediction.label}
+                predictionValue={Number((prediction.prob * 100).toFixed(2))}
+                redirectToResults={redirectToResult}
+              />
+            ))
+          ) : (
+            <Text>No predictions available</Text>
+          )}
+        </ScrollView>
       </View>
-
-      <View className="px-4 py-4">
-        <Text style={styles.title}>Top Predictions</Text>
-        <Text style={styles.subtitle}>Analysis results for your photo</Text>
-      </View>
-
-      <ScrollView
-        className="p-4 rounded-t-3xl bg-white"
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      >
-        {parsedPredictions.length > 0 ? (
-          parsedPredictions.map((prediction) => (
-            <PredictionCard
-              key={prediction.label}
-              predictionLabel={prediction.label}
-              predictionValue={Number((prediction.prob * 100).toFixed(2))}
-              redirectToResults={redirectToResult}
-            />
-          ))
-        ) : (
-          <Text>No predictions available</Text>
-        )}
-      </ScrollView>
     </SafeAreaView>
   );
 }

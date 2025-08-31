@@ -1,7 +1,15 @@
 import Typo from "@/components/Typo";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import {
+  Image,
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
+import { Ingredient } from "@/components/ingredient";
 import CircularProgressBar from "@/components/CircularProgressBar";
 import LineProgressBar from "@/components/LineProgressBar";
 import Loading from "@/components/Loading";
@@ -12,23 +20,49 @@ import {
   scanForAllergen,
 } from "@/utils/helpers";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import Entypo from "@expo/vector-icons/Entypo";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { memo, useCallback, useMemo, useState } from "react";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useMemo, useState } from "react";
 import Swiper from "react-native-swiper";
 import { ScanResultType } from "./main-camera";
 
-const COLORS = [
-  "#30B0C7", // blue
-  "#F47450", // orange
-  "#FF2D55", // red
-  "#34C759", // green
-  "#5856D6", // purple
-  "#AF52DE", // violet
-  "#FFD60A", // yellow
-  "#FF9500", // amber
+// Dummy data lang
+const nutritionData = [
+  {
+    title: "Macronutrients",
+    items: [
+      { name: "Total Fat", value: "8", unit: "g" },
+      { name: "Saturated Fat", value: "3", unit: "g" },
+      { name: "Trans Fat", value: "0", unit: "g" },
+      { name: "Monounsaturated Fat", value: "3.5", unit: "g" },
+      { name: "Polyunsaturated Fat", value: "1.5", unit: "g" },
+      { name: "Total Carbs", value: "25", unit: "g" },
+      { name: "Net Carbs", value: "20", unit: "g" },
+      { name: "Carbohydrates", value: "25", unit: "g" },
+      { name: "Dietary Fiber", value: "5", unit: "g" },
+      { name: "Fiber", value: "5", unit: "g" },
+      { name: "Protein", value: "12", unit: "g" },
+    ],
+  },
+  {
+    title: "Micronutrients",
+    items: [
+      { name: "Vitamin A", value: "500", unit: "IU" },
+      { name: "Calcium", value: "150", unit: "mg" },
+      { name: "Iron", value: "2.5", unit: "mg" },
+      { name: "Potassium", value: "300", unit: "mg" },
+    ],
+  },
+  {
+    title: "Other Nutrients",
+    items: [
+      { name: "Cholesterol", value: "15", unit: "mg" },
+      { name: "Sodium", value: "480", unit: "mg" },
+    ],
+  },
 ];
 
 function Results() {
@@ -39,6 +73,7 @@ function Results() {
   const result: ScanResultType = scanResult
     ? JSON.parse(scanResult as string)
     : null;
+  const [quantity, setQuantity] = useState(1);
 
   const handleBack = useCallback(() => {
     if (name) {
@@ -124,43 +159,52 @@ function Results() {
   return (
     <View className="flex-1 bg-[#F7F7F7]">
       <Image
-        className="absolute top-0 left-0 right-0"
         source={{ uri: image as string }}
-        style={{ height: 400, width: "100%" }}
-        blurRadius={30}
+        style={{ height: 300, width: "100%" }}
         resizeMode="cover"
       />
       {/* Header */}
-      <View className="flex-row items-center justify-between px-4 pt-8 pb-2">
-        <TouchableOpacity
-          className="bg-black/50 rounded-full p-2"
-          onPress={handleBack}
-        >
-          <Entypo name="chevron-left" size={28} color="white" />
-        </TouchableOpacity>
-      </View>
-      {/* Image */}
-      <View className="items-center mt-2">
-        <Image
-          source={{ uri: image as string }}
-          className="w-[320px] h-[250px] rounded-2xl object-cover shadow-xl"
-        />
-      </View>
-      <View className="flex-1 bg-white mt-[-24px] rounded-t-3xl px-4 shadow-xl">
+      <TouchableOpacity
+        className="absolute left-4 right-0 top-4 w-10 h-10 rounded-full bg-black/50 z-10 items-center justify-center"
+        onPress={handleBack}
+      >
+        <View className="items-center justify-center">
+          <Feather name="chevron-left" size={18} color="white" />
+        </View>
+      </TouchableOpacity>
+
+      <View className="flex-1 bg-white mt-[-24px] px-4 py-4 shadow-xl">
         {/* Date/Time */}
-        <View className="bg-[#F3F4F7] rounded-2xl flex-row items-center justify-center mb-2 gap-2 px-2 py-2 w-32">
-          <AntDesign name="instagram" size={24} color="black" />
-          <View>
-            <Text className="text-xs text-gray-400 font-Poppins">
-              {new Date().toLocaleDateString("en-GB")}
+        <View className="flex-row items-center justify-between">
+          <View className="bg-[#F3F4F7] rounded-2xl flex-row items-center justify-center mb-2 gap-2 px-2 py-2 w-32">
+            <AntDesign name="camera" size={24} color="black" />
+            <View>
+              <Text className="text-xs text-gray-400 font-Poppins">
+                {new Date().toLocaleDateString("en-GB")}
+              </Text>
+              <Text className="text-xs text-gray-400 font-Poppins">
+                {new Date().toLocaleTimeString("en-US", {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                })}
+              </Text>
+            </View>
+          </View>
+
+          <View className="flex-row items-center gap-5">
+            <TouchableOpacity
+              className="w-12 h-12 bg-white border border-gray-200 rounded-full items-center justify-center"
+              onPress={() => setQuantity(quantity <= 1 ? 1 : quantity - 1)}
+            >
+              <AntDesign name="minus" size={20} color="black" />
+            </TouchableOpacity>
+            <Text className="text-xl text-black font-PoppinsMedium">
+              {quantity}
             </Text>
-            <Text className="text-xs text-gray-400 font-Poppins">
-              {new Date().toLocaleTimeString("en-US", {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              })}
-            </Text>
+            <TouchableOpacity className="w-12 h-12 bg-white border border-gray-200 rounded-full items-center justify-center">
+              <AntDesign name="plus" size={20} color="black" />
+            </TouchableOpacity>
           </View>
         </View>
         {/* Card */}
@@ -222,72 +266,64 @@ function Results() {
               <Text className="font-PoppinsSemiBold text-3xl">Summary</Text>
             </View>
 
-            <Swiper
-              loop={false}
-              className="h-[265px]"
-              dot={
-                <View className="w-[32px] h-[4px] mx-1 bg-[#f1f1f1] rounded-full" />
-              }
-              activeDot={
-                <View className="w-[32px] h-[4px] mx-1 bg-black rounded-full" />
-              }
-            >
-              {/* add ka nalang another view kung gusto mo pa ng isang swiper */}
+            <View>
+              {nutritionData.map((category, categoryIndex) => (
+                <View>
+                  <View
+                    key={category.title}
+                    className="px-6 py-4 border-b border-[#e8e4dd]"
+                  >
+                    <View className="flex-row items-center gap-3">
+                      {/* <Feather name="zap" size={18} color="black" /> */}
+                      <Text className="text-black tracking-white text-lg font-PoppinsSemiBold">
+                        {category.title}
+                      </Text>
+                    </View>
+                  </View>
 
-              {nutritionChunks.map((chunk: any[], idx) => (
-                <View className="mx-4" key={idx}>
-                  {[0, 1].map((rowIdx) => (
+                  {category.items.map((item, itemIndex) => (
                     <View
-                      key={rowIdx}
-                      className="flex-row items-center gap-2 mb-2"
+                      className={`px-6 py-3 border-b border-[#e8e4dd]/50 ${
+                        itemIndex === category.items.length - 1 &&
+                        categoryIndex === nutritionData.length - 1
+                          ? "border-b-0"
+                          : ""
+                      }`}
                     >
-                      {chunk
-                        .slice(rowIdx * 3, rowIdx * 3 + 3)
-                        .map((nutrient: any, colIdx: number) => (
-                          <View
-                            key={colIdx}
-                            className="bg-gray-100 rounded-3xl px-4 py-4 items-center flex-1"
-                          >
-                            <Text
-                              className="font-PoppinsSemiBold tracking-widest text-md mb-1 text-center"
-                              numberOfLines={1}
-                              ellipsizeMode="tail"
-                            >
-                              {nutrient.name}
-                            </Text>
-                            <CircularProgressBar
-                              progress={nutrient.amount}
-                              size={55}
-                              strokeWidth={4}
-                              color={
-                                COLORS[(rowIdx * 3 + colIdx) % COLORS.length]
-                              }
-                              backgroundColor="rgba(0,0,0,0.05)"
-                              showPercentage={true}
-                              percentageTextSize={10}
-                              percentageTextColor="black"
-                              label={nutrient.unit}
-                            />
-                          </View>
-                        ))}
+                      <View className="flex-row items-center justify-between">
+                        <Text className="font-PoppinsMedium text-black text-sm">
+                          {item.name}
+                        </Text>
+                        <Text className="text-black font-PoppinsSemiBold bg-[#F4F4F4] px-3 py-1 rounded-full text-sm">
+                          {item.value}
+                          {item.unit}
+                        </Text>
+                      </View>
                     </View>
                   ))}
                 </View>
               ))}
-            </Swiper>
+            </View>
           </View>
 
-          {/* Healthiness Rating */}
-          <View className="flex-row bg-white rounded-2xl p-4 shadow border items-center border-gray-100 gap-2 justify-evenly mb-4">
-            <View className="bg-gray-100 rounded-2xl p-4">
-              <FontAwesome5 name="heartbeat" size={36} color="black" />
+          {/* Common Ingredients */}
+          <View className="flex-col bg-white rounded-2xl pt-4 shadow border border-gray-100 mb-4">
+            <View className="flex-col mx-4 mb-4">
+              <Text
+                className="font-Poppins"
+                style={{
+                  lineHeight: 10,
+                }}
+              >
+                Common
+              </Text>
+              <Text className="font-PoppinsSemiBold text-3xl">Ingredients</Text>
             </View>
-            <View className="flex-col gap-2">
-              <Text className="font-Poppins text-xl">Healthiness Rating</Text>
-              <LineProgressBar progress={30} height={5} />
+            <View className="flex-col mx-4 mb-4 gap-2">
+              <Ingredient name="Potato" onDelete={() => {}} />
+              <Ingredient name="Salt" onDelete={() => {}} />
+              <Ingredient name="Oil" onDelete={() => {}} />
             </View>
-
-            <Text className="font-PoppinsBold text-4xl">3/10</Text>
           </View>
 
           {/* Allergens */}
@@ -332,7 +368,8 @@ function Results() {
       </View>
       <View className="flex-row gap-2 bg-white p-4 border-t border-t-gray-100">
         <TouchableOpacity
-          className="bg-transparent rounded-full px-6 py-4 border border-[#2D3644] flex-1"
+          activeOpacity={0.8}
+          className="bg-transparent rounded-full px-4 py-3 border border-[#2D3644] flex-1"
           onPress={handleBack}
           disabled={loading}
         >
@@ -341,7 +378,8 @@ function Results() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
-          className="bg-[#2D3644] rounded-full px-6 py-4 border border-black flex-1"
+          activeOpacity={0.8}
+          className="bg-[#2D3644] rounded-full px-4 py-3 border border-black flex-1"
           onPress={handleSave}
           disabled={loading}
         >
@@ -355,3 +393,7 @@ function Results() {
 }
 
 export default memo(Results);
+
+const styles = StyleSheet.create({
+  saveButton: {},
+});

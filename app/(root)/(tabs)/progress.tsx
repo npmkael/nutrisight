@@ -24,8 +24,9 @@ function Progress() {
 
   return (
     <SafeAreaView className="bg-white flex-1" edges={["top"]}>
+      {/* <StatusBar style="dark" /> */}
       {/* Fixed Header */}
-      <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
+      <View className="flex-row items-center justify-between px-5 py-4 bg-transparent">
         <Typo size={24} className="font-PoppinsSemiBold">
           My Progress
         </Typo>
