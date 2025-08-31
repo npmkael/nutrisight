@@ -10,70 +10,33 @@ import {
 } from "react-native";
 
 import { Ingredient } from "@/components/ingredient";
-import CircularProgressBar from "@/components/CircularProgressBar";
-import LineProgressBar from "@/components/LineProgressBar";
 import Loading from "@/components/Loading";
 import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
 import {
   capitalizeFirstLetter,
-  chunkArray,
-  scanForAllergen,
+  removeDuplicateTriggeredAllergens,
 } from "@/utils/helpers";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { memo, useCallback, useMemo, useState } from "react";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import { router, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useMemo, useState } from "react";
-import Swiper from "react-native-swiper";
+import { memo, useCallback, useState } from "react";
 import { ScanResultType } from "./main-camera";
-
-// Dummy data lang
-const nutritionData = [
-  {
-    title: "Macronutrients",
-    items: [
-      { name: "Total Fat", value: "8", unit: "g" },
-      { name: "Saturated Fat", value: "3", unit: "g" },
-      { name: "Trans Fat", value: "0", unit: "g" },
-      { name: "Monounsaturated Fat", value: "3.5", unit: "g" },
-      { name: "Polyunsaturated Fat", value: "1.5", unit: "g" },
-      { name: "Total Carbs", value: "25", unit: "g" },
-      { name: "Net Carbs", value: "20", unit: "g" },
-      { name: "Carbohydrates", value: "25", unit: "g" },
-      { name: "Dietary Fiber", value: "5", unit: "g" },
-      { name: "Fiber", value: "5", unit: "g" },
-      { name: "Protein", value: "12", unit: "g" },
-    ],
-  },
-  {
-    title: "Micronutrients",
-    items: [
-      { name: "Vitamin A", value: "500", unit: "IU" },
-      { name: "Calcium", value: "150", unit: "mg" },
-      { name: "Iron", value: "2.5", unit: "mg" },
-      { name: "Potassium", value: "300", unit: "mg" },
-    ],
-  },
-  {
-    title: "Other Nutrients",
-    items: [
-      { name: "Cholesterol", value: "15", unit: "mg" },
-      { name: "Sodium", value: "480", unit: "mg" },
-    ],
-  },
-];
 
 function Results() {
   const { setUser } = useAuth();
-  const { image, name, userAllergens, scanResult } = useLocalSearchParams();
+  const { image, name, scanResult } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
+  const [quantity, setQuantity] = useState(1);
 
   const result: ScanResultType = scanResult
     ? JSON.parse(scanResult as string)
     : null;
-  const [quantity, setQuantity] = useState(1);
+  const uniqueAllergens = removeDuplicateTriggeredAllergens(
+    result.triggeredAllergens
+  );
+
+  console.log(result.ingredients);
+  console.log(uniqueAllergens);
 
   const handleBack = useCallback(() => {
     if (name) {
@@ -83,37 +46,16 @@ function Results() {
     }
   }, [name, router]);
 
-  // This calculation only runs when nutrition changes
-  const nutritionChunks = useMemo(() => {
-    if (!result?.nutrition) return [];
-    // Flatten the 3D array into a single array of nutrients
-    const parsedNutrition: any[][][] =
-      typeof result.nutrition === "string"
-        ? JSON.parse(result.nutrition)
-        : Array.isArray(result.nutrition)
-          ? result.nutrition
-          : [];
-
-    // Flatten all nutrients into a single array
-    const flatNutritionArr: any[] = parsedNutrition.flat(2); // flatten 2 levels
-
-    return chunkArray(flatNutritionArr, 6);
-  }, [result?.nutrition]);
-
-  // this only runs when userAllergens or ingredients change
-  const allergensDetected = useMemo(() => {
-    return scanForAllergen(
-      (userAllergens as string).split(","),
-      result?.ingredients || ""
-    );
-  }, [userAllergens, result?.ingredients]);
-
   const handleSave = useCallback(async () => {
+    const allNutritionItems = result.nutritionData.flatMap(
+      (category) => category.items
+    );
+
     // Save the result or perform any action
     const dietHistoryPayload: DietHistory = {
       date: new Date(),
-      nutritionalData: nutritionChunks.flat().map((nutrient) => ({
-        [(nutrient.name as string).toLowerCase()]: nutrient.amount,
+      nutritionalData: allNutritionItems.map((nutrient) => ({
+        [(nutrient.name as string).toLowerCase()]: Number(nutrient.value),
       })),
     };
 
@@ -154,7 +96,7 @@ function Results() {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [result, setUser, router]);
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
@@ -236,15 +178,15 @@ function Results() {
                   : ""}
               </Text>
               <Text className="font-PoppinsBold text-gray-900 text-4xl">
-                {nutritionChunks
-                  .flat() // flatten the 2D array
-                  .filter((item: any) =>
-                    ["energy", "calories", "energy kcal"].includes(
-                      (item.name as string).toLowerCase()
+                {result.nutritionData
+                  .flatMap((category) => category.items)
+                  .filter((item) =>
+                    ["energy", "calories", "kcal"].some((key) =>
+                      (item.name as string).toLowerCase().includes(key)
                     )
                   )
                   .reduce(
-                    (sum: number, item: any) => sum + Number(item.amount || 0),
+                    (sum: number, item: any) => sum + Number(item.value || 0),
                     0
                   )}{" "}
                 kcal
@@ -267,12 +209,9 @@ function Results() {
             </View>
 
             <View>
-              {nutritionData.map((category, categoryIndex) => (
-                <View>
-                  <View
-                    key={category.title}
-                    className="px-6 py-4 border-b border-[#e8e4dd]"
-                  >
+              {result.nutritionData.map((category, categoryIndex) => (
+                <View key={category.title}>
+                  <View className="px-6 py-4 border-b border-[#e8e4dd]">
                     <View className="flex-row items-center gap-3">
                       {/* <Feather name="zap" size={18} color="black" /> */}
                       <Text className="text-black tracking-white text-lg font-PoppinsSemiBold">
@@ -283,9 +222,10 @@ function Results() {
 
                   {category.items.map((item, itemIndex) => (
                     <View
+                      key={`${category.title}-${item.name}`}
                       className={`px-6 py-3 border-b border-[#e8e4dd]/50 ${
                         itemIndex === category.items.length - 1 &&
-                        categoryIndex === nutritionData.length - 1
+                        categoryIndex === result.nutritionData.length - 1
                           ? "border-b-0"
                           : ""
                       }`}
@@ -295,7 +235,9 @@ function Results() {
                           {item.name}
                         </Text>
                         <Text className="text-black font-PoppinsSemiBold bg-[#F4F4F4] px-3 py-1 rounded-full text-sm">
-                          {item.value}
+                          {Number(item.value) % 1 === 0
+                            ? Number(item.value).toFixed(0)
+                            : Number(item.value).toFixed(2)}
                           {item.unit}
                         </Text>
                       </View>
@@ -320,14 +262,30 @@ function Results() {
               <Text className="font-PoppinsSemiBold text-3xl">Ingredients</Text>
             </View>
             <View className="flex-col mx-4 mb-4 gap-2">
-              <Ingredient name="Potato" onDelete={() => {}} />
-              <Ingredient name="Salt" onDelete={() => {}} />
-              <Ingredient name="Oil" onDelete={() => {}} />
+              {result.ingredients.length > 0
+                ? result.ingredients.map((ingredient, idx) => {
+                    const triggers = result.triggeredAllergens.filter(
+                      (a) =>
+                        a.ingredient.toLowerCase() === ingredient.toLowerCase()
+                    );
+                    return (
+                      <Ingredient
+                        key={idx}
+                        name={ingredient}
+                        allergen={
+                          triggers.length > 0
+                            ? triggers.map((t) => t.allergen)
+                            : undefined
+                        }
+                      />
+                    );
+                  })
+                : null}
             </View>
           </View>
 
           {/* Allergens */}
-          {allergensDetected.length > 0 && (
+          {result.triggeredAllergens.length > 0 && (
             <View className="rounded-2xl p-4 shadow border border-[#FFA4A4] bg-[#FFEEEE] mb-6">
               <View className="flex-row gap-4">
                 <FontAwesome
@@ -339,10 +297,10 @@ function Results() {
 
                 <View className="flex-col gap-1 flex-1 min-w-0">
                   <Text className="font-PoppinsBold text-2xl mb-2">
-                    Allergens:
+                    Possible Allergen Ingredients:
                   </Text>
                   <View className="flex-row flex-wrap gap-1 mb-2">
-                    {allergensDetected.map((a, idx) => (
+                    {uniqueAllergens.map((a, idx) => (
                       <View
                         key={idx}
                         className="bg-[#FFA4A4] px-3 py-1 rounded-xl"

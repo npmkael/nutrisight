@@ -155,6 +155,8 @@ function Home() {
     fats: number;
   } | null>(null);
 
+  console.log("Selected Date:", selectedDate);
+
   useEffect(() => {
     console.log("Diet history updated:", dietHistory);
   }, [dietHistory]);
@@ -173,20 +175,29 @@ function Home() {
       setDietHistory(userDietHistory || null);
 
       if (Array.isArray(userDietHistory?.nutritionalData)) {
-        const carbsObj = userDietHistory.nutritionalData.find((item) =>
-          Object.keys(item)[0].toLowerCase().includes("carb")
-        );
-        const proteinObj = userDietHistory.nutritionalData.find((item) =>
-          Object.keys(item)[0].toLowerCase().includes("protein")
-        );
-        const fatsObj = userDietHistory.nutritionalData.find((item) =>
-          Object.keys(item)[0].toLowerCase().includes("fat")
-        );
+        // Get the first (and only) object in the array
+        const nutritionObj = userDietHistory.nutritionalData[0];
+
+        // Helper to sum all keys that include a keyword
+        const sumByKeyword = (obj: Record<string, number>, keyword: string) =>
+          Object.entries(obj)
+            .filter(([key]) => key.toLowerCase().includes(keyword))
+            .reduce((sum, [, value]) => sum + Number(value || 0), 0);
+
+        const carbs = sumByKeyword(nutritionObj, "carb");
+        const protein = sumByKeyword(nutritionObj, "protein");
+        const fats = sumByKeyword(nutritionObj, "fat");
 
         setMacros({
-          carbs: carbsObj ? Object.values(carbsObj)[0] : 0,
-          protein: proteinObj ? Object.values(proteinObj)[0] : 0,
-          fats: fatsObj ? Object.values(fatsObj)[0] : 0,
+          carbs: Number(carbs.toFixed(2)),
+          protein: Number(protein.toFixed(2)),
+          fats: Number(fats.toFixed(2)),
+        });
+      } else {
+        setMacros({
+          carbs: 0,
+          protein: 0,
+          fats: 0,
         });
       }
     }

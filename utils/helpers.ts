@@ -95,3 +95,18 @@ export function cmToFeetAndInches(cm: number) {
 export function lbsToKg(lbs: number) {
   return +(lbs * 0.45359237).toFixed(2);
 }
+
+export function removeDuplicateTriggeredAllergens(
+  triggeredAllergens: { allergen: string; ingredient: string }[]
+) {
+  const seen = new Set<string>();
+  const unique: string[] = [];
+  for (const i of triggeredAllergens) {
+    const allergenLower = i.allergen.toLowerCase();
+    if (!seen.has(allergenLower)) {
+      seen.add(allergenLower);
+      unique.push(i.allergen); // keep original casing if you want
+    }
+  }
+  return unique;
+}

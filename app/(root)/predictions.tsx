@@ -54,7 +54,6 @@ function Predictions() {
           params: {
             name,
             image,
-            userAllergens: userAllergens,
             scanResult: JSON.stringify(data.data),
           },
         });

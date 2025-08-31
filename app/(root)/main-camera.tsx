@@ -18,8 +18,17 @@ export type ScanResultType = {
   foodName?: string;
   brand?: string;
   servingSize: string;
-  ingredients: string;
-  nutrition: any[][][];
+  ingredients: string[];
+  triggeredAllergens: { ingredient: string; allergen: string }[];
+  nutritionData: {
+    title: string;
+    items: {
+      name: string;
+      value: string;
+      unit: string;
+    }[];
+  }[];
+  source: string; // "usda" | "nutritionix" | "open food facts" | "gemini"
 };
 
 export type PredictionType = {
