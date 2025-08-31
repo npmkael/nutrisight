@@ -1,5 +1,5 @@
 import { Ionicons } from "@expo/vector-icons";
-import { Text, View } from "react-native";
+import { View } from "react-native";
 import Typo from "./Typo";
 
 import { memo } from "react";
@@ -24,7 +24,7 @@ function TargetWeightProgress() {
       </View>
       <View className="bg-white rounded-2xl shadow-xl p-4">
         <View className="flex-col">
-          <View className="mb-7">
+          <View>
             <LineChart
               data={lineData}
               thickness={2}
@@ -49,13 +49,6 @@ function TargetWeightProgress() {
               spacing={40}
               isAnimated
             />
-          </View>
-
-          <View className="w-full h-[1px] bg-gray-200 rounded-full" />
-
-          <View className="flex-row justify-between items-center mt-2">
-            <Text className="font-Poppins text-gray-400 text-sm">To gain</Text>
-            <Text className="font-PoppinsSemiBold text-sm">52kg</Text>
           </View>
         </View>
       </View>

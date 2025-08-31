@@ -10,6 +10,10 @@ module.exports = {
         PoppinsSemiBold: ["PoppinsSemiBold", "sans-serif"],
         PoppinsBold: ["PoppinsBold", "sans-serif"],
       },
+      colors: {
+        border: "#E5E7EB",
+        foreground: "#737373",
+      },
     },
   },
   plugins: [],

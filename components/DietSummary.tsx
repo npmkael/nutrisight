@@ -145,7 +145,7 @@ export default function DietSummary() {
 
         {activeTab === "calories" ? (
           <>
-            <View className="flex-row justify-evenly items-center mb-4">
+            <View className="flex-row justify-evenly items-center">
               <PieChart data={data} donut innerRadius={10} radius={80} />
 
               <View className="flex-col gap-2">

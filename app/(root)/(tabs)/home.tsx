@@ -116,8 +116,23 @@ const CustomCircularProgress = () => {
 
       {/* Center content */}
       <View className="absolute items-center justify-center">
-        <Text className="text-4xl font-PoppinsBold text-white">1560</Text>
-        <Text className="text-white text-xs font-Poppins mt-1">
+        <Text
+          className=" text-white"
+          style={{
+            fontSize: 36,
+            fontFamily: "PoppinsBold",
+            lineHeight: 36,
+          }}
+        >
+          1560
+        </Text>
+        <Text
+          className="text-white"
+          style={{
+            fontSize: 12,
+            fontFamily: "Poppins",
+          }}
+        >
           Calorie Goal
         </Text>
       </View>
@@ -210,6 +225,7 @@ function Home() {
       className="bg-[#F3F4F7] flex-1 justify-center relative"
       edges={["top"]}
     >
+      {/* <StatusBar backgroundColor={colors.primary} style="auto" /> */}
       <ScrollView
         className="flex-1"
         showsVerticalScrollIndicator={false}
@@ -309,10 +325,6 @@ function Home() {
                 <Text className="text-white text-sm font-Poppins">4g</Text>
               </View>
             </View>
-          </View>
-
-          <View className="justify-center items-center mt-4">
-            <Ionicons name="chevron-down" size={24} color="white" />
           </View>
         </View>
 
@@ -531,7 +543,7 @@ function Home() {
 
       <View className="absolute bottom-4 right-4">
         <TouchableOpacity
-          className="flex-row items-center justify-between p-4 bg-[#2D3644] rounded-full"
+          className="flex-row items-center justify-between p-4 bg-[#2D3644] rounded-full shadow-lg"
           onPress={() => router.push("/(root)/main-camera")}
         >
           <View className="flex-row items-center gap-2">

@@ -26,7 +26,7 @@ function Settings() {
   return (
     <SafeAreaView className="flex-1 bg-[#FAFAFA]" edges={["top"]}>
       {/* Fixed Header */}
-      <View className="flex-row items-center justify-between px-5 py-5 bg-transparent">
+      <View className="flex-row items-center justify-between px-5 py-4 bg-transparent">
         <Typo size={24} className="font-PoppinsSemiBold">
           Settings
         </Typo>
@@ -127,7 +127,7 @@ function Settings() {
         </Container>
 
         <Text className="text-sm font-Poppins text-center uppercase">
-          Version 0.0.1
+          Version 1.0.0
         </Text>
       </ScrollView>
     </SafeAreaView>
