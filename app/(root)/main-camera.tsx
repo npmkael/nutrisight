@@ -24,7 +24,7 @@ export type ScanResultType = {
     title: string;
     items: {
       name: string;
-      value: string;
+      value: number;
       unit: string;
     }[];
   }[];

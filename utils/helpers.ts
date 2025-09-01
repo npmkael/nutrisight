@@ -110,3 +110,11 @@ export function removeDuplicateTriggeredAllergens(
   }
   return unique;
 }
+
+export function calorieSum(mealRecords: { name: string; calorie: number }[]) {
+  let sum = 0;
+  for (const m of mealRecords) {
+    sum += m.calorie;
+  }
+  return sum;
+}

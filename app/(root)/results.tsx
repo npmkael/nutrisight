@@ -51,15 +51,63 @@ function Results() {
       (category) => category.items
     );
 
+    // get calorie with "energy" or "calorie" as keyword
+    // return the value
+    const calorieValue = allNutritionItems.find(
+      (item) =>
+        (item.name as string).toLowerCase().includes("energy") ||
+        (item.name as string).toLowerCase().includes("calorie")
+    )?.value;
+
+    // 5:00am - 11:30am breakfast
+    // 11:31am - 4:00pm lunch
+    // 4:01pm - 10:30pm dinner
+    // 10:30pm - 4:59am otherMealTimes
+    const now = new Date();
+    const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes();
+
+    let mealTime: "breakfast" | "lunch" | "dinner" | "other" = "other";
+
+    if (minutesSinceMidnight >= 300 && minutesSinceMidnight <= 690) {
+      // 5:00am (300) to 11:30am (690)
+      mealTime = "breakfast";
+    } else if (minutesSinceMidnight >= 691 && minutesSinceMidnight <= 960) {
+      // 11:31am (691) to 4:00pm (960)
+      mealTime = "lunch";
+    } else if (minutesSinceMidnight >= 961 && minutesSinceMidnight <= 1350) {
+      // 4:01pm (961) to 10:30pm (1350)
+      mealTime = "dinner";
+    } else {
+      // 10:31pm (1351) to 4:59am (299)
+      mealTime = "other";
+    }
+
+    const mealRecordPayload = {
+      name: result.name || result.foodName || mealTime,
+      calorie: calorieValue || 0,
+    };
+
     // Save the result or perform any action
     const dietHistoryPayload: DietHistory = {
       date: new Date(),
       nutritionalData: allNutritionItems.map((nutrient) => ({
         [(nutrient.name as string).toLowerCase()]: Number(nutrient.value),
       })),
+      breakfast: mealTime === "breakfast" ? [mealRecordPayload] : [],
+      lunch: mealTime === "lunch" ? [mealRecordPayload] : [],
+      dinner: mealTime === "dinner" ? [mealRecordPayload] : [],
+      otherMealTime: mealTime === "other" ? [mealRecordPayload] : [],
     };
 
     console.log("Saving diet history:", dietHistoryPayload);
+    console.log("Meal Record Payload:", mealRecordPayload);
+    console.log("Breakfast Meal Diet History:", dietHistoryPayload.breakfast);
+    console.log("Lunch Meal Diet History:", dietHistoryPayload.lunch);
+    console.log("Dinner Meal Diet History:", dietHistoryPayload.dinner);
+    console.log(
+      "Other Meal Time Diet History:",
+      dietHistoryPayload.otherMealTime
+    );
 
     try {
       setLoading(true);

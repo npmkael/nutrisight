@@ -8,6 +8,7 @@ type AddMealProps = {
   title: "Breakfast" | "Lunch" | "Dinner" | "Snacks";
   totalCalories: number;
   caloriesConsumed: number;
+  disabled: boolean;
 };
 
 // not finished meal
@@ -15,6 +16,7 @@ export function AddMeal({
   title,
   totalCalories,
   caloriesConsumed,
+  disabled,
 }: AddMealProps) {
   return (
     <View className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between">
@@ -60,7 +62,7 @@ export function AddMeal({
         </View>
       </View>
 
-      {totalCalories > caloriesConsumed && (
+      {totalCalories > caloriesConsumed && !disabled && (
         <TouchableOpacity
           className="p-2 rounded-full bg-transparent border border-[#a0a0a0]"
           onPress={() => router.push("/(root)/main-camera")}

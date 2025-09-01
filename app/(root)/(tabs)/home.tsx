@@ -1,6 +1,7 @@
 import { AddMeal } from "@/components/add-meal";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
+import { calorieSum } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
@@ -155,6 +156,27 @@ function Home() {
     protein: number;
     fats: number;
   } | null>(null);
+  const [mealTime, setMealTime] = useState<
+    "breakfast" | "lunch" | "dinner" | "other"
+  >("other");
+
+  useEffect(() => {
+    const now = new Date();
+    const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes();
+    if (minutesSinceMidnight >= 300 && minutesSinceMidnight <= 690) {
+      // 5:00am (300) to 11:30am (690)
+      setMealTime("breakfast");
+    } else if (minutesSinceMidnight >= 691 && minutesSinceMidnight <= 960) {
+      // 11:31am (691) to 4:00pm (960)
+      setMealTime("lunch");
+    } else if (minutesSinceMidnight >= 961 && minutesSinceMidnight <= 1350) {
+      // 4:01pm (961) to 10:30pm (1350)
+      setMealTime("dinner");
+    } else {
+      // 10:31pm (1351) to 4:59am (299)
+      setMealTime("other");
+    }
+  }, []);
 
   useEffect(() => {
     if (user) {
@@ -197,6 +219,8 @@ function Home() {
       }
     }
   }, [selectedDate, user]);
+
+  const isToday = selectedDate.toDateString() === new Date().toDateString();
 
   // Generate 7 days starting from current week
   const generateWeekDays = useCallback(() => {
@@ -458,9 +482,24 @@ function Home() {
 
         {/* Add Food Button */}
         <View className="flex-col gap-2 mx-4 mt-[470px]">
-          <AddMeal title="Breakfast" totalCalories={400} caloriesConsumed={0} />
-          <AddMeal title="Lunch" totalCalories={300} caloriesConsumed={0} />
-          <AddMeal title="Dinner" totalCalories={300} caloriesConsumed={0} />
+          <AddMeal
+            title="Breakfast"
+            totalCalories={400}
+            caloriesConsumed={calorieSum(dietHistory?.breakfast || [])}
+            disabled={mealTime !== "breakfast" || !isToday}
+          />
+          <AddMeal
+            title="Lunch"
+            totalCalories={300}
+            caloriesConsumed={calorieSum(dietHistory?.lunch || [])}
+            disabled={mealTime !== "lunch" || !isToday}
+          />
+          <AddMeal
+            title="Dinner"
+            totalCalories={300}
+            caloriesConsumed={calorieSum(dietHistory?.dinner || [])}
+            disabled={mealTime !== "dinner" || !isToday}
+          />
         </View>
       </ScrollView>
 
