@@ -9,15 +9,6 @@ function RootLayout() {
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(settings)" options={{ headerShown: false }} />
         <Stack.Screen
-          name="(meals)"
-          options={{
-            headerShown: false,
-            presentation: "modal",
-            statusBarStyle: "dark",
-            statusBarBackgroundColor: "#fff",
-          }}
-        />
-        <Stack.Screen
           name="main-camera"
           options={{
             headerShown: false,

@@ -1,6 +1,7 @@
+import { AddMeal } from "@/components/add-meal";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
-import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -463,148 +464,10 @@ function Home() {
 
         {/* Add Food Button */}
         <View className="flex-col gap-2 mx-4 mt-[470px]">
-          {/* Breakfast */}
-          {/* this design is only when the user meets the goal */}
-          <View className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between">
-            <View className="flex-row items-center gap-2">
-              <MaterialCommunityIcons
-                name="silverware-fork-knife"
-                size={30}
-                color="black"
-              />
-
-              <View className="flex-col">
-                <View className="flex-row items-center gap-1">
-                  <Text className="text-black text-lg font-PoppinsMedium">
-                    Breakfast
-                  </Text>
-
-                  <View className="p-1 bg-[#2D3644] rounded-full items-center justify-items-center">
-                    <Feather name="check" size={8} color="white" />
-                  </View>
-                </View>
-                <View className="flex-row items-center gap-2">
-                  <View className="w-16">
-                    <Progress
-                      min={100}
-                      max={100}
-                      height={4}
-                      color={colors.primary}
-                      backgroundColor="rgba(0, 0, 0, 0.1)"
-                    />
-                  </View>
-                  <Text style={styles.progressText}>768 / 768 kcal</Text>
-                </View>
-              </View>
-            </View>
-
-            <TouchableOpacity
-              className="p-2 rounded-full bg-transparent"
-              onPress={() => router.push("/(root)/(meals)/breakfast")}
-            >
-              <Feather name="chevron-right" size={24} color="#a0a0a0" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Lunch */}
-          <View className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between">
-            <View className="flex-row items-center gap-2">
-              <MaterialCommunityIcons
-                name="silverware-fork-knife"
-                size={30}
-                color="black"
-              />
-
-              <View className="flex-col">
-                <Text className="text-black text-lg font-PoppinsMedium">
-                  Add Lunch
-                </Text>
-                <View className="flex-row items-center gap-2">
-                  <View className="w-16">
-                    <Progress
-                      min={0}
-                      max={100}
-                      height={4}
-                      color={colors.primary}
-                      backgroundColor="rgba(0, 0, 0, 0.1)"
-                    />
-                  </View>
-                  <Text style={styles.progressText}>0 / 548 kcal</Text>
-                </View>
-              </View>
-            </View>
-
-            <TouchableOpacity className="p-2 rounded-full bg-transparent border border-[#a0a0a0]">
-              <Ionicons name="add" size={24} color="#a0a0a0" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Dinner */}
-          <View className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between">
-            <View className="flex-row items-center gap-2">
-              <MaterialCommunityIcons
-                name="silverware-fork-knife"
-                size={30}
-                color="black"
-              />
-
-              <View className="flex-col">
-                <Text className="text-black text-lg font-PoppinsMedium">
-                  Add Dinner
-                </Text>
-                <View className="flex-row items-center gap-2">
-                  <View className="w-16">
-                    <Progress
-                      min={0}
-                      max={100}
-                      height={4}
-                      color={colors.primary}
-                      backgroundColor="rgba(0, 0, 0, 0.1)"
-                    />
-                  </View>
-                  <Text style={styles.progressText}>0 / 548 kcal</Text>
-                </View>
-              </View>
-            </View>
-
-            <TouchableOpacity className="p-2 rounded-full bg-transparent border border-[#a0a0a0]">
-              <Ionicons name="add" size={24} color="#a0a0a0" />
-            </TouchableOpacity>
-          </View>
-
-          {/* Snacks */}
-          {/* Dinner */}
-          <View className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between">
-            <View className="flex-row items-center gap-2">
-              <MaterialCommunityIcons
-                name="silverware-fork-knife"
-                size={30}
-                color="black"
-              />
-
-              <View className="flex-col">
-                <Text className="text-black text-lg font-PoppinsMedium">
-                  Add Snacks
-                </Text>
-                <View className="flex-row items-center gap-2">
-                  <View className="w-16">
-                    <Progress
-                      min={0}
-                      max={100}
-                      height={4}
-                      color={colors.primary}
-                      backgroundColor="rgba(0, 0, 0, 0.1)"
-                    />
-                  </View>
-                  <Text style={styles.progressText}>0 / 248 kcal</Text>
-                </View>
-              </View>
-            </View>
-
-            <TouchableOpacity className="p-2 rounded-full bg-transparent border border-[#a0a0a0]">
-              <Ionicons name="add" size={24} color="#a0a0a0" />
-            </TouchableOpacity>
-          </View>
+          <AddMeal title="Breakfast" totalCalories={100} caloriesConsumed={0} />
+          <AddMeal title="Lunch" totalCalories={300} caloriesConsumed={300} />
+          <AddMeal title="Dinner" totalCalories={100} caloriesConsumed={0} />
+          <AddMeal title="Snacks" totalCalories={100} caloriesConsumed={0} />
         </View>
       </ScrollView>
 
