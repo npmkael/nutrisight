@@ -24,6 +24,10 @@ export interface NutritionalData {
 export interface DietHistory {
   date: Date;
   nutritionalData: NutritionalData[];
+  breakfast: { name: string; calorie: number }[];
+  lunch: { name: string; calorie: number }[];
+  dinner: { name: string; calorie: number }[];
+  otherMealTime: { name: string; calorie: number }[];
 }
 
 export interface UserType {

@@ -156,12 +156,6 @@ function Home() {
     fats: number;
   } | null>(null);
 
-  console.log("Selected Date:", selectedDate);
-
-  useEffect(() => {
-    console.log("Diet history updated:", dietHistory);
-  }, [dietHistory]);
-
   useEffect(() => {
     if (user) {
       // get the user's diet history date
@@ -464,10 +458,9 @@ function Home() {
 
         {/* Add Food Button */}
         <View className="flex-col gap-2 mx-4 mt-[470px]">
-          <AddMeal title="Breakfast" totalCalories={100} caloriesConsumed={0} />
-          <AddMeal title="Lunch" totalCalories={300} caloriesConsumed={300} />
-          <AddMeal title="Dinner" totalCalories={100} caloriesConsumed={0} />
-          <AddMeal title="Snacks" totalCalories={100} caloriesConsumed={0} />
+          <AddMeal title="Breakfast" totalCalories={400} caloriesConsumed={0} />
+          <AddMeal title="Lunch" totalCalories={300} caloriesConsumed={0} />
+          <AddMeal title="Dinner" totalCalories={300} caloriesConsumed={0} />
         </View>
       </ScrollView>
 

@@ -28,10 +28,10 @@ export function AddMeal({
         <View className="flex-col">
           <View className="flex-row items-center gap-1">
             <Text className="text-black text-lg font-PoppinsMedium">
-              {totalCalories !== caloriesConsumed ? "Add " + title : title}
+              {totalCalories > caloriesConsumed ? "Add " + title : title}
             </Text>
 
-            {totalCalories === caloriesConsumed && (
+            {totalCalories <= caloriesConsumed && (
               <View className="p-1 bg-[#2D3644] rounded-full items-center justify-items-center">
                 <Feather name="check" size={8} color="white" />
               </View>
@@ -60,7 +60,7 @@ export function AddMeal({
         </View>
       </View>
 
-      {totalCalories !== caloriesConsumed && (
+      {totalCalories > caloriesConsumed && (
         <TouchableOpacity
           className="p-2 rounded-full bg-transparent border border-[#a0a0a0]"
           onPress={() => router.push("/(root)/main-camera")}
@@ -90,16 +90,17 @@ const Progress = ({
   const reactive = useRef(new Animated.Value(-1000)).current;
 
   useEffect(() => {
+    const progress = max > 0 ? Math.min(min / max, 1) : 0;
+    reactive.setValue(-width + width * progress);
+  }, [min, max, width]);
+
+  useEffect(() => {
     Animated.timing(animatedValue, {
       toValue: reactive,
       duration: 300,
       useNativeDriver: true,
     }).start();
   }, []);
-
-  useEffect(() => {
-    reactive.setValue(-width + (width * min) / max);
-  }, [min, width]);
 
   return (
     <View
