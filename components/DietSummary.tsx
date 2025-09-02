@@ -1,91 +1,98 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Typo from "./Typo";
 
+import { UserType } from "@/context/AuthContext";
 import { PieChart } from "react-native-gifted-charts";
 
-export default function DietSummary() {
+export default function DietSummary({
+  user,
+  totalCalories,
+}: {
+  totalCalories: number;
+  user: UserType;
+}) {
   const [activeTab, setActiveTab] = useState<"calories" | "nutrients">(
     "calories"
   );
 
-  const data = [
-    { value: 35.76, color: "#061A40" },
-    { value: 25.6, color: "#0353A4" },
-    { value: 19.75, color: "#B9D6F2" },
-    { value: 12.85, color: "#003559" },
-    { value: 6.31, color: "#006DAA" },
-  ];
+  const now = useMemo(() => new Date(), []);
+  const dietHistory = useMemo(() => {
+    return (
+      user?.dietHistory?.find((h) => {
+        const historyDate = new Date(h.date);
+        return (
+          historyDate.getFullYear() === now.getFullYear() &&
+          historyDate.getMonth() === now.getMonth() &&
+          historyDate.getDate() === now.getDate()
+        );
+      }) || undefined
+    );
+  }, [user?.dietHistory]);
 
-  const caloriesSumarryData = [
+  // Helper to sum calories for a meal array
+  const sumMealCalories = (meals?: { calorie?: number }[]) =>
+    meals?.reduce((sum, meal) => sum + Number(meal.calorie || 0), 0);
+
+  // Get calories for each meal from dietHistory
+  const breakfastCalories = sumMealCalories(dietHistory?.breakfast) || 0;
+  const lunchCalories = sumMealCalories(dietHistory?.lunch) || 0;
+  const dinnerCalories = sumMealCalories(dietHistory?.dinner) || 0;
+  const otherCalories = sumMealCalories(dietHistory?.otherMealTime) || 0;
+
+  // Calculate percentages
+  const totalLoggedCalories =
+    breakfastCalories + lunchCalories + dinnerCalories + otherCalories;
+
+  const pieData = [
+    {
+      name: "Breakfast",
+      value: totalCalories > 0 ? (breakfastCalories / totalCalories) * 100 : 0,
+      calories: breakfastCalories,
+      color: "#B9D6F2",
+    },
     {
       name: "Lunch",
-      value: 35.76,
-      calories: 240,
+      value: totalCalories > 0 ? (lunchCalories / totalCalories) * 100 : 0,
+      calories: lunchCalories,
       color: "#061A40",
     },
     {
       name: "Dinner",
-      value: 25.6,
-      calories: 170,
+      value: totalCalories > 0 ? (dinnerCalories / totalCalories) * 100 : 0,
+      calories: dinnerCalories,
       color: "#0353A4",
     },
     {
-      name: "Breakfast",
-      value: 19.75,
-      calories: 120,
-      color: "#B9D6F2",
-    },
-    {
-      name: "Snack",
-      value: 12.85,
-      calories: 100,
+      name: "Other",
+      value: totalCalories > 0 ? (otherCalories / totalCalories) * 100 : 0,
+      calories: otherCalories,
       color: "#003559",
     },
-    {
-      name: "Other",
-      value: 6.31,
-      calories: 80,
-      color: "#006DAA",
-    },
   ];
 
-  const nutrientsSumarryData = [
-    {
-      name: "Carbs",
-      value: 124,
-      color: "#3EC6E0",
-    },
-    {
-      name: "Protein",
-      value: 124,
-      color: "#3EC6E0",
-    },
-    {
-      name: "Fiber",
-      value: 124,
-      color: "#3EC6E0",
-    },
-  ];
+  const nutrientSummary =
+    dietHistory?.nutritionalData
+      .flatMap((item) => {
+        return Object.entries(item).map(([key, value]) => ({
+          name: key,
+          value: value,
+          color: "#3EC6E0",
+        }));
+      })
+      .filter((item) =>
+        ["energy", "calories", "kcal"].some(
+          (key) => !(item.name as string).toLowerCase().includes(key)
+        )
+      ) || [];
 
-  const nutrientsSumarryData2 = [
-    {
-      name: "Calcium",
-      value: 124,
-      color: "#3EC6E0",
-    },
-    {
-      name: "Iron",
-      value: 124,
-      color: "#3EC6E0",
-    },
-    {
-      name: "Fat",
-      value: 124,
-      color: "#3EC6E0",
-    },
-  ];
+  // Split nutrientSummary into two rows for display
+  const nutrientSummary2d: { name: string; value: number; color: string }[][] =
+    [];
+  for (let i = 0; i < nutrientSummary.length; i += 3) {
+    nutrientSummary2d.push(nutrientSummary.slice(i, i + 3));
+  }
 
   return (
     <>
@@ -146,10 +153,10 @@ export default function DietSummary() {
         {activeTab === "calories" ? (
           <>
             <View className="flex-row justify-evenly items-center">
-              <PieChart data={data} donut innerRadius={10} radius={80} />
+              <PieChart data={pieData} donut innerRadius={10} radius={80} />
 
               <View className="flex-col gap-2">
-                {caloriesSumarryData.map((data) => (
+                {pieData.map((data) => (
                   <View key={data.name} className="flex-row gap-2">
                     <View
                       className="w-2.5 h-2.5 mt-1.5"
@@ -163,7 +170,7 @@ export default function DietSummary() {
                       <View className="w-full h-[1px] bg-gray-200" />
 
                       <Text className=" text-sm font-semibold">
-                        {data.value}% ({data.calories} cal)
+                        {data.value.toFixed(2)}% ({data.calories} cal)
                       </Text>
                     </View>
                   </View>
@@ -178,20 +185,16 @@ export default function DietSummary() {
               className="font-Poppins  mb-2 text-gray-300"
               color="#000000"
             >
-              Total Nutrients (570 cal)
+              Total Nutrients ({totalLoggedCalories} cal)
             </Typo>
 
-            <View className="flex-row gap-4 mb-4">
-              {nutrientsSumarryData.map((data) => (
-                <Nutrient key={data.name} {...data} />
-              ))}
-            </View>
-
-            <View className="flex-row gap-4">
-              {nutrientsSumarryData2.map((data) => (
-                <Nutrient key={data.name} {...data} />
-              ))}
-            </View>
+            {nutrientSummary2d.map((row, rowIdx) => (
+              <View key={rowIdx} className="flex-row gap-4 mb-4">
+                {row.map((data) => (
+                  <Nutrient key={data.name} {...data} />
+                ))}
+              </View>
+            ))}
           </View>
         )}
       </View>

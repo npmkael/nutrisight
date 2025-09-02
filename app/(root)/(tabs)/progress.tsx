@@ -3,15 +3,14 @@ import DietSummary from "@/components/DietSummary";
 import TargetWeightProgress from "@/components/TargetWeightProgress";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";
-import { useRouter } from "expo-router";
-import { memo } from "react";
+import { router } from "expo-router";
+import { memo, useCallback } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Loading from "../../../components/Loading";
 
 function Progress() {
   const { user, loading } = useAuth();
-  const router = useRouter();
 
   if (loading && !user) {
     return <Loading />;
@@ -21,6 +20,10 @@ function Progress() {
     router.replace("/(auth)/sign-in");
     return null;
   }
+
+  const redirectToLogWeight = useCallback(() => {
+    router.push("/(root)/log-weight");
+  }, []);
 
   return (
     <SafeAreaView className="bg-white flex-1" edges={["top"]}>
@@ -90,15 +93,15 @@ function Progress() {
         {/* BMI Classification Card */}
         <BMIClassification
           bmi={user.bmi ? Number(user.bmi.toFixed(2)) : 0}
-          onLogWeight={() => {}}
+          onLogWeight={redirectToLogWeight}
           name={user.firstName}
         />
 
         {/* Target Weight Progress Card */}
-        <TargetWeightProgress />
+        <TargetWeightProgress lineData={user.loggedWeights || []} />
 
         {/* Diet Summary Card */}
-        <DietSummary />
+        <DietSummary totalCalories={1000} user={user} />
       </ScrollView>
     </SafeAreaView>
   );

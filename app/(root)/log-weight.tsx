@@ -14,7 +14,7 @@ import {
   View,
 } from "react-native";
 
-function WeightEdit() {
+function LogWeight() {
   const { updateAccount, isLoading, error, response } = useAccountUpdate();
   const { user, setUser } = useAuth();
   const router = useRouter();
@@ -52,6 +52,7 @@ function WeightEdit() {
     if (weightUnit === "lbs") {
       weightKg = +(weightKg * 0.453592).toFixed(2); // Convert to kg, round to 2 decimals
     }
+
     // replace if same month and year
     const currentDate = new Date();
     const currentMonth = currentDate
@@ -61,12 +62,21 @@ function WeightEdit() {
     let loggedWeightsPayload: LoggedWeight[] = [];
 
     if (user?.loggedWeights && user.loggedWeights.length > 0) {
+      let found = false;
       loggedWeightsPayload = user.loggedWeights.map((entry) => {
         if (entry.label === currentMonth && entry.year === currentYear) {
+          found = true;
           return { ...entry, value: weightKg };
         }
         return entry;
       });
+      if (!found) {
+        loggedWeightsPayload.push({
+          label: currentMonth as LoggedWeight["label"],
+          year: currentYear,
+          value: weightKg,
+        });
+      }
     } else {
       // No previous weights, add the first entry
       loggedWeightsPayload = [
@@ -84,6 +94,8 @@ function WeightEdit() {
     const heightMeters = initHeight * 0.0254;
     const heightMetersPowerOf2 = heightMeters ** 2;
     const bmi = weightKg / heightMetersPowerOf2;
+
+    console.log("Logged Weights:", loggedWeightsPayload);
 
     await updateAccount({
       bmi,
@@ -117,19 +129,19 @@ function WeightEdit() {
             style={styles.titleText}
             className="font-PoppinsSemiBold text-2xl"
           >
-            Edit Weight
+            Log Weight
           </Text>
         </View>
 
         {/* Content */}
         <View className="flex-1 px-4 pt-8">
           <Text className="text-3xl font-PoppinsSemiBold text-black mb-4">
-            Update your weight
+            Enter your current weight
           </Text>
 
           <Text className="font-Poppins text-md text-gray-500 mb-6">
-            Enter your current weight to help us provide better nutrition
-            recommendations.
+            Log your weight for this month to track your progress and receive
+            more personalized nutrition recommendations.
           </Text>
 
           <View className="mb-6">
@@ -185,7 +197,7 @@ function WeightEdit() {
   );
 }
 
-export default memo(WeightEdit);
+export default memo(LogWeight);
 
 const styles = StyleSheet.create({
   header: {

@@ -30,6 +30,24 @@ export interface DietHistory {
   otherMealTime: { name: string; calorie: number }[];
 }
 
+export interface LoggedWeight {
+  value: number;
+  label:
+    | "Jan"
+    | "Feb"
+    | "Mar"
+    | "Apr"
+    | "May"
+    | "Jun"
+    | "Jul"
+    | "Aug"
+    | "Sep"
+    | "Oct"
+    | "Nov"
+    | "Dec";
+  year: number;
+}
+
 export interface UserType {
   _id: string; // (dynamic)
   gmailId?: string; // (dynamic)
@@ -45,6 +63,7 @@ export interface UserType {
   allergens?: string[]; // Array of allergens (dynamic)
   medicalConditions?: string[]; // Array of medical conditions (dynamic)
   dietHistory?: DietHistory[]; // Array of diet history objects (dynamic)
+  loggedWeights?: LoggedWeight[]; // Array of logged weight objects (dynamic)
   firstName?: string; // (dynamic)
   lastName?: string; // (dynamic)
   name?: string; // (dynamic)

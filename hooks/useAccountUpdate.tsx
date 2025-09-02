@@ -1,3 +1,4 @@
+import { LoggedWeight } from "@/context/AuthContext";
 import { useCallback, useState } from "react";
 
 type UpdatePayload = Partial<{
@@ -5,9 +6,12 @@ type UpdatePayload = Partial<{
   email: string;
   gender: string;
   age: number;
-  height: number;
+  heightFeet: number;
+  heightInches: number;
   weight: number;
+  bmi: number;
   allergens: string[];
+  loggedWeights: LoggedWeight[];
   // Add other allowed fields as needed
 }>;
 

@@ -5,20 +5,16 @@ import Typo from "./Typo";
 import { memo } from "react";
 import { LineChart } from "react-native-gifted-charts";
 
-function TargetWeightProgress() {
-  const lineData = [
-    { value: 45, label: "Jan" },
-    { value: 55, label: "Feb" },
-    { value: 35, label: "Mar" },
-    { value: 50, label: "Apr" },
-    { value: 70, label: "May" },
-  ];
-
+function TargetWeightProgress({
+  lineData,
+}: {
+  lineData: { value: number; label: string; year: number }[];
+}) {
   return (
     <>
       <View className="flex-row justify-between items-center mt-6 mb-2 mx-4">
         <Typo size={18} className="font-PoppinsSemiBold">
-          Target Weight Progress
+          Target Weight Monthly Progress
         </Typo>
         <Ionicons name="information-circle-outline" size={20} color="#007AFF" />
       </View>

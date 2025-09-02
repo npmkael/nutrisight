@@ -35,8 +35,7 @@ function Results() {
     result.triggeredAllergens
   );
 
-  console.log(result.ingredients);
-  console.log(uniqueAllergens);
+  console.log("Results", result);
 
   const handleBack = useCallback(() => {
     if (name) {
@@ -345,7 +344,7 @@ function Results() {
 
                 <View className="flex-col gap-1 flex-1 min-w-0">
                   <Text className="font-PoppinsBold text-2xl mb-2">
-                    Possible Allergen Ingredients:
+                    Possible Allergen Trigger:
                   </Text>
                   <View className="flex-row flex-wrap gap-1 mb-2">
                     {uniqueAllergens.map((a, idx) => (

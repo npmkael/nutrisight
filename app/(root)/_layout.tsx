@@ -8,15 +8,7 @@ function RootLayout() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="(settings)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="main-camera"
-          options={{
-            headerShown: false,
-            presentation: "modal",
-            statusBarStyle: "light",
-            statusBarBackgroundColor: "#000",
-          }}
-        />
+        <Stack.Screen name="main-camera" options={{ headerShown: false }} />
         <Stack.Screen
           name="predictions"
           options={{
@@ -28,6 +20,10 @@ function RootLayout() {
         />
         <Stack.Screen
           name="results"
+          options={{ headerShown: false, presentation: "modal" }}
+        />
+        <Stack.Screen
+          name="log-weight"
           options={{ headerShown: false, presentation: "modal" }}
         />
       </Stack>
