@@ -1,7 +1,5 @@
 import Typo from "@/components/Typo";
-import { Ionicons } from "@expo/vector-icons";
-import Feather from "@expo/vector-icons/Feather";
-import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import { Ionicons, MaterialIcons } from "@expo/vector-icons";
 
 import { useRouter } from "expo-router";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -57,60 +55,6 @@ function Settings() {
                   {user.email ? user.email : "No email"}
                 </Text>
               </View>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="grey" />
-          </TouchableOpacity>
-        </Container>
-
-        <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity className="flex-row items-center justify-between gap-2">
-            <View className="flex-row items-center gap-2">
-              <MaterialIcons name="adjust" size={18} color="black" />
-              <Text className="text-sm font-Poppins">
-                Adjust macronutrients
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="grey" />
-          </TouchableOpacity>
-
-          <View className="h-[1px] bg-gray-200 my-4" />
-
-          <TouchableOpacity className="flex-row items-center justify-between gap-2">
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="flag" size={18} color="black" />
-              <Text className="text-sm font-Poppins">
-                Goal & current weight
-              </Text>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="grey" />
-          </TouchableOpacity>
-        </Container>
-
-        <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity className="flex-row items-center justify-between gap-2">
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="document-text" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Terms and Conditions</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="grey" />
-          </TouchableOpacity>
-
-          <View className="h-[1px] bg-gray-200 my-4" />
-
-          <TouchableOpacity className="flex-row justify-between items-center gap-2">
-            <View className="flex-row items-center gap-2">
-              <Ionicons name="shield" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Privacy Policy</Text>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="grey" />
-          </TouchableOpacity>
-
-          <View className="h-[1px] bg-gray-200 my-4" />
-
-          <TouchableOpacity className="flex-row items-center justify-between gap-2">
-            <View className="flex-row items-center gap-2">
-              <Feather name="mail" size={18} color="black" />
-              <Text className="text-sm font-Poppins">Support Email</Text>
             </View>
             <Ionicons name="chevron-forward" size={14} color="grey" />
           </TouchableOpacity>

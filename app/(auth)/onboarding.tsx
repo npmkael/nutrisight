@@ -19,22 +19,22 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const onboardingData = [
   {
-    title: "Get the exact nutrition value of everything you eat",
-    description:
-      "We are updating our food database every minute to help you track your calories",
-    image: require("../../assets/images/phone-pic.png"),
-  },
-  {
     title: "Get daily calorie targets based on your body weight",
     description:
       "Set your target weight and select your monthly schedule, and we'll do the rest.",
-    image: require("../../assets/images/phone-pic.png"),
+    image: require("../../assets/images/phone-pic-1.png"),
+  },
+  {
+    title: "Get the exact nutrition value of everything you eat",
+    description:
+      "We are updating our food database every minute to help you track your calories",
+    image: require("../../assets/images/phone-pic-2.png"),
   },
   {
     title: "Get nutritional facts by scanning any barcode",
     description:
       "Instantly scan any food barcode to reveal its nutritional facts.",
-    image: require("../../assets/images/phone-pic.png"),
+    image: require("../../assets/images/phone-pic-3.png"),
   },
 ];
 
@@ -118,7 +118,7 @@ export default function OnboardingScreen() {
               return {
                 width,
                 borderWidth,
-                backgroundColor: opacity > 0.5 ? "#A1CE4F" : "transparent",
+                backgroundColor: opacity > 0.5 ? "#2D3644" : "transparent",
               };
             });
 
@@ -137,11 +137,27 @@ export default function OnboardingScreen() {
         <View style={styles.buttonContainer}>
           {currentIndex < onboardingData.length - 1 && (
             <TouchableOpacity style={styles.skipButton} onPress={handleSkip}>
-              <Text style={styles.buttonText}>Skip</Text>
+              <Text
+                style={[
+                  styles.buttonText,
+                  {
+                    color: "black",
+                  },
+                ]}
+              >
+                Skip
+              </Text>
             </TouchableOpacity>
           )}
           <TouchableOpacity style={styles.button} onPress={handleNext}>
-            <Text style={styles.buttonText}>
+            <Text
+              style={[
+                styles.buttonText,
+                {
+                  color: "white",
+                },
+              ]}
+            >
               {currentIndex === onboardingData.length - 1
                 ? "Get Started"
                 : "Next"}
@@ -156,7 +172,7 @@ export default function OnboardingScreen() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#A1CE4F",
+    backgroundColor: "#2D3644",
   },
   curveContainer: {
     position: "absolute",
@@ -208,7 +224,7 @@ const styles = StyleSheet.create({
   dot: {
     height: 8,
     borderRadius: 4,
-    borderColor: "#A1CE4F",
+    borderColor: "#2D3644",
     borderWidth: 1,
     marginHorizontal: 4,
   },
@@ -221,14 +237,14 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "transparent",
     borderWidth: 1,
-    borderColor: "#A1CE4F",
+    borderColor: "#2D3644",
     paddingHorizontal: 30,
     paddingVertical: 12,
     borderRadius: 25,
   },
   button: {
     flex: 1,
-    backgroundColor: "#A1CE4F",
+    backgroundColor: "#2D3644",
     borderWidth: 1,
     borderColor: "transparent",
     paddingHorizontal: 30,
@@ -236,7 +252,6 @@ const styles = StyleSheet.create({
     borderRadius: 25,
   },
   buttonText: {
-    color: "#000",
     textAlign: "center",
     fontSize: 16,
     fontFamily: "PoppinsSemiBold",

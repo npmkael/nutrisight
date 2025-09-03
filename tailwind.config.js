@@ -11,6 +11,7 @@ module.exports = {
         PoppinsBold: ["PoppinsBold", "sans-serif"],
       },
       colors: {
+        primary: "#2D3644",
         border: "#E5E7EB",
         foreground: "#737373",
       },
