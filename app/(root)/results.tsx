@@ -11,6 +11,7 @@ import {
 
 import { Ingredient } from "@/components/ingredient";
 import Loading from "@/components/Loading";
+import ResultSourceBadge from "@/components/result-source-badge";
 import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
 import {
   capitalizeFirstLetter,
@@ -202,6 +203,8 @@ function Results() {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={{ paddingTop: 20, paddingBottom: 5 }}
         >
+          {/* Source Badge */}
+          {result.source && <ResultSourceBadge source={result.source} />}
           {/* Food Name */}
           <Typo size={28} className="font-Poppins text-gray-900 mb-6">
             {`${capitalizeFirstLetter(result.name || result.foodName || "")}`}

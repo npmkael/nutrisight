@@ -28,7 +28,7 @@ export type ScanResultType = {
       unit: string;
     }[];
   }[];
-  source: string; // "usda" | "nutritionix" | "open food facts" | "gemini"
+  source?: string; // "usda" | "nutritionix" | "open food facts" | "gemini" | "mynetdiary"
 };
 
 export type PredictionType = {
