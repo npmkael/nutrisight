@@ -118,3 +118,7 @@ export function calorieSum(mealRecords: { name: string; calorie: number }[]) {
   }
   return sum;
 }
+
+export const getDateString = (date: Date | string) =>
+  new Date(date).toISOString().slice(0, 10);
+// "YYYY-MM-DD"

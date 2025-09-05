@@ -1,7 +1,7 @@
 import { AddMeal } from "@/components/add-meal";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
-import { calorieSum } from "@/utils/helpers";
+import { calorieSum, getDateString } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
@@ -182,12 +182,7 @@ function Home() {
     if (user) {
       // get the user's diet history date
       const userDietHistory = user.dietHistory?.find((h) => {
-        const historyDate = new Date(h.date);
-        return (
-          historyDate.getFullYear() === selectedDate.getFullYear() &&
-          historyDate.getMonth() === selectedDate.getMonth() &&
-          historyDate.getDate() === selectedDate.getDate()
-        );
+        return getDateString(h.date) === getDateString(selectedDate);
       });
       setDietHistory(userDietHistory || null);
 

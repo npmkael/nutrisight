@@ -2,6 +2,7 @@ import Loading from "@/components/Loading";
 import { useAuth } from "@/context/AuthContext";
 import { useBarcodeScan } from "@/hooks/useBarcodeScan";
 import { useFoodScan } from "@/hooks/useFoodScan";
+import { cropCenterTo256Base64 } from "@/utils/cropImage";
 import { Ionicons } from "@expo/vector-icons";
 import {
   CameraCapturedPicture,
@@ -128,7 +129,9 @@ function App() {
       setLoading(true);
       setPhoto(takedPhoto);
 
-      await foodScan(takedPhoto, handleRetakePhoto);
+      const croppedBase64 = await cropCenterTo256Base64(takedPhoto);
+
+      await foodScan(croppedBase64, handleRetakePhoto);
     }
     setLoading(false);
   }, [foodScan, handleRetakePhoto]);

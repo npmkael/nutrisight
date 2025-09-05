@@ -89,7 +89,7 @@ function Results() {
 
     // Save the result or perform any action
     const dietHistoryPayload: DietHistory = {
-      date: new Date(),
+      date: now.toISOString(),
       nutritionalData: allNutritionItems.map((nutrient) => ({
         [(nutrient.name as string).toLowerCase()]: Number(nutrient.value),
       })),

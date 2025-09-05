@@ -22,7 +22,7 @@ export interface NutritionalData {
 }
 
 export interface DietHistory {
-  date: Date;
+  date: string;
   nutritionalData: NutritionalData[];
   breakfast: { name: string; calorie: number }[];
   lunch: { name: string; calorie: number }[];

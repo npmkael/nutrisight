@@ -1,5 +1,4 @@
 import { PredictionType } from "@/app/(root)/main-camera";
-import { CameraCapturedPicture } from "expo-camera";
 import { useCallback, useState } from "react";
 
 export function useFoodScan() {
@@ -8,14 +7,11 @@ export function useFoodScan() {
   );
 
   const foodScan = useCallback(
-    async (
-      takedPhoto: CameraCapturedPicture,
-      handleRetakePhoto: () => void
-    ) => {
+    async (takedPhoto: string, handleRetakePhoto: () => void) => {
       setFoodScanData(null);
       try {
         const res = await fetch(
-          "https://nutrisight-backend-dd22d1bd9780.herokuapp.com/camera/food-scan",
+          "https://nutrisight-backend-dd22d1bd9780.herokuapp.com/camera/predict-food",
           {
             method: "POST",
             headers: {
@@ -23,7 +19,7 @@ export function useFoodScan() {
               "X-APP-KEY": process.env.EXPO_PUBLIC_SUSHI_SECRET || "",
             },
             credentials: "include",
-            body: JSON.stringify({ image: takedPhoto.base64 }),
+            body: JSON.stringify({ image: takedPhoto }),
           }
         );
         if (!res.ok) {
