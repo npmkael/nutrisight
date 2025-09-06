@@ -25,12 +25,12 @@ const Welcome = () => {
       >
         <Image
           source={require("../../assets/images/adaptive-icon.png")}
-          className="w-36 h-36"
+          className="w-60 h-60"
         />
 
         <View className="justify-center items-center">
           <Text className="text-3xl font-PoppinsSemiBold mb-2">
-            Welcome to NutriSight!
+            Welcome to NutriSight
           </Text>
           <Text className="text-gray-400 font-Poppins text-center">
             Let's get started into your account.

@@ -14,6 +14,8 @@ import {
   useState,
 } from "react";
 
+import { Alert } from "react-native";
+
 export const BACKEND_URL =
   "https://nutrisight-backend-dd22d1bd9780.herokuapp.com";
 
@@ -178,6 +180,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setUser(data.user);
         router.replace("/(root)/(tabs)/home");
       } catch (error) {
+        Alert.alert("Login failed", "Please check your credentials.");
         console.error("Login error:", error);
         router.replace("/(auth)/sign-in");
         throw new Error("Login failed, please check your credentials.");
@@ -288,7 +291,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         return !!data?.userId;
       } catch (error) {
         console.error("Registration error:", error);
-        alert("Registration failed, please try again.");
+        Alert.alert("Registration failed", "Please try again.");
         return false;
       } finally {
         setLoading(false);
