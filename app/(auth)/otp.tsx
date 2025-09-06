@@ -92,7 +92,7 @@ function Otp() {
         </View>
 
         {/* Resend Section */}
-        <View className="mt-8 items-center">
+        <View className="mt-8 items-center flex-1">
           <Text className="text-sm text-gray-500 mb-2">
             Didn&apos;t receive the code?
           </Text>
@@ -114,7 +114,9 @@ function Otp() {
         </View>
 
         {/* Continue Button */}
-        <View className="mt-auto px-4 py-8 border-t border-t-gray-100">
+        <View
+          style={{ padding: 16, borderTopWidth: 1, borderTopColor: "#eee" }}
+        >
           <CustomButton
             title="Continue"
             onPress={onContinuePress}
