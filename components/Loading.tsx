@@ -6,7 +6,7 @@ const Loading = ({
   color = "#fff",
 }: ActivityIndicatorProps) => {
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View style={{ justifyContent: "center", alignItems: "center" }}>
       <ActivityIndicator size={size} color={color} />
     </View>
   );
