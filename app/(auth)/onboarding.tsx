@@ -19,21 +19,20 @@ const { width: SCREEN_WIDTH } = Dimensions.get("window");
 
 const onboardingData = [
   {
-    title: "Get daily calorie targets based on your body weight",
+    title: "Set your daily calorie targets",
     description:
-      "Set your target weight and select your monthly schedule, and we'll do the rest.",
+      "Log breakfast, lunch, and dinner to stay within your daily calorie goal.",
     image: require("../../assets/images/phone-pic-1.png"),
   },
   {
-    title: "Get the exact nutrition value of everything you eat",
-    description:
-      "We are updating our food database every minute to help you track your calories",
+    title: "Stay on track with your goals",
+    description: "Keep track of your current weight, BMI, and goals with ease.",
     image: require("../../assets/images/phone-pic-2.png"),
   },
   {
-    title: "Get nutritional facts by scanning any barcode",
+    title: "Get nutritional facts by scanning",
     description:
-      "Instantly scan any food barcode to reveal its nutritional facts.",
+      "Instantly scan the food barcode to reveal its nutritional facts.",
     image: require("../../assets/images/phone-pic-3.png"),
   },
 ];
@@ -91,6 +90,7 @@ export default function OnboardingScreen() {
         style={{
           backgroundColor: "white",
           padding: 30,
+          height: 300,
         }}
       >
         <View style={styles.pagination}>
@@ -127,7 +127,7 @@ export default function OnboardingScreen() {
         </View>
 
         {/* Footer */}
-        <View style={{ marginVertical: 20 }}>
+        <View style={{ marginVertical: 20, flex: 1 }}>
           <Text style={styles.title}>{onboardingData[currentIndex].title}</Text>
           <Text style={styles.description}>
             {onboardingData[currentIndex].description}
