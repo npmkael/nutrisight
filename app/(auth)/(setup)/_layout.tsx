@@ -40,6 +40,7 @@ type OnboardingContextType = {
   setWeightGoal: (g: string) => void;
   targetWeight: string;
   setTargetWeight: (w: string) => void;
+  isStepValid: () => boolean;
 };
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(
@@ -72,6 +73,81 @@ function SetupLayout() {
   const [loading, setLoading] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
 
+  // Validation function for each step
+  const isStepValid = useCallback(() => {
+    switch (currentStep) {
+      case 1:
+        // Step 1: Name input
+        return name.trim().length > 0;
+      case 2:
+        // Step 2: Gender and birth date
+        return gender.length > 0;
+      case 3:
+        // Step 3: Height and weight
+        if (heightUnit === "ft/in") {
+          return (
+            heightFeet.trim().length > 0 &&
+            heightInches.trim().length > 0 &&
+            weight.trim().length > 0 &&
+            !isNaN(Number(heightFeet)) &&
+            !isNaN(Number(heightInches)) &&
+            !isNaN(Number(weight)) &&
+            Number(heightFeet) > 0 &&
+            Number(heightInches) >= 0 &&
+            Number(weight) > 0
+          );
+        } else {
+          return (
+            heightFeet.trim().length > 0 &&
+            weight.trim().length > 0 &&
+            !isNaN(Number(heightFeet)) &&
+            !isNaN(Number(weight)) &&
+            Number(heightFeet) > 0 &&
+            Number(weight) > 0
+          );
+        }
+      case 4:
+        // Step 4: Allergens (at least one selection required, "none" is valid)
+        return selectedAllergens.length > 0;
+      case 5:
+        // Step 5: Weight goal
+        return weightGoal.length > 0;
+      case 6:
+        // Step 6: Target weight with validation based on goal
+        if (
+          !targetWeight.trim() ||
+          isNaN(Number(targetWeight)) ||
+          Number(targetWeight) <= 0
+        ) {
+          return false;
+        }
+        const currentWeightNum = Number(weight);
+        const targetWeightNum = Number(targetWeight);
+
+        if (weightGoal === "lose") {
+          return targetWeightNum < currentWeightNum;
+        } else if (weightGoal === "gain") {
+          return targetWeightNum > currentWeightNum;
+        } else if (weightGoal === "maintain") {
+          return true; // Any valid weight is acceptable for maintain
+        }
+        return true;
+      default:
+        return false;
+    }
+  }, [
+    currentStep,
+    name,
+    gender,
+    heightUnit,
+    heightFeet,
+    heightInches,
+    weight,
+    selectedAllergens,
+    weightGoal,
+    targetWeight,
+  ]);
+
   const value = useMemo(
     () => ({
       name,
@@ -96,6 +172,7 @@ function SetupLayout() {
       setWeightGoal,
       targetWeight,
       setTargetWeight,
+      isStepValid,
     }),
     [
       name,
@@ -109,6 +186,7 @@ function SetupLayout() {
       selectedAllergens,
       weightGoal,
       targetWeight,
+      isStepValid,
     ]
   );
 
@@ -290,15 +368,21 @@ function SetupLayout() {
                 : handleOnboardSubmission
             }
             style={{
-              backgroundColor: "#000",
+              backgroundColor: isStepValid() && !loading ? "#000" : "#D1D5DB",
               padding: 14,
               borderRadius: 12,
               alignItems: "center",
               opacity: loading ? 0.6 : 1,
             }}
-            disabled={loading}
+            disabled={loading || !isStepValid()}
           >
-            <Text style={{ color: "#fff", fontSize: 16 }}>
+            <Text
+              style={{
+                color: isStepValid() && !loading ? "#fff" : "#9CA3AF",
+                fontSize: 16,
+                fontFamily: "Poppins",
+              }}
+            >
               {loading
                 ? "Loading..."
                 : currentStep < totalSteps
