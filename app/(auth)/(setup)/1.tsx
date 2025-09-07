@@ -23,7 +23,9 @@ function InputName() {
         </View>
 
         <View className="mt-2">
-          <Text className="text-gray-500 text-sm  font-Poppins mb-2">Name</Text>
+          <Text className="text-foreground text-sm  font-Poppins mb-2">
+            Name
+          </Text>
           <View className="flex-row items-center">
             <TextInputField
               value={name}
