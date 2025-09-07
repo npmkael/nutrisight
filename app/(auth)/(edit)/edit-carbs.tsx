@@ -10,19 +10,6 @@ function EditCarbs() {
   const [carbs, setCarbs] = useState("250");
   const [progress, setProgress] = useState(70); // Based on some target calculation
 
-  const handleIncrement = () => {
-    const newValue = parseInt(carbs) + 25;
-    setCarbs(newValue.toString());
-    // Update progress based on recommended range (e.g., 225-325g)
-    setProgress(Math.min(100, (newValue / 350) * 100));
-  };
-
-  const handleDecrement = () => {
-    const newValue = Math.max(50, parseInt(carbs) - 25);
-    setCarbs(newValue.toString());
-    setProgress(Math.min(100, (newValue / 350) * 100));
-  };
-
   const handleCarbsChange = (value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
