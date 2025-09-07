@@ -32,7 +32,7 @@ function WeightGoalSelection() {
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
           What's your goal?
         </Text>
-        <Text className="text-lg font-Poppins text-gray-500 mb-8">
+        <Text className="text-s, font-Poppins text-foreground mb-8">
           This helps us personalize your nutrition recommendations
         </Text>
 
@@ -42,7 +42,7 @@ function WeightGoalSelection() {
               key={goal.id}
               className={`p-4 rounded-lg border ${
                 weightGoal === goal.id
-                  ? "bg-black border-black"
+                  ? "bg-primary border-transparent"
                   : "bg-white border-gray-200"
               }`}
               onPress={() => setWeightGoal(goal.id)}

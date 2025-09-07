@@ -1,8 +1,14 @@
 import React, { memo } from "react";
-import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 
+import { Switch } from "../../../components/switch";
+
+import { useState } from "react";
+import Animated, { FadeIn, useSharedValue } from "react-native-reanimated";
 import TextInputField from "../../../components/TextInputField";
 import { useOnboarding } from "./_layout";
+
+type Unit = "Imperial" | "Metric";
 
 function HeightAndWeight() {
   const {
@@ -18,40 +24,50 @@ function HeightAndWeight() {
     setWeightUnit,
   } = useOnboarding();
 
-  const toggleHeightUnit = () => {
-    setHeightUnit(heightUnit === "ft/in" ? "cm" : "ft/in");
-    setHeightFeet(""); // feet on unit cm is cm
-    setHeightInches("");
-  };
+  const [unit, setUnit] = useState<Unit>("Imperial");
+  const isOn = useSharedValue(false);
 
-  const toggleWeightUnit = () => {
-    setWeightUnit(weightUnit === "lb" ? "kg" : "lb");
+  const handlePress = () => {
+    isOn.value = !isOn.value;
+    setUnit(isOn.value ? "Imperial" : "Metric");
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
       <View className="flex-1 px-4 pt-4">
-        <Text className="text-3xl font-PoppinsSemiBold text-black">
-          Just a few more questions
+        <Text className="text-3xl font-PoppinsSemiBold text-black mb-4">
+          Your measurements
         </Text>
 
+        <View className="flex-row items-center justify-center gap-2 mt-2">
+          <Text className="font-PoppinsMedium text-lg text-foreground">
+            Imperial
+          </Text>
+          <Switch value={isOn} onPress={handlePress} style={styles.switch} />
+          <Text className="font-PoppinsMedium text-lg text-foreground">
+            Metric
+          </Text>
+        </View>
+
         {/* Height Section */}
-        <View className="mt-6 mb-3">
-          <Text className="font-Poppins text-md text-gray-500 mb-1">
-            How tall are you?
+        <View className="mt-4 mb-3">
+          <Text className="font-Poppins text-md text-foreground mb-1">
+            Height
           </Text>
           <View className="flex-row items-center gap-2">
-            {heightUnit === "ft/in" ? (
+            {unit === "Imperial" ? (
               <>
                 <TextInputField
                   value={heightFeet}
                   onChangeText={setHeightFeet}
                   maxLength={1}
+                  placeholderText="ft"
                 />
                 <TextInputField
                   value={heightInches}
                   onChangeText={setHeightInches}
                   maxLength={2}
+                  placeholderText="in"
                 />
               </>
             ) : (
@@ -59,39 +75,36 @@ function HeightAndWeight() {
                 value={heightFeet}
                 onChangeText={setHeightFeet}
                 maxLength={3}
+                placeholderText="cm"
               />
             )}
-            <TouchableOpacity
-              className="bg-black rounded-lg px-6 py-4 justify-center items-center max-w-[75px] min-w-[75px]"
-              onPress={toggleHeightUnit}
-            >
-              <Text className="font-PoppinsMedium font-sm text-white">
-                {heightUnit}
-              </Text>
-            </TouchableOpacity>
           </View>
         </View>
 
         {/* Weight Section */}
         <View className="mt-4">
-          <Text className="font-Poppins text-md text-gray-500 mb-1">
-            How much do you weigh?
+          <Text className="font-Poppins text-md text-foreground mb-1">
+            Weight
           </Text>
           <View className="flex-row items-center gap-2">
-            <TextInputField value={weight} onChangeText={setWeight} />
-            <TouchableOpacity
-              className="bg-black rounded-lg px-6 py-4 justify-center items-center max-w-[75px] min-w-[75px]"
-              onPress={toggleWeightUnit}
-            >
-              <Text className="font-PoppinsMedium font-sm text-white">
-                {weightUnit}
-              </Text>
-            </TouchableOpacity>
+            <TextInputField
+              value={weight}
+              onChangeText={setWeight}
+              placeholderText={unit === "Imperial" ? "lb" : "kg"}
+            />
           </View>
         </View>
       </View>
-    </SafeAreaView>
+    </Animated.View>
   );
 }
+
+const styles = StyleSheet.create({
+  switch: {
+    width: 75,
+    height: 35,
+    padding: 6,
+  },
+});
 
 export default memo(HeightAndWeight);

@@ -1,3 +1,4 @@
+import Ionicons from "@expo/vector-icons/build/Ionicons";
 import React, { memo, useEffect } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import TextInputField from "../../../components/TextInputField";
@@ -46,19 +47,19 @@ function TargetWeightSelection() {
       isNaN(currentWeightNum) ||
       isNaN(targetWeightNum)
     ) {
-      return "This helps us create a personalized plan for you";
+      return "This helps us create a personalized plan for you.";
     }
 
     const difference = Math.abs(targetWeightNum - currentWeightNum);
 
     if (weightGoal === "lose" && targetWeightNum < currentWeightNum) {
-      return `Goal: Lose ${difference.toFixed(1)} ${currentWeightUnit}`;
+      return `Goal: Lose ${difference.toFixed(1)} kg`;
     } else if (weightGoal === "gain" && targetWeightNum > currentWeightNum) {
-      return `Goal: Gain ${difference.toFixed(1)} ${currentWeightUnit}`;
+      return `Goal: Gain ${difference.toFixed(1)} kg`;
     } else if (weightGoal === "maintain") {
       return `Goal: Maintain current weight`;
     } else {
-      return "This helps us create a personalized plan for you";
+      return "This helps us create a personalized plan for you.";
     }
   };
 
@@ -68,18 +69,21 @@ function TargetWeightSelection() {
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
           Target Weight
         </Text>
-        <Text className="text-lg font-Poppins text-gray-500 mb-8">
+        <Text className="text-sm font-Poppins text-foreground mb-8">
           {getSubtitle()}
         </Text>
 
         <View className="mt-6">
-          <Text className="font-Poppins text-md text-gray-500 mb-4">
+          <Text className="font-Poppins text-md text-foreground mb-4">
             {getGoalMessage()}
           </Text>
 
           {currentWeight && (
-            <Text className="font-Poppins text-sm text-gray-400 mb-3">
-              Current weight: {currentWeight} {currentWeightUnit}
+            <Text className="font-Poppins text-sm text-foreground mb-3">
+              Current weight:{" "}
+              <Text className="font-PoppinsSemiBold text-black">
+                {currentWeight} kg
+              </Text>
             </Text>
           )}
 
@@ -89,11 +93,11 @@ function TargetWeightSelection() {
               onChangeText={setTargetWeight}
               keyboardType="numeric"
               editable={weightGoal !== "maintain"}
+              placeholderText="kg"
             />
-            <TouchableOpacity className="bg-black rounded-lg px-6 py-4 justify-center items-center max-w-[75px] min-w-[75px]">
-              <Text className="font-PoppinsMedium font-sm text-white">
-                {currentWeightUnit}
-              </Text>
+            <TouchableOpacity className="bg-primary rounded-lg px-6 py-4 justify-center items-center max-w-[75px] min-w-[75px] flex-row gap-2">
+              <Text className="font-PoppinsMedium font-sm text-white">kg</Text>
+              <Ionicons name="swap-horizontal" size={12} color="white" />
             </TouchableOpacity>
           </View>
 

@@ -15,7 +15,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const totalSteps = 6;
+const totalSteps = 7;
 
 type OnboardingContextType = {
   name: string;
@@ -40,6 +40,8 @@ type OnboardingContextType = {
   setWeightGoal: (g: string) => void;
   targetWeight: string;
   setTargetWeight: (w: string) => void;
+  dietType: string;
+  setDietType: (d: string) => void;
   isStepValid: () => boolean;
 };
 
@@ -69,6 +71,7 @@ function SetupLayout() {
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
   const [weightGoal, setWeightGoal] = useState("");
   const [targetWeight, setTargetWeight] = useState("");
+  const [dietType, setDietType] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
@@ -132,6 +135,9 @@ function SetupLayout() {
           return true; // Any valid weight is acceptable for maintain
         }
         return true;
+      case 7:
+        // Step 7: Diet type selection
+        return dietType.length > 0;
       default:
         return false;
     }
@@ -146,6 +152,7 @@ function SetupLayout() {
     selectedAllergens,
     weightGoal,
     targetWeight,
+    dietType,
   ]);
 
   const value = useMemo(
@@ -172,6 +179,8 @@ function SetupLayout() {
       setWeightGoal,
       targetWeight,
       setTargetWeight,
+      dietType,
+      setDietType,
       isStepValid,
     }),
     [
@@ -186,6 +195,7 @@ function SetupLayout() {
       selectedAllergens,
       weightGoal,
       targetWeight,
+      dietType,
       isStepValid,
     ]
   );
@@ -206,7 +216,8 @@ function SetupLayout() {
         | "3"
         | "4"
         | "5"
-        | "6";
+        | "6"
+        | "7";
 
       console.log(currentStep);
 
@@ -265,6 +276,7 @@ function SetupLayout() {
           onboardingEmail,
           weightGoal,
           finalTarget,
+          dietType,
         });
 
         const result = await onboardingSubmission(
@@ -277,7 +289,8 @@ function SetupLayout() {
           finalWeight,
           onboardingEmail!,
           weightGoal,
-          finalTarget
+          finalTarget,
+          dietType
         );
 
         console.log("Onboarding submission result:", result);
@@ -308,6 +321,7 @@ function SetupLayout() {
     weight,
     targetWeight,
     weightGoal,
+    dietType,
     onboardingComplete,
     router,
   ]);
@@ -317,38 +331,84 @@ function SetupLayout() {
       <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
         {/* header */}
         <View
-          style={{ flexDirection: "row", alignItems: "center", padding: 16 }}
+          style={{
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16,
+            padding: 16,
+          }}
         >
-          <TouchableOpacity
-            onPress={handleBack}
-            style={{
-              padding: 8,
-              borderRadius: 20,
-              backgroundColor: "#F4F4F4",
-            }}
-          >
-            <Ionicons name="arrow-back" size={20} color="black" />
-          </TouchableOpacity>
+          <View className="justify-start self-start mb-4">
+            <TouchableOpacity
+              onPress={handleBack}
+              style={{
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: "#F4F4F4",
+              }}
+            >
+              <Ionicons name="arrow-back" size={20} color="black" />
+            </TouchableOpacity>
+          </View>
           <View
             style={{
               flex: 1,
-              height: 6,
-              backgroundColor: "#E0E0E0",
-              borderRadius: 8,
-              marginHorizontal: 12,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "center",
+              marginHorizontal: 6,
+              marginBottom: 24,
             }}
           >
-            <View
-              style={{
-                height: "100%",
-                backgroundColor: "#000",
-                width: `${progress}%`,
-              }}
-            />
+            {Array.from({ length: totalSteps }, (_, index) => {
+              const stepNumber = index + 1;
+              const isCompleted = stepNumber < currentStep;
+              const isCurrent = stepNumber === currentStep;
+              const isUpcoming = stepNumber > currentStep;
+
+              return (
+                <React.Fragment key={stepNumber}>
+                  {/* Circle with number */}
+                  <View
+                    style={{
+                      width: 28,
+                      height: 28,
+                      borderRadius: 14,
+                      backgroundColor:
+                        isCompleted || isCurrent ? "#2D3644" : "#E0E0E0",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      borderWidth: isCurrent ? 2 : 0,
+                      borderColor: isCurrent ? "#000" : "transparent",
+                    }}
+                  >
+                    <Text
+                      style={{
+                        color: isCompleted || isCurrent ? "#fff" : "#9CA3AF",
+                        fontSize: 14,
+                        fontWeight: "600",
+                        fontFamily: "GeistBold",
+                      }}
+                    >
+                      {stepNumber}
+                    </Text>
+                  </View>
+
+                  {/* Connecting line */}
+                  {stepNumber < totalSteps && (
+                    <View
+                      style={{
+                        flex: 1,
+                        height: 2,
+                        backgroundColor: isCompleted ? "#000" : "#E0E0E0",
+                        marginHorizontal: 4,
+                      }}
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </View>
-          <Text>
-            {currentStep} / {totalSteps}
-          </Text>
         </View>
 
         {/* child page renders here */}
@@ -359,7 +419,12 @@ function SetupLayout() {
         {/* footer */}
         <Animated.View
           entering={FadeIn.duration(600)}
-          style={{ padding: 16, borderTopWidth: 1, borderTopColor: "#eee" }}
+          style={{
+            padding: 16,
+            borderTopWidth: 1,
+            borderTopColor: "#E5E7EB",
+            backgroundColor: "#fff",
+          }}
         >
           <TouchableOpacity
             onPress={
@@ -368,7 +433,8 @@ function SetupLayout() {
                 : handleOnboardSubmission
             }
             style={{
-              backgroundColor: isStepValid() && !loading ? "#000" : "#D1D5DB",
+              backgroundColor:
+                isStepValid() && !loading ? "#2D3644" : "#D1D5DB",
               padding: 14,
               borderRadius: 12,
               alignItems: "center",

@@ -2,13 +2,8 @@ import { formatDateToMMDDYYYY } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import React, { memo, useCallback, useState } from "react";
-import {
-  SafeAreaView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useOnboarding } from "./_layout";
 
 function GenderAndAge() {
@@ -24,23 +19,23 @@ function GenderAndAge() {
   }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
       <View className="flex-1 px-4 pt-4">
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-8">
-          Tell us about yourself
+          Personal details
         </Text>
 
         {/* Gender Section */}
         <View className="mb-6">
-          <Text className="font-Poppins text-md text-gray-500 mb-1">
-            What's your gender?
+          <Text className="font-Poppins text-md text-foreground mb-1">
+            Gender
           </Text>
-          <View className="flex-row gap-3">
+          <View className="flex-col gap-3">
             <TouchableOpacity
               className={`flex-1 py-4 px-6 rounded-lg border ${
                 gender === "male"
                   ? "bg-black border-black"
-                  : "bg-white border-gray-300"
+                  : "bg-white border-border"
               }`}
               onPress={() => setGender("male")}
             >
@@ -56,7 +51,7 @@ function GenderAndAge() {
               className={`flex-1 py-4 px-6 rounded-lg border ${
                 gender === "female"
                   ? "bg-black border-black"
-                  : "bg-white border-gray-300"
+                  : "bg-white border-border"
               }`}
               onPress={() => setGender("female")}
             >
@@ -72,7 +67,7 @@ function GenderAndAge() {
               className={`flex-1 py-4 px-6 rounded-lg border ${
                 gender === "other"
                   ? "bg-black border-black"
-                  : "bg-white border-gray-300"
+                  : "bg-white border-border"
               }`}
               onPress={() => setGender("other")}
             >
@@ -81,7 +76,7 @@ function GenderAndAge() {
                   gender === "other" ? "text-white" : "text-black"
                 }`}
               >
-                Other
+                Prefer not to say
               </Text>
             </TouchableOpacity>
           </View>
@@ -89,7 +84,9 @@ function GenderAndAge() {
 
         {/* Age Section */}
         <View style={styles.fieldContainer}>
-          <Text style={styles.fieldLabel}>Date of Birth</Text>
+          <Text className="font-Poppins text-md text-foreground mb-1">
+            Date of Birth
+          </Text>
           <TouchableOpacity
             style={styles.dateInputContainer}
             onPress={() => setShowPicker(true)}
@@ -110,7 +107,7 @@ function GenderAndAge() {
           )}
         </View>
       </View>
-    </SafeAreaView>
+    </Animated.View>
   );
 }
 

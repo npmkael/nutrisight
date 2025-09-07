@@ -35,7 +35,9 @@ function AllergensSelection() {
       <TouchableOpacity
         key={allergen.id}
         className={`py-3 px-4 rounded-lg border mb-2 ${
-          isSelected ? "bg-black border-black" : "bg-white border-gray-300"
+          isSelected
+            ? "bg-primary border-transparent"
+            : "bg-white border-gray-300"
         }`}
         onPress={() => toggleAllergen(allergen.id)}
       >

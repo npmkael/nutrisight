@@ -104,7 +104,8 @@ export interface AuthContextType {
     weight: number,
     email: string,
     weightGoal: string,
-    targetWeight: number
+    targetWeight: number,
+    dietType: string
   ) => Promise<string>;
   agreement: (email: string) => Promise<void>;
 }
@@ -372,7 +373,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       weight: number,
       email: string,
       weightGoal: string,
-      targetWeight: number
+      targetWeight: number,
+      dietType: string
     ) => {
       try {
         if (
@@ -385,7 +387,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           !weight ||
           !weightGoal ||
           targetWeight === null ||
-          targetWeight === undefined
+          targetWeight === undefined ||
+          !dietType
         ) {
           // find the missing
           const missingFields = [
@@ -399,6 +402,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             !weightGoal && "weightGoal",
             targetWeight === null && "targetWeight",
             targetWeight === undefined && "targetWeight",
+            !dietType && "dietType",
           ].filter(Boolean) as string[];
 
           throw new Error(
@@ -423,6 +427,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             email,
             weightGoal,
             targetWeight,
+            dietType,
           }),
         });
         if (!res.ok) {
