@@ -1,6 +1,7 @@
 import Ionicons from "@expo/vector-icons/build/Ionicons";
 import React, { memo, useEffect } from "react";
-import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
+import { Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 import TextInputField from "../../../components/TextInputField";
 import { useOnboarding } from "./_layout";
 
@@ -64,7 +65,7 @@ function TargetWeightSelection() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
       <View className="flex-1 px-4 pt-4">
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
           Target Weight
@@ -120,7 +121,7 @@ function TargetWeightSelection() {
             )}
         </View>
       </View>
-    </SafeAreaView>
+    </Animated.View>
   );
 }
 

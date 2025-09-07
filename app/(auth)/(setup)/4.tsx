@@ -1,13 +1,8 @@
 import { commonAllergens, otherAllergens } from "@/utils/globalVars";
 import { Allergen } from "@/utils/types";
 import React, { memo } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useOnboarding } from "./_layout";
 
 function AllergensSelection() {
@@ -53,10 +48,10 @@ function AllergensSelection() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
       <View className="flex-1 px-4 pt-4">
         {/* Header */}
-        <Text className="text-3xl font-PoppinsSemiBold text-black mb-4">
+        <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
           Allergies
         </Text>
 
@@ -86,7 +81,7 @@ function AllergensSelection() {
           </View>
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </Animated.View>
   );
 }
 

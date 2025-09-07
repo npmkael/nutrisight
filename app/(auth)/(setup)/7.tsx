@@ -1,11 +1,6 @@
 import React, { memo } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import Animated, { FadeIn } from "react-native-reanimated";
 import { useOnboarding } from "./_layout";
 
 function DietTypeSelection() {
@@ -39,12 +34,12 @@ function DietTypeSelection() {
   ];
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
       <View className="flex-1 px-4 pt-4">
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
           Choose Your Diet
         </Text>
-        <Text className="text-lg font-Poppins text-gray-500 mb-6">
+        <Text className="text-sm font-Poppins text-foreground mb-6">
           Select the diet type that best matches your preferences and lifestyle
         </Text>
 
@@ -88,7 +83,7 @@ function DietTypeSelection() {
           </View>
         </ScrollView>
       </View>
-    </SafeAreaView>
+    </Animated.View>
   );
 }
 
