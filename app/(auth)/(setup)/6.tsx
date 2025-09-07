@@ -1,4 +1,3 @@
-import Ionicons from "@expo/vector-icons/build/Ionicons";
 import React, { memo, useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
@@ -54,9 +53,9 @@ function TargetWeightSelection() {
     const difference = Math.abs(targetWeightNum - currentWeightNum);
 
     if (weightGoal === "lose" && targetWeightNum < currentWeightNum) {
-      return `Goal: Lose ${difference.toFixed(1)} kg`;
+      return `Goal: Lose ${difference.toFixed(1)} ${currentWeightUnit}`;
     } else if (weightGoal === "gain" && targetWeightNum > currentWeightNum) {
-      return `Goal: Gain ${difference.toFixed(1)} kg`;
+      return `Goal: Gain ${difference.toFixed(1)} ${currentWeightUnit}`;
     } else if (weightGoal === "maintain") {
       return `Goal: Maintain current weight`;
     } else {
@@ -83,7 +82,7 @@ function TargetWeightSelection() {
             <Text className="font-Poppins text-sm text-foreground mb-3">
               Current weight:{" "}
               <Text className="font-PoppinsSemiBold text-black">
-                {currentWeight} kg
+                {currentWeight} {currentWeightUnit}
               </Text>
             </Text>
           )}
@@ -94,11 +93,12 @@ function TargetWeightSelection() {
               onChangeText={setTargetWeight}
               keyboardType="numeric"
               editable={weightGoal !== "maintain"}
-              placeholderText="kg"
+              placeholderText={currentWeightUnit}
             />
             <TouchableOpacity className="bg-primary rounded-lg px-6 py-4 justify-center items-center max-w-[75px] min-w-[75px] flex-row gap-2">
-              <Text className="font-PoppinsMedium font-sm text-white">kg</Text>
-              <Ionicons name="swap-horizontal" size={12} color="white" />
+              <Text className="font-PoppinsMedium font-sm text-white">
+                {currentWeightUnit}
+              </Text>
             </TouchableOpacity>
           </View>
 

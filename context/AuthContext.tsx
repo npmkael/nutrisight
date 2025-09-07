@@ -50,6 +50,13 @@ export interface LoggedWeight {
   year: number;
 }
 
+export type DailyRecommendationType = {
+  calories: number;
+  carbs: number;
+  protein: number;
+  fat: number;
+};
+
 export interface UserType {
   _id: string; // (dynamic)
   gmailId?: string; // (dynamic)
@@ -74,6 +81,8 @@ export interface UserType {
   otp?: string; // hidden, always undefined
   otpExpires?: Date; // hidden, always undefined
   isVerified: boolean; // (dynamic)
+  dietType?: string; // (dynamic)
+  dailyRecommendation?: DailyRecommendationType; // (dynamic)
 }
 
 export interface AuthContextType {

@@ -26,55 +26,65 @@ function GenderAndAge() {
         </Text>
 
         {/* Gender Section */}
-        <View className="mb-6">
-          <Text className="font-Poppins text-md text-foreground mb-1">
-            Gender
-          </Text>
-          <View className="flex-col gap-3">
+        <View style={{ marginBottom: 24 }}>
+          <Text style={[styles.fieldLabel, { marginBottom: 8 }]}>Gender</Text>
+
+          <View style={{ flexDirection: "column", rowGap: 12 }}>
             <TouchableOpacity
-              className={`flex-1 py-4 px-6 rounded-lg border ${
+              style={[
+                styles.genderButton,
                 gender === "male"
-                  ? "bg-black border-black"
-                  : "bg-white border-border"
-              }`}
+                  ? styles.genderButtonActive
+                  : styles.genderButtonInactive,
+              ]}
               onPress={() => setGender("male")}
+              accessibilityLabel="Select male"
             >
               <Text
-                className={`text-center font-PoppinsMedium text-base ${
-                  gender === "male" ? "text-white" : "text-black"
-                }`}
+                style={[
+                  styles.genderText,
+                  gender === "male" ? styles.genderTextActive : null,
+                ]}
               >
                 Male
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
-              className={`flex-1 py-4 px-6 rounded-lg border ${
+              style={[
+                styles.genderButton,
                 gender === "female"
-                  ? "bg-black border-black"
-                  : "bg-white border-border"
-              }`}
+                  ? styles.genderButtonActive
+                  : styles.genderButtonInactive,
+              ]}
               onPress={() => setGender("female")}
+              accessibilityLabel="Select female"
             >
               <Text
-                className={`text-center font-PoppinsMedium text-base ${
-                  gender === "female" ? "text-white" : "text-black"
-                }`}
+                style={[
+                  styles.genderText,
+                  gender === "female" ? styles.genderTextActive : null,
+                ]}
               >
                 Female
               </Text>
             </TouchableOpacity>
+
             <TouchableOpacity
-              className={`flex-1 py-4 px-6 rounded-lg border ${
+              style={[
+                styles.genderButton,
                 gender === "other"
-                  ? "bg-black border-black"
-                  : "bg-white border-border"
-              }`}
+                  ? styles.genderButtonActive
+                  : styles.genderButtonInactive,
+              ]}
               onPress={() => setGender("other")}
+              accessibilityLabel="Prefer not to say"
             >
               <Text
-                className={`text-center font-PoppinsMedium text-base ${
-                  gender === "other" ? "text-white" : "text-black"
-                }`}
+                style={[
+                  styles.genderText,
+                  gender === "other" ? styles.genderTextActive : null,
+                ]}
               >
                 Prefer not to say
               </Text>
@@ -139,5 +149,32 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#111827",
     fontFamily: "Poppins",
+  },
+
+  /* added styles */
+  genderButton: {
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    borderWidth: 1,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  genderButtonActive: {
+    backgroundColor: "#000000",
+    borderColor: "#000000",
+  },
+  genderButtonInactive: {
+    backgroundColor: "#FFFFFF",
+    borderColor: "#E5E7EB",
+  },
+  genderText: {
+    fontSize: 16,
+    color: "#111827",
+    fontFamily: "Poppins",
+  },
+  genderTextActive: {
+    color: "#FFFFFF",
+    fontFamily: "PoppinsMedium",
   },
 });
