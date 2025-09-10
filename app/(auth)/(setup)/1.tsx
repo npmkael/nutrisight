@@ -10,7 +10,7 @@ function InputName() {
 
   return (
     <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(500)}>
-      <View className="flex-1 px-4 pt-4">
+      <View className="flex-1 px-4">
         <View className="mb-8">
           <Text className="text-3xl text-black font-PoppinsSemiBold">
             What is your name?

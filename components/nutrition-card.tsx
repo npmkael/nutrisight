@@ -43,7 +43,7 @@ export const NutritionCard = memo(
           showPercentage={false}
         />
         <View className="absolute inset-0 flex-1 justify-center items-center">
-          <Text className="text-xl font-PoppinsSemiBold text-gray-900">
+          <Text className="text-md font-PoppinsSemiBold text-gray-900">
             {value}
           </Text>
         </View>

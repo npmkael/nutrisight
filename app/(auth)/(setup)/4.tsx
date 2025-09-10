@@ -49,7 +49,7 @@ function AllergensSelection() {
 
   return (
     <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
-      <View className="flex-1 px-4 pt-4">
+      <View className="flex-1 px-4">
         {/* Header */}
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
           Allergies

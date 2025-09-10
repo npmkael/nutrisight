@@ -34,9 +34,9 @@ function HeightAndWeight() {
 
   return (
     <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
-      <View className="flex-1 px-4 pt-4">
-        <Text className="text-3xl font-PoppinsSemiBold text-black mb-4">
-          Your measurements
+      <View className="flex-1 px-4">
+        <Text className="text-3xl font-PoppinsSemiBold text-black mb-8">
+          Height & Weight
         </Text>
 
         <View className="flex-row items-center justify-center gap-2 mt-2">
