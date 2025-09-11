@@ -42,6 +42,10 @@ export default function OnboardingScreen() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const scrollRef = useRef<Animated.ScrollView>(null);
 
+  // Debug logging
+  console.log("OnboardingScreen rendered, currentIndex:", currentIndex);
+  console.log("Current onboarding data:", onboardingData[currentIndex]);
+
   const scrollHandler = useAnimatedScrollHandler({
     onScroll: (event) => {
       scrollX.value = event.contentOffset.x;
@@ -90,7 +94,7 @@ export default function OnboardingScreen() {
         style={{
           backgroundColor: "white",
           padding: 30,
-          height: 300,
+          flex: 1,
         }}
       >
         <View style={styles.pagination}>
@@ -126,11 +130,13 @@ export default function OnboardingScreen() {
           })}
         </View>
 
-        {/* Footer */}
         <View style={{ marginVertical: 20, flex: 1 }}>
-          <Text style={styles.title}>{onboardingData[currentIndex].title}</Text>
+          <Text style={styles.title}>
+            {onboardingData[currentIndex]?.title || "Title not found"}
+          </Text>
           <Text style={styles.description}>
-            {onboardingData[currentIndex].description}
+            {onboardingData[currentIndex]?.description ||
+              "Description not found"}
           </Text>
         </View>
 
@@ -209,7 +215,7 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsSemiBold",
   },
   description: {
-    fontSize: 16,
+    fontSize: 15,
     textAlign: "center",
     color: "#979797",
     fontFamily: "Poppins",

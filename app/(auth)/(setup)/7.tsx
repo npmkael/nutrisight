@@ -1,90 +1,119 @@
-import React, { memo } from "react";
-import { ScrollView, Text, TouchableOpacity, View } from "react-native";
+import React, { memo, useEffect } from "react";
+import { Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
+import TextInputField from "../../../components/TextInputField";
 import { useOnboarding } from "./_layout";
 
-function DietTypeSelection() {
-  const { dietType, setDietType } = useOnboarding();
+function TargetWeightSelection() {
+  const {
+    targetWeight,
+    setTargetWeight,
+    weightUnit: currentWeightUnit,
+    weightGoal,
+    weight: currentWeight,
+  } = useOnboarding();
 
-  const dietTypes = [
-    {
-      id: "standard",
-      title: "Standard Diet",
-      description: "Balanced nutrition with all food groups",
-      icon: "🥗",
-    },
-    {
-      id: "mediterranean",
-      title: "Mediterranean",
-      description: "Diet rich in fruits, vegetables, fish, and olive oil",
-      icon: "🫒",
-    },
-    {
-      id: "low-carb",
-      title: "Low-Carb",
-      description: "Reduced carbohydrate intake for weight management",
-      icon: "🥓",
-    },
-    {
-      id: "intermittent-fasting",
-      title: "Intermittent Fasting",
-      description: "Time-restricted eating patterns",
-      icon: "⏰",
-    },
-  ];
+  // Automatically set targetWeight to currentWeight for maintain goal
+  useEffect(() => {
+    if (
+      weightGoal === "maintain" &&
+      currentWeight &&
+      targetWeight !== currentWeight
+    ) {
+      setTargetWeight(currentWeight);
+    }
+  }, [weightGoal, currentWeight]);
+
+  const getGoalMessage = () => {
+    switch (weightGoal) {
+      case "lose":
+        return "What's your target weight for weight loss?";
+      case "gain":
+        return "What's your target weight for weight gain?";
+      case "maintain":
+        return "What weight would you like to maintain?";
+      default:
+        return "What's your target weight?";
+    }
+  };
+
+  const getSubtitle = () => {
+    const currentWeightNum = parseFloat(currentWeight);
+    const targetWeightNum = parseFloat(targetWeight);
+
+    if (
+      !currentWeight ||
+      !targetWeight ||
+      isNaN(currentWeightNum) ||
+      isNaN(targetWeightNum)
+    ) {
+      return "This helps us create a personalized plan for you.";
+    }
+
+    const difference = Math.abs(targetWeightNum - currentWeightNum);
+
+    if (weightGoal === "lose" && targetWeightNum < currentWeightNum) {
+      return `Goal: Lose ${difference.toFixed(1)} kg`;
+    } else if (weightGoal === "gain" && targetWeightNum > currentWeightNum) {
+      return `Goal: Gain ${difference.toFixed(1)} kg`;
+    } else if (weightGoal === "maintain") {
+      return `Goal: Maintain current weight`;
+    } else {
+      return "This helps us create a personalized plan for you.";
+    }
+  };
 
   return (
     <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
-      <View className="flex-1 px-4 pt-4">
+      <View className="flex-1 px-4">
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
-          Choose Your Diet
+          Target Weight
         </Text>
-        <Text className="text-sm font-Poppins text-foreground mb-6">
-          Select the diet type that best matches your preferences and lifestyle
+        <Text className="text-sm font-Poppins text-foreground mb-8">
+          {getSubtitle()}
         </Text>
 
-        <ScrollView
-          className="flex-1"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 20 }}
-        >
-          <View className="space-y-3 gap-3">
-            {dietTypes.map((diet) => (
-              <TouchableOpacity
-                key={diet.id}
-                className={`p-4 rounded-lg border ${
-                  dietType === diet.id
-                    ? "bg-primary border-transparent"
-                    : "bg-white border-border"
-                }`}
-                onPress={() => setDietType(diet.id)}
-              >
-                <View className="flex-row items-center">
-                  <Text className="text-2xl mr-4">{diet.icon}</Text>
-                  <View className="flex-1">
-                    <Text
-                      className={`text-lg font-PoppinsSemiBold ${
-                        dietType === diet.id ? "text-white" : "text-black"
-                      }`}
-                    >
-                      {diet.title}
-                    </Text>
-                    <Text
-                      className={`text-sm font-Poppins ${
-                        dietType === diet.id ? "text-gray-200" : "text-gray-500"
-                      }`}
-                    >
-                      {diet.description}
-                    </Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            ))}
+        <View className="mt-6">
+          {currentWeight && (
+            <Text className="font-Poppins text-sm text-foreground mb-3">
+              Current weight:{" "}
+              <Text className="font-PoppinsSemiBold text-black">
+                {currentWeight} kg
+              </Text>
+            </Text>
+          )}
+
+          <View className="flex-row items-center gap-2">
+            <TextInputField
+              value={targetWeight}
+              onChangeText={setTargetWeight}
+              keyboardType="numeric"
+              editable={weightGoal !== "maintain"}
+              placeholderText="kg"
+            />
           </View>
-        </ScrollView>
+
+          {weightGoal === "lose" &&
+            targetWeight &&
+            currentWeight &&
+            parseFloat(targetWeight) >= parseFloat(currentWeight) && (
+              <Text className="text-red-500 text-sm font-Poppins mt-2">
+                Target weight should be less than current weight for weight loss
+              </Text>
+            )}
+
+          {weightGoal === "gain" &&
+            targetWeight &&
+            currentWeight &&
+            parseFloat(targetWeight) <= parseFloat(currentWeight) && (
+              <Text className="text-red-500 text-sm font-Poppins mt-2">
+                Target weight should be more than current weight for weight gain
+              </Text>
+            )}
+        </View>
       </View>
     </Animated.View>
   );
 }
 
-export default memo(DietTypeSelection);
+export default memo(TargetWeightSelection);

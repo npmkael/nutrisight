@@ -15,7 +15,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const totalSteps = 7;
+const totalSteps = 8;
 
 type OnboardingContextType = {
   name: string;
@@ -40,6 +40,8 @@ type OnboardingContextType = {
   setWeightGoal: (g: string) => void;
   targetWeight: string;
   setTargetWeight: (w: string) => void;
+  activityLevel: string;
+  setActivityLevel: (a: string) => void;
   dietType: string;
   setDietType: (d: string) => void;
   isStepValid: () => boolean;
@@ -71,6 +73,7 @@ function SetupLayout() {
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
   const [weightGoal, setWeightGoal] = useState("");
   const [targetWeight, setTargetWeight] = useState("");
+  const [activityLevel, setActivityLevel] = useState("");
   const [dietType, setDietType] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -116,7 +119,10 @@ function SetupLayout() {
         // Step 5: Weight goal
         return weightGoal.length > 0;
       case 6:
-        // Step 6: Target weight with validation based on goal
+        // Step 6: Activity level selection
+        return activityLevel.length > 0;
+      case 7:
+        // Step 7: Target weight with validation based on goal
         if (
           !targetWeight.trim() ||
           isNaN(Number(targetWeight)) ||
@@ -135,8 +141,8 @@ function SetupLayout() {
           return true; // Any valid weight is acceptable for maintain
         }
         return true;
-      case 7:
-        // Step 7: Diet type selection
+      case 8:
+        // Step 8: Diet type selection
         return dietType.length > 0;
       default:
         return false;
@@ -152,6 +158,7 @@ function SetupLayout() {
     selectedAllergens,
     weightGoal,
     targetWeight,
+    activityLevel,
     dietType,
   ]);
 
@@ -179,6 +186,8 @@ function SetupLayout() {
       setWeightGoal,
       targetWeight,
       setTargetWeight,
+      activityLevel,
+      setActivityLevel,
       dietType,
       setDietType,
       isStepValid,
@@ -195,6 +204,7 @@ function SetupLayout() {
       selectedAllergens,
       weightGoal,
       targetWeight,
+      activityLevel,
       dietType,
       isStepValid,
     ]
@@ -217,7 +227,8 @@ function SetupLayout() {
         | "4"
         | "5"
         | "6"
-        | "7";
+        | "7"
+        | "8";
 
       console.log(currentStep);
 
@@ -338,7 +349,7 @@ function SetupLayout() {
             padding: 16,
           }}
         >
-          <View className="justify-start self-start mb-4">
+          <View className="justify-between items-center gap-4 flex-row">
             <TouchableOpacity
               onPress={handleBack}
               style={{
@@ -349,65 +360,29 @@ function SetupLayout() {
             >
               <Ionicons name="arrow-back" size={20} color="black" />
             </TouchableOpacity>
-          </View>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "center",
-              marginHorizontal: 6,
-              marginBottom: 24,
-            }}
-          >
-            {Array.from({ length: totalSteps }, (_, index) => {
-              const stepNumber = index + 1;
-              const isCompleted = stepNumber < currentStep;
-              const isCurrent = stepNumber === currentStep;
-              const isUpcoming = stepNumber > currentStep;
 
-              return (
-                <React.Fragment key={stepNumber}>
-                  {/* Circle with number */}
-                  <View
-                    style={{
-                      width: 28,
-                      height: 28,
-                      borderRadius: 14,
-                      backgroundColor:
-                        isCompleted || isCurrent ? "#2D3644" : "#E0E0E0",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      borderWidth: isCurrent ? 2 : 0,
-                      borderColor: isCurrent ? "#000" : "transparent",
-                    }}
-                  >
-                    <Text
-                      style={{
-                        color: isCompleted || isCurrent ? "#fff" : "#9CA3AF",
-                        fontSize: 14,
-                        fontWeight: "600",
-                        fontFamily: "GeistBold",
-                      }}
-                    >
-                      {stepNumber}
-                    </Text>
-                  </View>
+            <View
+              style={{
+                marginTop: 4,
+                backgroundColor: "#e1e1e1",
+                borderRadius: 100,
+                height: 8,
+                overflow: "hidden",
+                flex: 1,
+              }}
+            >
+              <View
+                className="h-full bg-primary"
+                style={{ width: `${progress}%` }}
+              />
+            </View>
 
-                  {/* Connecting line */}
-                  {stepNumber < totalSteps && (
-                    <View
-                      style={{
-                        flex: 1,
-                        height: 2,
-                        backgroundColor: isCompleted ? "#000" : "#E0E0E0",
-                        marginHorizontal: 4,
-                      }}
-                    />
-                  )}
-                </React.Fragment>
-              );
-            })}
+            <Text
+              className="text-sm text-foreground"
+              style={{ fontFamily: "GeistSemiBold" }}
+            >
+              {currentStep} / {totalSteps}
+            </Text>
           </View>
         </View>
 

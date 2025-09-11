@@ -20,7 +20,7 @@ function GenderAndAge() {
 
   return (
     <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
-      <View className="flex-1 px-4 pt-4">
+      <View className="flex-1 px-4">
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-8">
           Personal details
         </Text>

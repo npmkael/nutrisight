@@ -2,13 +2,11 @@ import { Allergen } from "./types";
 
 export const commonAllergens: Allergen[] = [
   { id: "peanuts", name: "Peanuts", category: "common" },
-  { id: "tree-nuts", name: "Tree Nuts", category: "common" },
   { id: "milk", name: "Milk", category: "common" },
   { id: "eggs", name: "Eggs", category: "common" },
   { id: "soy", name: "Soy", category: "common" },
   { id: "wheat", name: "Wheat", category: "common" },
   { id: "fish", name: "Fish", category: "common" },
-  { id: "shellfish", name: "Shellfish", category: "common" },
 ];
 
 export const otherAllergens: Allergen[] = [
