@@ -2,7 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { cmToFeetAndInches, lbsToKg } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { router, Slot, usePathname } from "expo-router";
+import { router, Slot } from "expo-router";
 import React, {
   createContext,
   memo,
@@ -58,8 +58,7 @@ export function useOnboarding() {
 }
 
 function SetupLayout() {
-  const { onboardingSubmission, agreement, onboardingEmail } = useAuth();
-  const pathname = usePathname();
+  const { onboardingSubmission, onboardingEmail } = useAuth();
 
   // shared onboarding state
   const [name, setName] = useState("");
@@ -288,6 +287,7 @@ function SetupLayout() {
           weightGoal,
           finalTarget,
           dietType,
+          activityLevel,
         });
 
         const result = await onboardingSubmission(
@@ -301,7 +301,8 @@ function SetupLayout() {
           onboardingEmail!,
           weightGoal,
           finalTarget,
-          dietType
+          dietType,
+          activityLevel
         );
 
         console.log("Onboarding submission result:", result);

@@ -130,8 +130,25 @@ function App() {
       setPhoto(takedPhoto);
 
       const croppedBase64 = await cropCenterTo256Base64(takedPhoto);
-
       await foodScan(croppedBase64, handleRetakePhoto);
+
+      // Prefer the base64 returned by the camera; if missing, read the file as base64.
+      // let imageBase64 = takedPhoto.base64;
+      // if (!imageBase64 && takedPhoto.uri) {
+      //   imageBase64 = await FileSystem.readAsStringAsync(takedPhoto.uri, {
+      //     encoding: FileSystem.EncodingType.Base64,
+      //   });
+      // }
+      // if (!imageBase64) {
+      //   throw new Error("No image data available to send.");
+      // }
+
+      // // Strip data URI prefix if present (backend expects raw base64)
+      // const cleanedBase64 = imageBase64.startsWith("data:")
+      //   ? imageBase64.split(",")[1]
+      //   : imageBase64;
+
+      // await foodScan(cleanedBase64, handleRetakePhoto);
     }
     setLoading(false);
   }, [foodScan, handleRetakePhoto]);

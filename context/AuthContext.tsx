@@ -83,6 +83,7 @@ export interface UserType {
   isVerified: boolean; // (dynamic)
   dietType?: string; // (dynamic)
   dailyRecommendation?: DailyRecommendationType; // (dynamic)
+  activityLevel?: string; // (dynamic)
 }
 
 export interface AuthContextType {
@@ -114,7 +115,8 @@ export interface AuthContextType {
     email: string,
     weightGoal: string,
     targetWeight: number,
-    dietType: string
+    dietType: string,
+    activityLevel: string
   ) => Promise<string>;
   agreement: (email: string) => Promise<void>;
 }
@@ -383,7 +385,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       email: string,
       weightGoal: string,
       targetWeight: number,
-      dietType: string
+      dietType: string,
+      activityLevel: string
     ) => {
       try {
         if (
@@ -397,7 +400,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           !weightGoal ||
           targetWeight === null ||
           targetWeight === undefined ||
-          !dietType
+          !dietType ||
+          !activityLevel
         ) {
           // find the missing
           const missingFields = [
@@ -412,6 +416,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             targetWeight === null && "targetWeight",
             targetWeight === undefined && "targetWeight",
             !dietType && "dietType",
+            !activityLevel && "activityLevel",
           ].filter(Boolean) as string[];
 
           throw new Error(
@@ -437,6 +442,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             weightGoal,
             targetWeight,
             dietType,
+            activityLevel,
           }),
         });
         if (!res.ok) {

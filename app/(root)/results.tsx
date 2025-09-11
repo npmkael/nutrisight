@@ -28,12 +28,12 @@ function Results() {
   const { image, name, scanResult } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
+  const [result, setResult] = useState<ScanResultType | null>(
+    scanResult ? (JSON.parse(scanResult as string) as ScanResultType) : null
+  );
 
-  const result: ScanResultType = scanResult
-    ? JSON.parse(scanResult as string)
-    : null;
   const uniqueAllergens = removeDuplicateTriggeredAllergens(
-    result.triggeredAllergens
+    result?.triggeredAllergens!
   );
 
   console.log("Results", result);
@@ -47,13 +47,13 @@ function Results() {
   }, [name, router]);
 
   const handleSave = useCallback(async () => {
-    const allNutritionItems = result.nutritionData.flatMap(
+    const allNutritionItems = result?.nutritionData.flatMap(
       (category) => category.items
     );
 
     // get calorie with "energy" or "calorie" as keyword
     // return the value
-    const calorieValue = allNutritionItems.find(
+    const calorieValue = allNutritionItems?.find(
       (item) =>
         (item.name as string).toLowerCase().includes("energy") ||
         (item.name as string).toLowerCase().includes("calorie")
@@ -83,14 +83,14 @@ function Results() {
     }
 
     const mealRecordPayload = {
-      name: result.name || result.foodName || mealTime,
+      name: result?.name || result?.foodName || mealTime,
       calorie: calorieValue || 0,
     };
 
     // Save the result or perform any action
     const dietHistoryPayload: DietHistory = {
       date: now.toISOString(),
-      nutritionalData: allNutritionItems.map((nutrient) => ({
+      nutritionalData: (allNutritionItems ?? []).map((nutrient) => ({
         [(nutrient.name as string).toLowerCase()]: Number(nutrient.value),
       })),
       breakfast: mealTime === "breakfast" ? [mealRecordPayload] : [],
@@ -145,6 +145,10 @@ function Results() {
       setLoading(false);
     }
   }, [result, setUser, router]);
+
+  if (!result) {
+    return <Loading />;
+  }
 
   return (
     <View className="flex-1 bg-[#F7F7F7]">
