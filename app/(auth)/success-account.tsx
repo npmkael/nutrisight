@@ -130,6 +130,13 @@ function SuccessAccount() {
     }
   }, [onboardingEmail]);
 
+  const editRoutes = {
+    calories: "/(auth)/(edit)/edit-calories",
+    carbs: "/(auth)/(edit)/edit-carbs",
+    protein: "/(auth)/(edit)/edit-protein",
+    fats: "/(auth)/(edit)/edit-fats",
+  };
+
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
       {/* child page renders here */}

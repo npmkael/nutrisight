@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { Switch } from "../../../components/switch";
@@ -14,9 +14,7 @@ function HeightAndWeight() {
   const {
     heightFeet,
     heightInches,
-    heightUnit,
     weight,
-    weightUnit,
     setHeightFeet,
     setHeightInches,
     setHeightUnit,
@@ -26,6 +24,16 @@ function HeightAndWeight() {
 
   const [unit, setUnit] = useState<Unit>("Imperial");
   const isOn = useSharedValue(false);
+
+  useEffect(() => {
+    if (unit === "Imperial") {
+      setHeightUnit("ft/in");
+      setWeightUnit("lb");
+    } else {
+      setHeightUnit("cm");
+      setWeightUnit("kg");
+    }
+  }, [unit]);
 
   const handlePress = () => {
     isOn.value = !isOn.value;

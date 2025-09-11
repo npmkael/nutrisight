@@ -1,4 +1,4 @@
-import React, { memo } from "react";
+import React, { memo, useEffect } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useOnboarding } from "./_layout";
@@ -65,7 +65,6 @@ function DailyActivitySelection() {
                 >
                   {level.icon}
                 </View>
-
                 {/* Content Section */}
                 <View className="items-center">
                   <Text
