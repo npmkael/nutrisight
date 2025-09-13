@@ -26,6 +26,7 @@ function RootLayout() {
           name="log-weight"
           options={{ headerShown: false, presentation: "modal" }}
         />
+        <Stack.Screen name="(meals)" options={{ headerShown: false }} />
       </Stack>
     </AuthProtect>
   );

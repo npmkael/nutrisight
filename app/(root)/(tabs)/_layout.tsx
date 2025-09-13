@@ -34,7 +34,9 @@ function Layout() {
         tabBarStyle: {
           height: 60,
           borderWidth: 1,
-          borderColor: "rgba(0, 0, 0, 0.3)",
+          borderTopWidth: 1,
+          borderBottomWidth: 0,
+          borderColor: "rgba(0, 0, 0, 0.1)",
         },
         animation: "fade",
         tabBarButton: HapticTab,

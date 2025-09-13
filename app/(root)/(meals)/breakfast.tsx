@@ -1,0 +1,303 @@
+import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { colors } from "@/lib/utils";
+import Animated, { FadeIn, SlideInLeft, ZoomIn } from "react-native-reanimated";
+import Entypo from "@expo/vector-icons/Entypo";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import BottomSheet, {
+  BottomSheetView,
+  BottomSheetBackdrop,
+} from "@gorhom/bottom-sheet";
+import { useRef, useMemo } from "react";
+import CircularProgressBar from "@/components/CircularProgressBar";
+
+export default function Breakfast() {
+  const bottomSheetRef = useRef<BottomSheet>(null);
+
+  // BottomSheet snap points
+  const snapPoints = useMemo(() => ["25%", "25%"], []);
+
+  // Backdrop component with gray background
+  const renderBackdrop = useMemo(
+    () => (props: any) => (
+      <BottomSheetBackdrop
+        {...props}
+        opacity={0.5}
+        appearsOnIndex={0}
+        disappearsOnIndex={-1}
+        style={[props.style, { backgroundColor: "rgba(128, 128, 128, 0.7)" }]}
+      />
+    ),
+    []
+  );
+
+  // Sample data - replace with actual data from your state management
+  const mealData = [
+    {
+      id: 1,
+      name: "Pork Adobo",
+      calories: 124,
+      serving: "1 serving",
+      protein: 18,
+      carbs: 12,
+      fat: 8,
+      image: require("@/assets/images/fried-rice.jpg"),
+    },
+    {
+      id: 2,
+      name: "Garlic Rice",
+      calories: 234,
+      serving: "1 cup",
+      protein: 4,
+      carbs: 35,
+      fat: 2,
+      image: require("@/assets/images/fried-rice.jpg"),
+    },
+  ];
+
+  const totalCalories = mealData.reduce((sum, item) => sum + item.calories, 0);
+  const totalProtein = mealData.reduce((sum, item) => sum + item.protein, 0);
+  const totalCarbs = mealData.reduce((sum, item) => sum + item.carbs, 0);
+  const totalFat = mealData.reduce((sum, item) => sum + item.fat, 0);
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1, backgroundColor: "grey" }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+        <View
+          style={{
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 16,
+            padding: 16,
+          }}
+        >
+          <View className="justify-between items-center gap-4 flex-row w-full">
+            <TouchableOpacity
+              onPress={() => router.back()}
+              style={{
+                padding: 8,
+                borderRadius: 20,
+                backgroundColor: "#F4F4F4",
+              }}
+            >
+              <Ionicons name="arrow-back" size={24} color="black" />
+            </TouchableOpacity>
+
+            <Text
+              style={{
+                fontSize: 24,
+                fontWeight: "600",
+                color: "#000",
+                position: "absolute",
+                left: 0,
+                right: 0,
+                textAlign: "center",
+                zIndex: -1,
+                fontFamily: "PoppinsSemiBold",
+              }}
+            >
+              Breakfast
+            </Text>
+          </View>
+        </View>
+
+        <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          {/* Nutrition Summary */}
+          <Animated.View
+            entering={FadeIn.duration(500).delay(200)}
+            className="bg-white mx-4 mt-4 p-4 rounded-2xl shadow-sm border border-gray-100"
+          >
+            <Text className="text-lg font-PoppinsSemiBold text-black mb-4">
+              Nutrition Summary
+            </Text>
+
+            <View className="items-center mb-4">
+              <CircularProgressBar
+                progress={Math.min((totalCalories / 600) * 100, 100)}
+                size={120}
+                strokeWidth={8}
+                color="#2D3644"
+                backgroundColor="rgba(45, 54, 68, 0.1)"
+                showPercentage={false}
+              />
+
+              <View className="absolute inset-0 flex-1 justify-center items-center gap-2">
+                <Text className="text-4xl font-PoppinsBold text-gray-900 mb-1">
+                  {totalCalories}
+                </Text>
+              </View>
+            </View>
+
+            <Text className="text-xs font-Poppins text-gray-500 text-center">
+              {totalCalories} / 600 kcal daily breakfast goal
+            </Text>
+          </Animated.View>
+
+          {/* Meal Items */}
+          <View className="px-4 mt-6">
+            <View className="flex-row justify-between items-center mb-4">
+              <Text className="text-lg font-PoppinsSemiBold text-black">
+                Food Items ({mealData.length})
+              </Text>
+            </View>
+
+            {mealData.map((item, index) => (
+              <Animated.View
+                key={item.id}
+                entering={ZoomIn.duration(500).delay(300 + index * 100)}
+                className="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100"
+              >
+                <View className="flex-row items-center justify-between mb-3">
+                  <View className="flex-row items-center gap-3 flex-1">
+                    <View className="bg-gray-100 rounded-lg p-2">
+                      <Image
+                        source={require("@/assets/images/breakfast.png")}
+                        className="w-8 h-8 rounded-xl"
+                        resizeMode="cover"
+                      />
+                    </View>
+                    <View className="flex-1">
+                      <Text className="text-base font-PoppinsSemiBold text-black">
+                        {item.name}
+                      </Text>
+                      <Text className="text-sm font-Poppins text-gray-500">
+                        {item.calories} kcal • {item.serving}
+                      </Text>
+                    </View>
+                  </View>
+
+                  <TouchableOpacity
+                    className="bg-gray-100 rounded-lg p-2"
+                    onPress={() => bottomSheetRef.current?.expand()}
+                  >
+                    <Entypo
+                      name="dots-three-vertical"
+                      size={14}
+                      color="black"
+                    />
+                  </TouchableOpacity>
+                </View>
+
+                {/* Nutrition Values */}
+                <View className="flex-row justify-between">
+                  <View className="items-center flex-1">
+                    <Text className="text-lg font-PoppinsBold text-primary">
+                      {item.protein}g
+                    </Text>
+                    <View className="flex-row items-center gap-1">
+                      <Text className="text-xs font-PoppinsMedium text-gray-600">
+                        Protein
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="items-center flex-1">
+                    <Text className="text-lg font-PoppinsBold text-primary">
+                      {item.carbs}g
+                    </Text>
+                    <View className="flex-row items-center gap-1">
+                      <Text className="text-xs font-PoppinsMedium text-gray-600">
+                        Carbs
+                      </Text>
+                    </View>
+                  </View>
+
+                  <View className="items-center flex-1">
+                    <Text className="text-lg font-PoppinsBold text-primary">
+                      {item.fat}g
+                    </Text>
+                    <View className="flex-row items-center gap-1">
+                      <Text className="text-xs font-PoppinsMedium text-gray-600">
+                        Fat
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              </Animated.View>
+            ))}
+          </View>
+
+          {/* Add More Foods Button */}
+          <Animated.View
+            entering={FadeIn.duration(600).delay(600)}
+            className="mx-4 my-6"
+          >
+            <TouchableOpacity
+              onPress={() => router.push("/(root)/main-camera")}
+              className="bg-white border-2 border-dashed border-gray-300 rounded-2xl p-6 items-center justify-center"
+            >
+              <View className="bg-gray-100 rounded-full p-3 mb-2">
+                <Ionicons name="add" size={24} color="#666" />
+              </View>
+              <Text className="text-lg font-PoppinsMedium text-foreground">
+                Add More Food
+              </Text>
+              <Text className="text-sm font-Poppins text-gray-500">
+                Scan for more items
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </ScrollView>
+
+        <BottomSheet
+          ref={bottomSheetRef}
+          snapPoints={snapPoints}
+          index={-1}
+          enablePanDownToClose={true}
+          backdropComponent={renderBackdrop}
+        >
+          <BottomSheetView style={{ flex: 1, padding: 12 }}>
+            <Text
+              style={{
+                fontSize: 18,
+                marginBottom: 12,
+                fontFamily: "PoppinsSemiBold",
+              }}
+            >
+              Options
+            </Text>
+            <TouchableOpacity
+              style={{
+                padding: 14,
+                borderRadius: 12,
+                alignItems: "center",
+                marginBottom: 12,
+              }}
+              className="bg-primary"
+            >
+              <Text
+                style={{
+                  fontFamily: "PoppinsMedium",
+                  fontSize: 16,
+                  color: "#fff",
+                }}
+              >
+                View
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={{
+                padding: 14,
+                borderRadius: 12,
+                alignItems: "center",
+              }}
+              className="border border-red-500 bg-white"
+            >
+              <Text
+                style={{
+                  fontFamily: "PoppinsMedium",
+                  fontSize: 16,
+                  color: "#ef4444",
+                }}
+              >
+                Delete
+              </Text>
+            </TouchableOpacity>
+          </BottomSheetView>
+        </BottomSheet>
+      </SafeAreaView>
+    </GestureHandlerRootView>
+  );
+}

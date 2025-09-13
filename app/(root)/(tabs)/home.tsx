@@ -15,136 +15,8 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import Svg, { Circle } from "react-native-svg";
-
-const Progress = ({
-  min,
-  max,
-  height,
-  color,
-  backgroundColor,
-}: {
-  min: number;
-  max: number;
-  height: number;
-  color: string;
-  backgroundColor: string;
-}) => {
-  const [width, setWidth] = useState(0);
-  const animatedValue = useRef(new Animated.Value(0)).current;
-  const reactive = useRef(new Animated.Value(-1000)).current;
-
-  useEffect(() => {
-    Animated.timing(animatedValue, {
-      toValue: reactive,
-      duration: 300,
-      useNativeDriver: true,
-    }).start();
-  }, []);
-
-  useEffect(() => {
-    reactive.setValue(-width + (width * min) / max);
-  }, [min, width]);
-
-  return (
-    <View
-      onLayout={(e) => {
-        const newWidth = e.nativeEvent.layout.width;
-        setWidth(newWidth);
-      }}
-      style={{
-        height,
-        backgroundColor: backgroundColor,
-        overflow: "hidden",
-      }}
-    >
-      <Animated.View
-        style={{
-          height,
-          width: "100%",
-          backgroundColor: color,
-          position: "absolute",
-          left: 0,
-          top: 0,
-          transform: [
-            {
-              translateX: animatedValue,
-            },
-          ],
-        }}
-      />
-    </View>
-  );
-};
-
-const CustomCircularProgress = ({
-  progress = 50,
-  calorieGoal = 1000,
-}: {
-  progress?: number;
-  calorieGoal?: number;
-}) => {
-  const size = 140;
-  const strokeWidth = 4;
-  const radius = (size - strokeWidth) / 2;
-  const circumference = radius * 2 * Math.PI;
-
-  // Calculate progress: assuming 70% progress for the goal
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <View className="items-center justify-center">
-      <Svg width={size} height={size}>
-        {/* Background circle with dashed style */}
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="rgba(255, 255, 255, 0.3)"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          strokeDasharray="6 4"
-        />
-        {/* Progress circle */}
-        <Circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          stroke="white"
-          strokeWidth={strokeWidth}
-          fill="transparent"
-          strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
-          strokeLinecap="round"
-          transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        />
-      </Svg>
-
-      {/* Center content */}
-      <View className="absolute items-center justify-center">
-        <Text
-          className=" text-white"
-          style={{
-            fontSize: 36,
-            fontFamily: "PoppinsBold",
-            lineHeight: 36,
-          }}
-        >
-          {calorieGoal}
-        </Text>
-        <Text
-          className="text-white"
-          style={{
-            fontSize: 12,
-            fontFamily: "Poppins",
-          }}
-        >
-          Calorie Goal
-        </Text>
-      </View>
-    </View>
-  );
-};
+import { CustomCircularProgress } from "@/components/custom-circular-progress";
+import { Progress } from "@/components/line-progress";
 
 function Home() {
   const { user } = useAuth();
@@ -311,11 +183,7 @@ function Home() {
 
         {/* Header */}
         <View className="flex-row items-center justify-between absolute top-5 left-0 right-0 px-4">
-          <View>
-            <Text style={styles.headerText}>NutriSight</Text>
-          </View>
-
-          <View className="flex-row gap-2">
+          <View className="flex-row items-center gap-4">
             <View>
               <Image
                 source={require("@/assets/images/default-profile.jpg")}
@@ -323,12 +191,30 @@ function Home() {
                 resizeMode="cover"
               />
             </View>
+            <View className="justify-center">
+              <Text
+                className="text-white text-lg"
+                style={{
+                  fontFamily: "Poppins",
+                  lineHeight: 14,
+                }}
+              >
+                Hello {user.name},
+              </Text>
+              <Text
+                className="text-white text-2xl"
+                style={{
+                  fontFamily: "PoppinsSemiBold",
+                }}
+              >
+                Good Morning
+              </Text>
+            </View>
+          </View>
 
-            <TouchableOpacity className="w-10 h-10 rounded-full items-center justify-center bg-white relative">
-              <Ionicons name="notifications-outline" size={24} color="gray" />
-
-              {/* Badge */}
-              <View className="absolute top-2.5 right-2 w-2 h-2 bg-red-500 rounded-full" />
+          <View className="flex-row gap-2">
+            <TouchableOpacity className="p-2 bg-slate-50 rounded-full border border-gray-300">
+              <Ionicons name="settings" size={20} color="#666" />
             </TouchableOpacity>
           </View>
         </View>
@@ -494,6 +380,12 @@ function Home() {
             totalCalories={300}
             caloriesConsumed={calorieSum(dietHistory?.dinner || [])}
             disabled={mealTime !== "dinner" || !isToday}
+          />
+          <AddMeal
+            title="Snacks"
+            totalCalories={300}
+            caloriesConsumed={0}
+            disabled={false}
           />
         </View>
       </ScrollView>

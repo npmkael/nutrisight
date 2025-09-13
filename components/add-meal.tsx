@@ -1,6 +1,6 @@
 import { colors } from "@/lib/utils";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { Href, router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
 import { Animated, Text, TouchableOpacity, View } from "react-native";
 
@@ -19,7 +19,12 @@ export function AddMeal({
   disabled,
 }: AddMealProps) {
   return (
-    <View className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between">
+    <TouchableOpacity
+      className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between"
+      onPress={() =>
+        router.push(`/(root)/(meals)/${title.toLowerCase()}` as Href)
+      }
+    >
       <View className="flex-row items-center gap-2">
         <MaterialCommunityIcons
           name="silverware-fork-knife"
@@ -62,7 +67,7 @@ export function AddMeal({
         </View>
       </View>
 
-      {totalCalories > caloriesConsumed && !disabled && (
+      {totalCalories > caloriesConsumed && (
         <TouchableOpacity
           className="p-2 rounded-full bg-transparent border border-[#a0a0a0]"
           onPress={() => router.push("/(root)/main-camera")}
@@ -70,7 +75,7 @@ export function AddMeal({
           <Ionicons name="add" size={24} color="#a0a0a0" />
         </TouchableOpacity>
       )}
-    </View>
+    </TouchableOpacity>
   );
 }
 

@@ -99,7 +99,7 @@ function CircularProgressBar({
             }}
           >
             {progress % 1 === 0 ? progress : progress.toFixed(1)}
-            {label}
+            <Text>{label}</Text>
           </Text>
         </View>
       )}
