@@ -11,7 +11,9 @@ export const Ingredient = ({ name, allergen }: IngredientProps) => {
   return (
     <View className="flex-row items-center justify-between rounded-xl border border-border p-4">
       <View className="flex-1">
-        <Text className="font-PoppinsSemiBold text-lg text-black">{name}</Text>
+        <Text className="font-PoppinsSemiBold text-lg text-black">
+          {name.charAt(0).toUpperCase() + name.slice(1)}
+        </Text>
         {allergen && allergen.length > 0 && (
           <View
             style={{

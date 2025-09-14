@@ -270,7 +270,8 @@ function Results() {
                     <View className="flex-row items-center gap-3">
                       {/* <Feather name="zap" size={18} color="black" /> */}
                       <Text className="text-black tracking-white text-lg font-PoppinsSemiBold">
-                        {category.title}
+                        {category.title.charAt(0).toUpperCase() +
+                          category.title.slice(1)}
                       </Text>
                     </View>
                   </View>
@@ -287,7 +288,8 @@ function Results() {
                     >
                       <View className="flex-row items-center justify-between">
                         <Text className="font-PoppinsMedium text-black text-sm">
-                          {item.name}
+                          {item.name.charAt(0).toUpperCase() +
+                            item.name.slice(1)}
                         </Text>
                         <Text className="text-black font-PoppinsSemiBold bg-[#F4F4F4] px-3 py-1 rounded-full text-sm">
                           {Number(item.value) % 1 === 0
