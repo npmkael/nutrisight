@@ -9,6 +9,7 @@ import {
   View,
 } from "react-native";
 
+import CustomButton from "@/components/CustomButton";
 import { Ingredient } from "@/components/ingredient";
 import Loading from "@/components/Loading";
 import ResultSourceBadge from "@/components/result-source-badge";
@@ -379,26 +380,19 @@ function Results() {
         </ScrollView>
       </View>
       <View className="flex-row gap-2 bg-white p-4 border-t border-t-gray-100">
-        <TouchableOpacity
-          activeOpacity={0.8}
-          className="bg-transparent rounded-full px-4 py-3 border border-[#2D3644] flex-1"
+        <CustomButton
+          bgVariant="outline"
+          textVariant="primary"
+          title="Discard"
           onPress={handleBack}
           disabled={loading}
-        >
-          <Text className="font-Poppins text-center text-black uppercase">
-            Discard
-          </Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          activeOpacity={0.8}
-          className="bg-[#2D3644] rounded-full px-4 py-3 border border-black flex-1"
+        />
+        <CustomButton
+          title="Save"
           onPress={handleSave}
+          loading={loading}
           disabled={loading}
-        >
-          <Text className="font-Poppins text-center text-white uppercase">
-            {loading ? <Loading /> : "Save"}
-          </Text>
-        </TouchableOpacity>
+        />
       </View>
     </View>
   );
