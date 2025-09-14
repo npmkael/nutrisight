@@ -1,6 +1,6 @@
-import { Ionicons } from "@expo/vector-icons";
 import { useMemo, useState } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
+import InfoTooltip from "./InfoTooltip";
 import Typo from "./Typo";
 
 import { UserType } from "@/context/AuthContext";
@@ -65,7 +65,7 @@ export default function DietSummary({
       color: "#0353A4",
     },
     {
-      name: "Other",
+      name: "Snacks",
       value: totalCalories > 0 ? (otherCalories / totalCalories) * 100 : 0,
       calories: otherCalories,
       color: "#003559",
@@ -100,7 +100,10 @@ export default function DietSummary({
         <Typo size={18} className="font-PoppinsSemiBold">
           Diet Summary
         </Typo>
-        <Ionicons name="information-circle-outline" size={20} color="#007AFF" />
+        <InfoTooltip
+          title="Diet Summary"
+          content="This section shows your daily food intake breakdown. The 'Calories Summary' tab displays a pie chart showing what percentage of calories came from each meal (Breakfast, Lunch, Dinner, Snacks). The 'Nutrients Summary' tab shows the total amount of different nutrients you consumed today, helping you track your nutritional balance."
+        />
       </View>
 
       {/* Content Area */}

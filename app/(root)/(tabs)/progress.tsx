@@ -1,15 +1,14 @@
 import BMIClassification from "@/components/BMIClassification";
 import DietSummary from "@/components/DietSummary";
+import InfoTooltip from "@/components/InfoTooltip";
 import TargetWeightChart from "@/components/target-weight-chart";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";
-import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { memo, useCallback } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Loading from "../../../components/Loading";
-import { LinearGradient } from "react-native-svg";
 
 function Progress() {
   const { user, loading } = useAuth();
@@ -103,10 +102,9 @@ function Progress() {
           <Typo size={18} className="font-PoppinsSemiBold">
             Target Weight Weekly Progress
           </Typo>
-          <Ionicons
-            name="information-circle-outline"
-            size={20}
-            color="#007AFF"
+          <InfoTooltip
+            title="Target Weight Weekly Progress"
+            content="This chart tracks your weekly weight changes towards your target weight goal. Each point represents your recorded weight for that week. The trend line helps you visualize your progress over time and see if you're moving closer to your target weight. Log your weight regularly for more accurate tracking."
           />
         </View>
 

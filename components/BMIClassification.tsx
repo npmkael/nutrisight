@@ -1,7 +1,7 @@
-import { Ionicons } from "@expo/vector-icons";
 import { LinearGradient } from "expo-linear-gradient";
 import React, { memo, useMemo } from "react";
 import { Image, StyleSheet, Text, TouchableOpacity, View } from "react-native";
+import InfoTooltip from "./InfoTooltip";
 import Typo from "./Typo";
 
 const BMI_CATEGORIES = [
@@ -53,7 +53,10 @@ function BMIClassification({ bmi, name, onLogWeight }: BMIClassificationProps) {
         <Typo size={18} className="font-PoppinsSemiBold">
           BMI Weight Classification
         </Typo>
-        <Ionicons name="information-circle-outline" size={20} color="#007AFF" />
+        <InfoTooltip
+          title="BMI Weight Classification"
+          content="BMI (Body Mass Index) is calculated using your height and weight (BMI = weight ÷ height²). The colored bar shows different weight categories: Blue = Underweight (BMI < 18.5), Green = Normal (18.5-24.9), Yellow = Overweight (25-29.9), Red = Obese (BMI ≥ 30). Your current position is marked on the scale. Use 'LOG WEIGHT' to update your BMI."
+        />
       </View>
       <View className="bg-white rounded-2xl shadow-xl p-4">
         <View className="items-end mb-2">

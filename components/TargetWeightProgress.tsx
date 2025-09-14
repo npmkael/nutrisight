@@ -1,5 +1,5 @@
-import { Ionicons } from "@expo/vector-icons";
 import { View } from "react-native";
+import InfoTooltip from "./InfoTooltip";
 import Typo from "./Typo";
 
 import { memo } from "react";
@@ -16,7 +16,10 @@ function TargetWeightProgress({
         <Typo size={18} className="font-PoppinsSemiBold">
           Target Weight Monthly Progress
         </Typo>
-        <Ionicons name="information-circle-outline" size={20} color="#007AFF" />
+        <InfoTooltip
+          title="Target Weight Monthly Progress"
+          content="This chart shows your monthly weight progress over time. Each point represents your average weight for that month. The line chart helps you see long-term trends and patterns in your weight journey. This broader view complements your weekly tracking and helps you understand your overall progress towards your target weight goal."
+        />
       </View>
       <View className="bg-white rounded-2xl shadow-xl p-4">
         <View className="flex-col">
