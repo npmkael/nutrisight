@@ -99,7 +99,7 @@ export default function TargetWeightChart() {
           </TouchableOpacity>
 
           <TouchableOpacity onPress={goToCurrentWeek}>
-            <Text className="text-md font-PoppinsMedium text-foreground">
+            <Text className="text-md font-PoppinsMedium text-black">
               {weekDateRange}
             </Text>
           </TouchableOpacity>

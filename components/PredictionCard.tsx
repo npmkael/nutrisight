@@ -25,7 +25,7 @@ export default function PredictionCard({
     >
       <TouchableOpacity
         style={styles.card}
-        onPressIn={() => redirectToResults(predictionLabel)}
+        onPress={() => redirectToResults(predictionLabel)}
       >
         <View className="flex-row items-center justify-between">
           <View className="flex-1">
@@ -39,7 +39,7 @@ export default function PredictionCard({
               />
             </View>
           </View>
-          <View className="ml-4 items-center w-[80px]">
+          <View className="ml-4 items-center">
             <Text style={styles.predictionValue}>{predictionValue}%</Text>
             <Text style={styles.predictionConfidence}>confidence</Text>
           </View>
