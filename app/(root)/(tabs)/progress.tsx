@@ -1,13 +1,15 @@
 import BMIClassification from "@/components/BMIClassification";
 import DietSummary from "@/components/DietSummary";
-import TargetWeightProgress from "@/components/TargetWeightProgress";
+import TargetWeightChart from "@/components/target-weight-chart";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { memo, useCallback } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Loading from "../../../components/Loading";
+import { LinearGradient } from "react-native-svg";
 
 function Progress() {
   const { user, loading } = useAuth();
@@ -97,8 +99,20 @@ function Progress() {
           name={user.firstName}
         />
 
-        {/* Target Weight Progress Card */}
-        <TargetWeightProgress lineData={user.loggedWeights || []} />
+        <View className="flex-row justify-between items-center mt-6 mb-2 mx-4">
+          <Typo size={18} className="font-PoppinsSemiBold">
+            Target Weight Weekly Progress
+          </Typo>
+          <Ionicons
+            name="information-circle-outline"
+            size={20}
+            color="#007AFF"
+          />
+        </View>
+
+        <View className="bg-white rounded-lg p-4 shadow-xl">
+          <TargetWeightChart />
+        </View>
 
         {/* Diet Summary Card */}
         <DietSummary totalCalories={1000} user={user} />

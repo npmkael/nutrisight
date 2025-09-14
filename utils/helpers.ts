@@ -122,3 +122,29 @@ export function calorieSum(mealRecords: { name: string; calorie: number }[]) {
 export const getDateString = (date: Date | string) =>
   new Date(date).toISOString().slice(0, 10);
 // "YYYY-MM-DD"
+
+export const processWeeklyData = (
+  data: { day_of_week: number; total: number }[]
+) => {
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  let barData = days.map((label) => ({
+    label,
+    value: 0,
+    frontColor: "#d1d5db",
+    gradientColor: "#d1d5db",
+  }));
+
+  data.forEach((item) => {
+    const dayIndex = item.day_of_week;
+
+    if (dayIndex >= 0 && dayIndex < 7) {
+      barData[dayIndex].value = item.total;
+      // Update colors based on positive/negative values
+      barData[dayIndex].frontColor = item.total >= 0 ? "#10b981" : "#ef4444";
+      barData[dayIndex].gradientColor = item.total >= 0 ? "#065f46" : "#991b1b";
+    }
+  });
+
+  return barData;
+};
