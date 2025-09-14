@@ -1,17 +1,16 @@
-import { Ionicons, MaterialCommunityIcons, Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { View, Text, TouchableOpacity, ScrollView, Image } from "react-native";
-import { SafeAreaView } from "react-native-safe-area-context";
-import { colors } from "@/lib/utils";
-import Animated, { FadeIn, SlideInLeft, ZoomIn } from "react-native-reanimated";
-import Entypo from "@expo/vector-icons/Entypo";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import BottomSheet, {
-  BottomSheetView,
-  BottomSheetBackdrop,
-} from "@gorhom/bottom-sheet";
-import { useRef, useMemo } from "react";
 import CircularProgressBar from "@/components/CircularProgressBar";
+import { Ionicons } from "@expo/vector-icons";
+import Entypo from "@expo/vector-icons/Entypo";
+import BottomSheet, {
+  BottomSheetBackdrop,
+  BottomSheetView,
+} from "@gorhom/bottom-sheet";
+import { router } from "expo-router";
+import { useMemo, useRef } from "react";
+import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Snacks() {
   const bottomSheetRef = useRef<BottomSheet>(null);
@@ -130,9 +129,26 @@ export default function Snacks() {
                 showPercentage={false}
               />
 
-              <View className="absolute inset-0 flex-1 justify-center items-center gap-2">
-                <Text className="text-4xl font-PoppinsBold text-gray-900 mb-1">
+              <View className="absolute inset-0 flex-1 justify-center items-center">
+                <Text
+                  style={{
+                    fontSize: 28,
+                    fontFamily: "PoppinsSemiBold",
+                    color: "#000",
+                    lineHeight: 32,
+                  }}
+                >
                   {totalCalories}
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 12,
+                    fontFamily: "Poppins",
+                    marginTop: -4,
+                  }}
+                  className="text-foreground"
+                >
+                  kcal
                 </Text>
               </View>
             </View>
