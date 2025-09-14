@@ -39,7 +39,7 @@ export default function PredictionCard({
               />
             </View>
           </View>
-          <View className="ml-4 items-center">
+          <View className="ml-2 items-center w-24">
             <Text style={styles.predictionValue}>{predictionValue}%</Text>
             <Text style={styles.predictionConfidence}>confidence</Text>
           </View>
