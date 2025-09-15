@@ -1,6 +1,5 @@
-import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { memo } from "react";
-import { Image, Text, TouchableOpacity, View } from "react-native";
+import { Image, Text, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import CircularProgressBar from "./CircularProgressBar";
 
@@ -11,11 +10,10 @@ interface NutritionCardProps {
   progress: number;
   color: string;
   icon: any;
-  onEdit: () => void;
 }
 
 export const NutritionCard = memo(
-  ({ label, value, progress, color, icon, onEdit }: NutritionCardProps) => (
+  ({ label, value, progress, color, icon }: NutritionCardProps) => (
     <Animated.View
       entering={FadeIn.duration(600)}
       className="bg-white p-4 rounded-2xl border border-border"
@@ -48,13 +46,6 @@ export const NutritionCard = memo(
           </Text>
         </View>
       </View>
-
-      <TouchableOpacity
-        onPress={onEdit}
-        className="absolute bottom-3 right-3 p-1"
-      >
-        <MaterialCommunityIcons name="pencil" size={20} color="#000" />
-      </TouchableOpacity>
     </Animated.View>
   )
 );

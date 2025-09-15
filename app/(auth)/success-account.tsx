@@ -3,7 +3,7 @@ import { NutritionCard } from "@/components/nutrition-card";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { useGlobalSearchParams, useRouter } from "expo-router";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   SafeAreaView,
   ScrollView,
@@ -20,52 +20,147 @@ import Animated, {
   withTiming,
 } from "react-native-reanimated";
 
-// Nutrition card data
-const nutritionData = [
-  {
-    id: "calories",
-    label: "Calories",
-    value: "1918",
-    progress: 75,
-    color: "#000000",
-    icon: require("@/assets/icons/meat.png"),
-  },
-  {
-    id: "carbs",
-    label: "Carbs",
-    value: "267g",
-    progress: 60,
-    color: "#F97316",
-    icon: require("@/assets/icons/carbs.png"),
-  },
-  {
-    id: "protein",
-    label: "Protein",
-    value: "92g",
-    progress: 80,
-    color: "#EF4444",
-    icon: require("@/assets/icons/protein.png"),
-  },
-  {
-    id: "fats",
-    label: "Fats",
-    value: "53g",
-    progress: 45,
-    color: "#3B82F6",
-    icon: require("@/assets/icons/meat.png"),
-  },
-];
-
 function SuccessAccount() {
   console.log("Rendering SuccessAccount");
   const { agreement } = useAuth();
-  const { onboardingEmail } = useGlobalSearchParams();
+  const { onboardingEmail, dailyRecommendation } = useGlobalSearchParams();
+  // Robust parser: handle object, JSON string, URI-encoded JSON, or "[object Object]" cases.
+  const parsedDaily = useMemo(() => {
+    if (!dailyRecommendation) return null;
+
+    // If it's already an object, use it directly.
+    if (typeof dailyRecommendation === "object")
+      return dailyRecommendation as any;
+
+    // If it's a string, try several safe parse strategies.
+    if (typeof dailyRecommendation === "string") {
+      const raw = dailyRecommendation as string;
+
+      // 1) Try direct JSON.parse
+      try {
+        return JSON.parse(raw);
+      } catch (err1) {
+        // 2) Try decodeURIComponent then parse
+        try {
+          const decoded = decodeURIComponent(raw);
+          return JSON.parse(decoded);
+        } catch (err2) {
+          // 3) Extract JSON-looking substring if string contains "[object Object]" or extra chars
+          const firstBrace = raw.indexOf("{");
+          const lastBrace = raw.lastIndexOf("}");
+          if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+            const candidate = raw.slice(firstBrace, lastBrace + 1);
+            try {
+              return JSON.parse(candidate);
+            } catch (err3) {
+              // fallthrough
+            }
+          }
+
+          console.warn(
+            "Failed to parse dailyRecommendation (raw):",
+            raw,
+            "errors:",
+            err1,
+            err2
+          );
+          return null;
+        }
+      }
+    }
+
+    // Unknown type
+    console.warn(
+      "Unexpected dailyRecommendation type:",
+      typeof dailyRecommendation
+    );
+    return null;
+  }, [dailyRecommendation]);
+  const [nutritionData, setNutritionData] = useState([
+    {
+      id: "calories",
+      label: "Calories",
+      value: "",
+      progress: 75,
+      color: "#000000",
+      icon: require("@/assets/icons/meat.png"),
+    },
+    {
+      id: "carbs",
+      label: "Carbs",
+      value: "",
+      progress: 60,
+      color: "#F97316",
+      icon: require("@/assets/icons/carbs.png"),
+    },
+    {
+      id: "protein",
+      label: "Protein",
+      value: "",
+      progress: 25,
+      color: "#EF4444",
+      icon: require("@/assets/icons/protein.png"),
+    },
+    {
+      id: "fats",
+      label: "Fats",
+      value: "",
+      progress: 15,
+      color: "#3B82F6",
+      icon: require("@/assets/icons/meat.png"),
+    },
+  ]);
   const [loading, setLoading] = useState(false);
   const router = useRouter();
   const scale = useSharedValue(0);
   const opacity = useSharedValue(0);
   const checkmarkScale = useSharedValue(0);
   const textOpacity = useSharedValue(0);
+
+  console.log("Parsed Daily Recommendation:", parsedDaily);
+
+  useEffect(() => {
+    console.log("Received dailyRecommendation:", dailyRecommendation);
+    if (parsedDaily) {
+      setNutritionData([
+        {
+          id: "calories",
+          label: "Calories",
+          value: parsedDaily.calories + "kcal",
+          progress: 75,
+          color: "#000000",
+          icon: require("@/assets/icons/meat.png"),
+        },
+        {
+          id: "carbs",
+          label: "Carbs",
+          value: parsedDaily.carbs + "g",
+          progress: 60,
+          color: "#F97316",
+          icon: require("@/assets/icons/carbs.png"),
+        },
+        {
+          id: "protein",
+          label: "Protein",
+          value: parsedDaily.protein + "g",
+          progress: 25,
+          color: "#EF4444",
+          icon: require("@/assets/icons/protein.png"),
+        },
+        {
+          id: "fats",
+          label: "Fats",
+          value: parsedDaily.fat + "g",
+          progress: 15,
+          color: "#3B82F6",
+          icon: require("@/assets/icons/meat.png"),
+        },
+      ]);
+    } else {
+      // If parsedDaily is null, keep safe defaults (already set) and log for debugging
+      console.log("parsedDaily is null or could not be parsed");
+    }
+  }, [parsedDaily]);
 
   useEffect(() => {
     console.log("Loading state changed:", loading);
@@ -200,7 +295,6 @@ function SuccessAccount() {
                       progress={nutritionData[0].progress}
                       color={nutritionData[0].color}
                       icon={nutritionData[0].icon}
-                      onEdit={() => router.push("/(auth)/(edit)/edit-calories")}
                     />
                   </View>
                   <View className="w-[48%]">
@@ -210,7 +304,6 @@ function SuccessAccount() {
                       progress={nutritionData[1].progress}
                       color={nutritionData[1].color}
                       icon={nutritionData[1].icon}
-                      onEdit={() => router.push("/(auth)/(edit)/edit-carbs")}
                     />
                   </View>
                 </View>
@@ -223,7 +316,6 @@ function SuccessAccount() {
                       progress={nutritionData[2].progress}
                       color={nutritionData[2].color}
                       icon={nutritionData[2].icon}
-                      onEdit={() => router.push("/(auth)/(edit)/edit-protein")}
                     />
                   </View>
                   <View className="w-[48%]">
@@ -233,7 +325,6 @@ function SuccessAccount() {
                       progress={nutritionData[3].progress}
                       color={nutritionData[3].color}
                       icon={nutritionData[3].icon}
-                      onEdit={() => router.push("/(auth)/(edit)/edit-fats")}
                     />
                   </View>
                 </View>

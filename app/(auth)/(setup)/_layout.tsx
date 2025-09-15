@@ -290,7 +290,7 @@ function SetupLayout() {
           activityLevel,
         });
 
-        const result = await onboardingSubmission(
+        const result: any = await onboardingSubmission(
           name,
           selectedAllergens,
           gender,
@@ -312,7 +312,10 @@ function SetupLayout() {
         }
         router.replace({
           pathname: "/(auth)/success-account",
-          params: { onboardingEmail: result },
+          params: {
+            onboardingEmail: result.email,
+            dailyRecommendation: JSON.stringify(result.dailyRecommendation),
+          },
         });
       } catch (err) {
         console.error("Onboarding final submit error:", err);

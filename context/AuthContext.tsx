@@ -452,7 +452,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           throw new Error("Onboarding submission failed, please try again.");
         }
         console.log("Onboarding submission successful:", data);
-        return data.email;
+        return data;
       } catch (error) {
         console.error("Onboarding submission error:", error);
         return null;
