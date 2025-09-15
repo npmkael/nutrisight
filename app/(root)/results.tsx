@@ -233,17 +233,22 @@ function Results() {
                   : ""}
               </Text>
               <Text className="font-PoppinsBold text-gray-900 text-4xl">
-                {result.nutritionData
-                  .flatMap((category) => category.items)
-                  .filter((item) =>
-                    ["energy", "calories", "kcal"].some((key) =>
-                      (item.name as string).toLowerCase().includes(key)
-                    )
-                  )
-                  .reduce(
-                    (sum: number, item: any) => sum + Number(item.value || 0),
-                    0
-                  )}{" "}
+                {(() => {
+                  const calorieItem = result.nutritionData
+                    .flatMap((category) => category.items)
+                    .find((item) =>
+                      ["energy", "calories", "kcal"].some((key) =>
+                        (item.name as string).toLowerCase().includes(key)
+                      )
+                    );
+                  return calorieItem
+                    ? `${
+                        Number(calorieItem.value) % 1 === 0
+                          ? Number(calorieItem.value).toFixed(0)
+                          : Number(calorieItem.value).toFixed(2)
+                      }`
+                    : "N/A";
+                })()}{" "}
                 kcal
               </Text>
             </View>
