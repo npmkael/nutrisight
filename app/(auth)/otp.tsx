@@ -17,6 +17,7 @@ function Otp() {
   const { email } = useLocalSearchParams<{ email: string }>();
   const [otpCode, setOtpCode] = useState("");
   const [resendTimer, setResendTimer] = useState(0);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (resendTimer > 0) {
@@ -27,17 +28,30 @@ function Otp() {
 
   const handleResend = useCallback(async () => {
     if (!email) return;
-    setResendTimer(60);
+    if (resendTimer > 0) return;
+
     try {
-      await resendOtp(email);
+      setLoading(true);
+      const success = await resendOtp(email);
+      if (!success) {
+        setResendTimer(0);
+        Alert.alert("Error", "Failed to resend OTP. Please try again.");
+        return;
+      }
+
       Alert.alert(
         "OTP Resent",
         "A new verification code has been sent to your email."
       );
+      setResendTimer(60);
     } catch (error) {
+      console.log("Resend OTP error:", error);
+      setResendTimer(0);
       Alert.alert("Error", "Failed to resend OTP. Please try again.");
+    } finally {
+      setLoading(false);
     }
-  }, [email, resendOtp]);
+  }, [email, resendTimer, resendOtp]);
 
   const onContinuePress = useCallback(async () => {
     if (!email) {
@@ -120,7 +134,7 @@ function Otp() {
           <CustomButton
             title="Continue"
             onPress={onContinuePress}
-            loading={false}
+            loading={loading}
           />
         </View>
       </View>

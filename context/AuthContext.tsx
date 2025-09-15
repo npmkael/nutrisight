@@ -13,7 +13,6 @@ import {
   useMemo,
   useState,
 } from "react";
-
 import { Alert } from "react-native";
 
 export const BACKEND_URL =
@@ -101,7 +100,7 @@ export interface AuthContextType {
   ) => Promise<boolean>;
   verifyOtp: (otp: string, email: string) => Promise<void>;
   logout: () => Promise<void>;
-  resendOtp: (email: string) => Promise<void>;
+  resendOtp: (email: string) => Promise<boolean>;
   uploadProfilePicture: (imageUri: string) => Promise<void>;
   onboardingEmail: string | null;
   onboardingSubmission: (
@@ -349,7 +348,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const resendOtp = useCallback(async (email: string) => {
     try {
-      setLoading(true);
       const response = await fetch(`${BACKEND_URL}/auth/send-otp`, {
         method: "POST",
         credentials: "include",
@@ -365,11 +363,10 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
       const data = await response.json();
       console.log("OTP resent successfully:", data);
+      return true;
     } catch (error) {
       console.error("Resend OTP error:", error);
-      throw new Error("Resend OTP failed, please try again.");
-    } finally {
-      setLoading(false);
+      return false;
     }
   }, []);
 
