@@ -1,12 +1,13 @@
 import { AddMeal } from "@/components/add-meal";
+import { CustomCircularProgress } from "@/components/custom-circular-progress";
+import { Progress } from "@/components/line-progress";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
 import { calorieSum, getDateString } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import {
-  Animated,
   Image,
   ScrollView,
   StyleSheet,
@@ -15,8 +16,6 @@ import {
   View,
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { CustomCircularProgress } from "@/components/custom-circular-progress";
-import { Progress } from "@/components/line-progress";
 
 function Home() {
   const { user } = useAuth();
@@ -28,27 +27,31 @@ function Home() {
     protein: number;
     fats: number;
   } | null>(null);
-  const [mealTime, setMealTime] = useState<
-    "breakfast" | "lunch" | "dinner" | "other"
-  >("other");
+  const [targetCalories, setTargetCalories] = useState<number>(0);
+
+  const sumMealCalories = useCallback(
+    (meals?: { calorie?: number }[]) =>
+      meals?.reduce((sum, meal) => sum + Number(meal.calorie || 0), 0),
+    []
+  );
+
+  // Get calories for each meal from dietHistory
+  const breakfastCalories = sumMealCalories(dietHistory?.breakfast) || 0;
+  const lunchCalories = sumMealCalories(dietHistory?.lunch) || 0;
+  const dinnerCalories = sumMealCalories(dietHistory?.dinner) || 0;
+  const otherCalories = sumMealCalories(dietHistory?.otherMealTime) || 0;
 
   useEffect(() => {
-    const now = new Date();
-    const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes();
-    if (minutesSinceMidnight >= 300 && minutesSinceMidnight <= 690) {
-      // 5:00am (300) to 11:30am (690)
-      setMealTime("breakfast");
-    } else if (minutesSinceMidnight >= 691 && minutesSinceMidnight <= 960) {
-      // 11:31am (691) to 4:00pm (960)
-      setMealTime("lunch");
-    } else if (minutesSinceMidnight >= 961 && minutesSinceMidnight <= 1350) {
-      // 4:01pm (961) to 10:30pm (1350)
-      setMealTime("dinner");
-    } else {
-      // 10:31pm (1351) to 4:59am (299)
-      setMealTime("other");
+    if (user && user.dailyRecommendation?.calories) {
+      // Calculate percentages
+      const totalLoggedCalories =
+        breakfastCalories + lunchCalories + dinnerCalories + otherCalories;
+
+      setTargetCalories(
+        user.dailyRecommendation.calories - totalLoggedCalories
+      );
     }
-  }, []);
+  }, [user, breakfastCalories, lunchCalories, dinnerCalories, otherCalories]);
 
   useEffect(() => {
     if (user) {
@@ -88,6 +91,17 @@ function Home() {
   }, [selectedDate, user]);
 
   const isToday = selectedDate.toDateString() === new Date().toDateString();
+
+  const consumedPercent = useCallback(
+    (consumed: number | undefined, recommended: number | undefined) => {
+      const c = Number(consumed || 0);
+      const r = Number(recommended || 0);
+      if (r <= 0) return 0;
+      const pct = Math.round((c / r) * 100);
+      return Math.max(0, Math.min(100, pct));
+    },
+    []
+  );
 
   // Generate 7 days starting from current week
   const generateWeekDays = useCallback(() => {
@@ -223,7 +237,22 @@ function Home() {
         <View className="bg-transparent p-4 rounded-lg mx-4 absolute left-0 right-0 top-[70px] z-10">
           <View className="items-center flex-row justify-center">
             <View>
-              <CustomCircularProgress />
+              <CustomCircularProgress
+                calorieGoal={targetCalories}
+                progress={
+                  (breakfastCalories +
+                    lunchCalories +
+                    dinnerCalories +
+                    otherCalories >
+                  targetCalories
+                    ? targetCalories
+                    : (breakfastCalories +
+                        lunchCalories +
+                        dinnerCalories +
+                        otherCalories) /
+                      targetCalories) * 100
+                }
+              />
             </View>
           </View>
 
@@ -242,7 +271,10 @@ function Home() {
                 </Text>
                 <View className="w-16">
                   <Progress
-                    min={62}
+                    min={consumedPercent(
+                      macros?.carbs,
+                      user.dailyRecommendation?.carbs
+                    )}
                     max={100}
                     height={2}
                     color="#30B0C7"
@@ -261,7 +293,10 @@ function Home() {
                 </Text>
                 <View className="w-16">
                   <Progress
-                    min={15}
+                    min={consumedPercent(
+                      macros?.protein,
+                      user.dailyRecommendation?.protein
+                    )}
                     max={100}
                     height={2}
                     color="#FFD700"
@@ -280,7 +315,10 @@ function Home() {
                 </Text>
                 <View className="w-16">
                   <Progress
-                    min={4}
+                    min={consumedPercent(
+                      macros?.fats,
+                      user.dailyRecommendation?.fat
+                    )}
                     max={100}
                     height={2}
                     color="#FF6B6B"
@@ -365,26 +403,26 @@ function Home() {
         <View className="flex-col gap-2 mx-4 mt-[470px]">
           <AddMeal
             title="Breakfast"
-            totalCalories={400}
+            totalCalories={0.25 * (user.dailyRecommendation?.calories || 0)}
             caloriesConsumed={calorieSum(dietHistory?.breakfast || [])}
-            disabled={mealTime !== "breakfast" || !isToday}
+            disabled={!isToday}
           />
           <AddMeal
             title="Lunch"
-            totalCalories={300}
+            totalCalories={0.35 * (user.dailyRecommendation?.calories || 0)}
             caloriesConsumed={calorieSum(dietHistory?.lunch || [])}
-            disabled={mealTime !== "lunch" || !isToday}
+            disabled={!isToday}
           />
           <AddMeal
             title="Dinner"
-            totalCalories={300}
+            totalCalories={0.3 * (user.dailyRecommendation?.calories || 0)}
             caloriesConsumed={calorieSum(dietHistory?.dinner || [])}
-            disabled={mealTime !== "dinner" || !isToday}
+            disabled={!isToday}
           />
           <AddMeal
             title="Snacks"
-            totalCalories={300}
-            caloriesConsumed={0}
+            totalCalories={0.1 * (user.dailyRecommendation?.calories || 0)}
+            caloriesConsumed={calorieSum(dietHistory?.otherMealTime || [])}
             disabled={false}
           />
         </View>

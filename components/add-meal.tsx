@@ -67,10 +67,14 @@ export function AddMeal({
         </View>
       </View>
 
-      {totalCalories > caloriesConsumed && (
+      {totalCalories > caloriesConsumed && !disabled && (
         <TouchableOpacity
           className="p-2 rounded-full bg-transparent border border-[#a0a0a0]"
-          onPress={() => router.push("/(root)/main-camera")}
+          onPress={() =>
+            router.push(
+              `/main-camera?mealTime=${encodeURIComponent(title.toLowerCase())}` as Href
+            )
+          }
         >
           <Ionicons name="add" size={24} color="#a0a0a0" />
         </TouchableOpacity>

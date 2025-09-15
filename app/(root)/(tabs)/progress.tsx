@@ -26,6 +26,8 @@ function Progress() {
     router.push("/(root)/log-weight");
   }, []);
 
+  const loggedWeights = user.loggedWeights || [];
+
   return (
     <SafeAreaView className="bg-white flex-1" edges={["top"]}>
       {/* <StatusBar style="dark" /> */}
@@ -100,7 +102,7 @@ function Progress() {
 
         <View className="flex-row justify-between items-center mt-6 mb-2 mx-4">
           <Typo size={18} className="font-PoppinsSemiBold">
-            Target Weight Weekly Progress
+            Target Weight Weekly Progress (kg)
           </Typo>
           <InfoTooltip
             title="Target Weight Weekly Progress"
@@ -109,7 +111,7 @@ function Progress() {
         </View>
 
         <View className="bg-white rounded-lg p-4 shadow-xl">
-          <TargetWeightChart />
+          <TargetWeightChart loggedWeights={loggedWeights} />
         </View>
 
         {/* Diet Summary Card */}

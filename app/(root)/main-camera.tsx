@@ -10,7 +10,7 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
@@ -38,6 +38,7 @@ export type PredictionType = {
 };
 
 function App() {
+  const { mealTime } = useLocalSearchParams<{ mealTime?: string }>();
   const { user } = useAuth();
   const { scanBarcode, barcodeData } = useBarcodeScan();
   const { foodScan, foodScanData } = useFoodScan();
@@ -52,6 +53,8 @@ function App() {
 
   const router = useRouter();
 
+  console.log("Meal Time maincamera:", mealTime);
+
   useEffect(() => {
     if (barcodeData) setScanResult(barcodeData);
   }, [barcodeData]); // The effect runs only when barcodeData changes
@@ -64,6 +67,7 @@ function App() {
           scanResult: JSON.stringify(scanResult),
           image: photo.uri,
           userAllergens: JSON.stringify(user?.allergens),
+          mealTime,
         },
       });
     }
@@ -77,6 +81,7 @@ function App() {
           predictions: JSON.stringify(foodScanData),
           image: photo.uri,
           userAllergens: user?.allergens,
+          mealTime,
         },
       });
     }

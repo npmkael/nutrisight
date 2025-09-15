@@ -1,9 +1,9 @@
-import { View, Text } from "react-native";
+import { Text, View } from "react-native";
 import Svg, { Circle } from "react-native-svg";
 
 export const CustomCircularProgress = ({
-  progress = 50,
-  calorieGoal = 1000,
+  progress,
+  calorieGoal,
 }: {
   progress?: number;
   calorieGoal?: number;
@@ -14,7 +14,8 @@ export const CustomCircularProgress = ({
   const circumference = radius * 2 * Math.PI;
 
   // Calculate progress: assuming 70% progress for the goal
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
+  const strokeDashoffset =
+    circumference - ((progress || 0) / 100) * circumference;
 
   return (
     <View className="items-center justify-center">

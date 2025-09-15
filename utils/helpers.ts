@@ -1,3 +1,5 @@
+import { LoggedWeight } from "@/context/AuthContext";
+
 export function scanForAllergen(
   userAllergens: string[],
   ingredients: string
@@ -148,3 +150,60 @@ export const processWeeklyData = (
 
   return barData;
 };
+
+export interface WeeklyWeightItem {
+  day_of_week: number; // 0 = Sunday .. 6 = Saturday
+  total: number; // weight in kg (0 if missing)
+}
+
+/**
+ * Convert loggedWeights -> 7-day array (oldest -> newest).
+ * If there are multiple entries for the same date the last one wins.
+ */
+export function convertLoggedWeightsToWeekly(
+  loggedWeights: LoggedWeight[] | undefined,
+  days = 7
+): WeeklyWeightItem[] {
+  const pad = (n: number) => String(n).padStart(2, "0");
+
+  // helpers to produce/parse local YYYY-MM-DD keys (avoid UTC shift)
+  const toLocalDateKey = (d: Date) =>
+    `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+
+  const parseToLocalDate = (s: string) => {
+    // accept "YYYY-MM-DD" or full ISO
+    const iso = s.split("T")[0];
+    const [y, m, d] = iso.split("-").map((x) => Number(x));
+    return new Date(y, (m || 1) - 1, d || 1);
+  };
+
+  // build map dateKey -> value (last entry wins)
+  const map = new Map<string, number>();
+  if (Array.isArray(loggedWeights)) {
+    for (const entry of loggedWeights) {
+      try {
+        const dt = parseToLocalDate(entry.date);
+        const key = toLocalDateKey(dt);
+        map.set(key, Number(entry.value) || 0);
+      } catch {
+        // ignore malformed dates
+      }
+    }
+  }
+
+  const result: WeeklyWeightItem[] = [];
+  const today = new Date();
+  // start days-1 days ago up to today
+  for (let i = days - 1; i >= 0; i--) {
+    const d = new Date(today);
+    d.setDate(today.getDate() - i);
+    const key = toLocalDateKey(d);
+    const val = map.has(key) ? map.get(key)! : 0;
+    result.push({
+      day_of_week: d.getDay(),
+      total: val,
+    });
+  }
+
+  return result;
+}

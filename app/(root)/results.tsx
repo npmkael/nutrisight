@@ -1,5 +1,19 @@
+import CustomButton from "@/components/CustomButton";
+import { Ingredient } from "@/components/ingredient";
+import Loading from "@/components/Loading";
+import ResultSourceBadge from "@/components/result-source-badge";
 import Typo from "@/components/Typo";
+import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
+import {
+  capitalizeFirstLetter,
+  removeDuplicateTriggeredAllergens,
+} from "@/utils/helpers";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
+import AntDesign from "@expo/vector-icons/AntDesign";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import { memo, useCallback, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -8,25 +22,20 @@ import {
   TouchableOpacity,
   View,
 } from "react-native";
-
-import CustomButton from "@/components/CustomButton";
-import { Ingredient } from "@/components/ingredient";
-import Loading from "@/components/Loading";
-import ResultSourceBadge from "@/components/result-source-badge";
-import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
-import {
-  capitalizeFirstLetter,
-  removeDuplicateTriggeredAllergens,
-} from "@/utils/helpers";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
-import { router, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useState } from "react";
 import { ScanResultType } from "./main-camera";
+
+const BREAKFAST_START = 6 * 60; // 360 (06:00)
+const BREAKFAST_END = 10 * 60; // 600 (10:00)
+
+const LUNCH_START = 12 * 60; // 720 (12:00)
+const LUNCH_END = 14 * 60; // 840 (14:00)
+
+const DINNER_START = 18 * 60; // 1080 (18:00)
+const DINNER_END = 21 * 60; // 1260 (21:00)
 
 function Results() {
   const { setUser } = useAuth();
-  const { image, name, scanResult } = useLocalSearchParams();
+  const { image, name, scanResult, mealTime } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [result, setResult] = useState<ScanResultType | null>(
@@ -37,7 +46,7 @@ function Results() {
     result?.triggeredAllergens!
   );
 
-  console.log("Results", result);
+  console.log("Meal Time results:", mealTime);
 
   const handleBack = useCallback(() => {
     if (name) {
@@ -60,31 +69,38 @@ function Results() {
         (item.name as string).toLowerCase().includes("calorie")
     )?.value;
 
-    // 5:00am - 11:30am breakfast
-    // 11:31am - 4:00pm lunch
-    // 4:01pm - 10:30pm dinner
+    // 6:00am - 10:00am breakfast
+    // 12:00pm - 2:00pm lunch
+    // 6:00pm - 9:00pm dinner
     // 10:30pm - 4:59am otherMealTimes
     const now = new Date();
     const minutesSinceMidnight = now.getHours() * 60 + now.getMinutes();
 
-    let mealTime: "breakfast" | "lunch" | "dinner" | "other" = "other";
+    let meal =
+      (mealTime as string) === "snacks" ? "other" : (mealTime as string);
 
-    if (minutesSinceMidnight >= 300 && minutesSinceMidnight <= 690) {
-      // 5:00am (300) to 11:30am (690)
-      mealTime = "breakfast";
-    } else if (minutesSinceMidnight >= 691 && minutesSinceMidnight <= 960) {
-      // 11:31am (691) to 4:00pm (960)
-      mealTime = "lunch";
-    } else if (minutesSinceMidnight >= 961 && minutesSinceMidnight <= 1350) {
-      // 4:01pm (961) to 10:30pm (1350)
-      mealTime = "dinner";
-    } else {
-      // 10:31pm (1351) to 4:59am (299)
-      mealTime = "other";
+    if (!mealTime) {
+      if (
+        minutesSinceMidnight >= BREAKFAST_START &&
+        minutesSinceMidnight < BREAKFAST_END
+      ) {
+        meal = "breakfast";
+      } else if (
+        minutesSinceMidnight >= LUNCH_START &&
+        minutesSinceMidnight < LUNCH_END
+      ) {
+        meal = "lunch";
+      } else if (
+        minutesSinceMidnight >= DINNER_START &&
+        minutesSinceMidnight < DINNER_END
+      ) {
+        meal = "dinner";
+      } else {
+        meal = "other";
+      }
     }
-
     const mealRecordPayload = {
-      name: result?.name || result?.foodName || mealTime,
+      name: result?.name || result?.foodName || "Unknown",
       calorie: calorieValue || 0,
     };
 
@@ -94,10 +110,10 @@ function Results() {
       nutritionalData: (allNutritionItems ?? []).map((nutrient) => ({
         [(nutrient.name as string).toLowerCase()]: Number(nutrient.value),
       })),
-      breakfast: mealTime === "breakfast" ? [mealRecordPayload] : [],
-      lunch: mealTime === "lunch" ? [mealRecordPayload] : [],
-      dinner: mealTime === "dinner" ? [mealRecordPayload] : [],
-      otherMealTime: mealTime === "other" ? [mealRecordPayload] : [],
+      breakfast: meal === "breakfast" ? [mealRecordPayload] : [],
+      lunch: meal === "lunch" ? [mealRecordPayload] : [],
+      dinner: meal === "dinner" ? [mealRecordPayload] : [],
+      otherMealTime: meal === "other" ? [mealRecordPayload] : [],
     };
 
     console.log("Saving diet history:", dietHistoryPayload);
@@ -136,7 +152,19 @@ function Results() {
           dietHistory: data.dietHistory, // <-- replace, not append
         };
       });
-      console.log("Successfully saved results:", data.dietHistory);
+
+      // save result to cache
+      // check first if its greater than 10
+      const stored = await AsyncStorage.getItem("recentResults");
+      const recentResults = stored ? (JSON.parse(stored) as any[]) : [];
+      // keep max 10 entries
+      while (recentResults.length >= 10) recentResults.shift();
+      recentResults.push(result);
+      await AsyncStorage.setItem(
+        "recentResults",
+        JSON.stringify(recentResults)
+      );
+
       alert("Successfully saved results.");
       router.replace("/(root)/(tabs)/home");
     } catch (error) {
@@ -212,7 +240,7 @@ function Results() {
           {result.source && <ResultSourceBadge source={result.source} />}
           {/* Food Name */}
           <Typo size={28} className="font-Poppins text-gray-900 mb-6">
-            {`${capitalizeFirstLetter(result.name || result.foodName || "")}`}
+            {`${capitalizeFirstLetter(result.name || result.foodName || "")} ${result.brand ? `(${result.brand})` : ""}`}
           </Typo>
           {/* Calories Card */}
           <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 shadow border border-gray-100 mb-6">

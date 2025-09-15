@@ -33,20 +33,7 @@ export interface DietHistory {
 
 export interface LoggedWeight {
   value: number;
-  label:
-    | "Jan"
-    | "Feb"
-    | "Mar"
-    | "Apr"
-    | "May"
-    | "Jun"
-    | "Jul"
-    | "Aug"
-    | "Sep"
-    | "Oct"
-    | "Nov"
-    | "Dec";
-  year: number;
+  date: string;
 }
 
 export type DailyRecommendationType = {
@@ -115,7 +102,8 @@ export interface AuthContextType {
     weightGoal: string,
     targetWeight: number,
     dietType: string,
-    activityLevel: string
+    activityLevel: string,
+    loggedWeightPayload: LoggedWeight[]
   ) => Promise<string>;
   agreement: (email: string) => Promise<void>;
 }
@@ -383,7 +371,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       weightGoal: string,
       targetWeight: number,
       dietType: string,
-      activityLevel: string
+      activityLevel: string,
+      loggedWeightPayload: LoggedWeight[]
     ) => {
       try {
         if (
@@ -398,7 +387,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           targetWeight === null ||
           targetWeight === undefined ||
           !dietType ||
-          !activityLevel
+          !activityLevel ||
+          !loggedWeightPayload ||
+          loggedWeightPayload.length === 0
         ) {
           // find the missing
           const missingFields = [
@@ -414,6 +405,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             targetWeight === undefined && "targetWeight",
             !dietType && "dietType",
             !activityLevel && "activityLevel",
+            !loggedWeightPayload && "loggedWeightPayload",
+            loggedWeightPayload.length === 0 && "loggedWeightPayload",
           ].filter(Boolean) as string[];
 
           throw new Error(
@@ -440,6 +433,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             targetWeight,
             dietType,
             activityLevel,
+            loggedWeightPayload,
           }),
         });
         if (!res.ok) {

@@ -1,5 +1,5 @@
 import TextInputField from "@/components/TextInputField";
-import { LoggedWeight, useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -52,31 +52,22 @@ function WeightEdit() {
     if (weightUnit === "lbs") {
       weightKg = +(weightKg * 0.453592).toFixed(2); // Convert to kg, round to 2 decimals
     }
-    // replace if same month and year
+    // replace if same day, month and year
+    // Save weight with exact date (YYYY-MM-DD)
     const currentDate = new Date();
-    const currentMonth = currentDate
-      .toLocaleString("default", { month: "short" })
-      .slice(0, 3);
-    const currentYear = currentDate.getFullYear();
-    let loggedWeightsPayload: LoggedWeight[] = [];
+    const currentDateISO = currentDate.toISOString().slice(0, 10); // YYYY-MM-DD
 
-    if (user?.loggedWeights && user.loggedWeights.length > 0) {
-      loggedWeightsPayload = user.loggedWeights.map((entry) => {
-        if (entry.label === currentMonth && entry.year === currentYear) {
-          return { ...entry, value: weightKg };
-        }
-        return entry;
-      });
-    } else {
-      // No previous weights, add the first entry
-      loggedWeightsPayload = [
-        {
-          label: currentMonth as LoggedWeight["label"],
-          year: currentYear,
-          value: weightKg,
-        },
-      ];
-    }
+    // Start from existing loggedWeights (if any), remove any entry for today, then append today's entry
+    const existing = Array.isArray(user?.loggedWeights)
+      ? user!.loggedWeights
+      : [];
+    const loggedWeightsPayload = existing.filter(
+      (entry: any) => entry.date !== currentDateISO
+    );
+    loggedWeightsPayload.push({
+      date: currentDateISO,
+      value: weightKg,
+    });
 
     // calculate bmi
     const feet_x_12 = user?.heightFeet! * 12;

@@ -17,7 +17,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { PredictionType } from "./main-camera";
 
 function Predictions() {
-  const { predictions, image, userAllergens } = useLocalSearchParams();
+  const { predictions, image, userAllergens, mealTime } =
+    useLocalSearchParams();
   const router = useRouter();
   const [loading, setLoading] = useState(false);
 
@@ -48,6 +49,7 @@ function Predictions() {
 
         console.log(`${name} data:`, data);
         console.log("Nutrients:", data.nutrition);
+        console.log("Meal Time predictions:", mealTime);
 
         router.push({
           pathname: "/results",
@@ -55,6 +57,7 @@ function Predictions() {
             name,
             image,
             scanResult: JSON.stringify(data.data),
+            mealTime,
           },
         });
       } catch (error) {

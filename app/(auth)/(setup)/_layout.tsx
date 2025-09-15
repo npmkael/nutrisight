@@ -1,4 +1,4 @@
-import { useAuth } from "@/context/AuthContext";
+import { LoggedWeight, useAuth } from "@/context/AuthContext";
 import { cmToFeetAndInches, lbsToKg } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -275,6 +275,14 @@ function SetupLayout() {
           finalTarget = Number(lbsToKg(Number(targetWeight)));
         }
 
+        const currentDate = new Date();
+        let loggedWeightPayload: LoggedWeight[] = [
+          {
+            date: currentDate.toISOString().slice(0, 10), // YYYY-MM-DD
+            value: finalWeight,
+          },
+        ];
+
         console.log("Submitting onboarding:", {
           name,
           selectedAllergens,
@@ -288,6 +296,7 @@ function SetupLayout() {
           finalTarget,
           dietType,
           activityLevel,
+          loggedWeightPayload,
         });
 
         const result: any = await onboardingSubmission(
@@ -302,7 +311,8 @@ function SetupLayout() {
           weightGoal,
           finalTarget,
           dietType,
-          activityLevel
+          activityLevel,
+          loggedWeightPayload
         );
 
         console.log("Onboarding submission result:", result);
