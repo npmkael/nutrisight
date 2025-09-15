@@ -15,6 +15,7 @@ import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
 export type ScanResultType = {
+  id?: any;
   name?: string;
   foodName?: string;
   brand?: string;

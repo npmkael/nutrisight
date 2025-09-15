@@ -1,19 +1,41 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
+import { capitalizeFirstLetter } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import { router } from "expo-router";
-import { useMemo, useRef } from "react";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { router, useLocalSearchParams } from "expo-router";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { FadeIn, ZoomIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { ScanResultType } from "../main-camera";
 
 export default function Breakfast() {
+  const { totalCalories, caloriesConsumed, title } = useLocalSearchParams();
+  const [mealData, setMealData] = useState<ScanResultType[]>([]);
+  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
+
+  useEffect(() => {
+    async function fetchMealData() {
+      const stored = await AsyncStorage.getItem(
+        (title as string) === "snacks" ? "others" : (title as string)
+      );
+      const recentResults = stored
+        ? (JSON.parse(stored) as any[]).map((i) => ({
+            ...i,
+            image: require("@/assets/images/fried-rice.jpg"),
+          }))
+        : [];
+      setMealData(recentResults);
+    }
+    fetchMealData();
+  }, [title]);
 
   // BottomSheet snap points
   const snapPoints = useMemo(() => ["25%", "25%"], []);
@@ -32,34 +54,43 @@ export default function Breakfast() {
     []
   );
 
-  // Sample data - replace with actual data from your state management
-  const mealData = [
-    {
-      id: 1,
-      name: "Pork Adobo",
-      calories: 124,
-      serving: "1 serving",
-      protein: 18,
-      carbs: 12,
-      fat: 8,
-      image: require("@/assets/images/fried-rice.jpg"),
+  const sumByKeyword = useCallback(
+    (
+      nutritionData: {
+        title: string;
+        items: { name: string; value: number; unit: string }[];
+      }[],
+      keyword: string
+    ) => {
+      return nutritionData
+        .flatMap((category) => category.items)
+        .filter((item) => (item.name as string).toLowerCase().includes(keyword))
+        .reduce((sum, item) => sum + Number(item.value || 0), 0);
     },
-    {
-      id: 2,
-      name: "Garlic Rice",
-      calories: 234,
-      serving: "1 cup",
-      protein: 4,
-      carbs: 35,
-      fat: 2,
-      image: require("@/assets/images/fried-rice.jpg"),
-    },
-  ];
+    []
+  );
 
-  const totalCalories = mealData.reduce((sum, item) => sum + item.calories, 0);
-  const totalProtein = mealData.reduce((sum, item) => sum + item.protein, 0);
-  const totalCarbs = mealData.reduce((sum, item) => sum + item.carbs, 0);
-  const totalFat = mealData.reduce((sum, item) => sum + item.fat, 0);
+  const handleDeleteItem = useCallback(() => {
+    if (selectedItemId == null) return;
+    const updatedData = mealData.filter((item) => item.id !== selectedItemId);
+    setMealData(updatedData);
+    AsyncStorage.setItem(
+      (title as string) === "snacks" ? "others" : (title as string),
+      JSON.stringify(updatedData)
+    );
+    bottomSheetRef.current?.close();
+    setSelectedItemId(null);
+  }, [selectedItemId, mealData]);
+
+  // reset async storage for all
+  const resetStorage = async () => {
+    await AsyncStorage.removeItem("breakfast");
+    await AsyncStorage.removeItem("lunch");
+    await AsyncStorage.removeItem("dinner");
+    await AsyncStorage.removeItem("others");
+    await AsyncStorage.removeItem("recentResults");
+    setMealData([]);
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: "grey" }}>
@@ -114,7 +145,10 @@ export default function Breakfast() {
 
             <View className="items-center mb-4">
               <CircularProgressBar
-                progress={Math.min((totalCalories / 600) * 100, 100)}
+                progress={Math.min(
+                  (Number(caloriesConsumed) / Number(totalCalories)) * 100,
+                  100
+                )}
                 size={120}
                 strokeWidth={8}
                 color="#2D3644"
@@ -147,7 +181,7 @@ export default function Breakfast() {
             </View>
 
             <Text className="text-xs font-Poppins text-gray-500 text-center">
-              {totalCalories} / 600 kcal daily breakfast goal
+              {caloriesConsumed} / {totalCalories} kcal daily breakfast goal
             </Text>
           </Animated.View>
 
@@ -155,7 +189,8 @@ export default function Breakfast() {
           <View className="px-4 mt-6">
             <View className="flex-row justify-between items-center mb-4">
               <Text className="text-lg font-PoppinsSemiBold text-black">
-                Food Items ({mealData.length})
+                Recent Foods on {capitalizeFirstLetter(title as string)} (
+                {mealData.length})
               </Text>
             </View>
 
@@ -176,17 +211,42 @@ export default function Breakfast() {
                     </View>
                     <View className="flex-1">
                       <Text className="text-base font-PoppinsSemiBold text-black">
-                        {item.name}
+                        {item.name
+                          ? capitalizeFirstLetter(item.name)
+                          : item.foodName
+                            ? capitalizeFirstLetter(item.foodName)
+                            : "Unknown Food"}
                       </Text>
                       <Text className="text-sm font-Poppins text-gray-500">
-                        {item.calories} kcal • {item.serving}
+                        {(() => {
+                          const calorieItem = item.nutritionData
+                            .flatMap((category) => category.items)
+                            .find((item) =>
+                              ["energy", "calories", "kcal"].some((key) =>
+                                (item.name as string)
+                                  .toLowerCase()
+                                  .includes(key)
+                              )
+                            );
+                          return calorieItem
+                            ? `${
+                                Number(calorieItem.value) % 1 === 0
+                                  ? Number(calorieItem.value).toFixed(0)
+                                  : Number(calorieItem.value).toFixed(2)
+                              }`
+                            : "N/A";
+                        })()}{" "}
+                        kcal • {item.servingSize} serving size
                       </Text>
                     </View>
                   </View>
 
                   <TouchableOpacity
                     className="bg-gray-100 rounded-lg p-2"
-                    onPress={() => bottomSheetRef.current?.expand()}
+                    onPress={() => {
+                      setSelectedItemId(item.id);
+                      bottomSheetRef.current?.expand();
+                    }}
                   >
                     <Entypo
                       name="dots-three-vertical"
@@ -200,7 +260,7 @@ export default function Breakfast() {
                 <View className="flex-row justify-between">
                   <View className="items-center flex-1">
                     <Text className="text-lg font-PoppinsBold text-primary">
-                      {item.protein}g
+                      {sumByKeyword(item.nutritionData, "protein")}g
                     </Text>
                     <View className="flex-row items-center gap-1">
                       <Text className="text-xs font-PoppinsMedium text-gray-600">
@@ -211,7 +271,7 @@ export default function Breakfast() {
 
                   <View className="items-center flex-1">
                     <Text className="text-lg font-PoppinsBold text-primary">
-                      {item.carbs}g
+                      {sumByKeyword(item.nutritionData, "carb")}g
                     </Text>
                     <View className="flex-row items-center gap-1">
                       <Text className="text-xs font-PoppinsMedium text-gray-600">
@@ -222,7 +282,7 @@ export default function Breakfast() {
 
                   <View className="items-center flex-1">
                     <Text className="text-lg font-PoppinsBold text-primary">
-                      {item.fat}g
+                      {sumByKeyword(item.nutritionData, "fat")}g
                     </Text>
                     <View className="flex-row items-center gap-1">
                       <Text className="text-xs font-PoppinsMedium text-gray-600">
@@ -241,7 +301,9 @@ export default function Breakfast() {
             className="mx-4 my-6"
           >
             <TouchableOpacity
-              onPress={() => router.push("/(root)/main-camera")}
+              onPress={() =>
+                router.push(`/(root)/main-camera?mealTime=${title}`)
+              }
               className="bg-white border-2 border-dashed border-gray-300 rounded-2xl p-6 items-center justify-center"
             >
               <View className="bg-gray-100 rounded-full p-3 mb-2">
@@ -300,6 +362,7 @@ export default function Breakfast() {
                 alignItems: "center",
               }}
               className="border border-red-500 bg-white"
+              onPress={() => handleDeleteItem()}
             >
               <Text
                 style={{

@@ -22,7 +22,9 @@ export function AddMeal({
     <TouchableOpacity
       className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between"
       onPress={() =>
-        router.push(`/(root)/(meals)/${title.toLowerCase()}` as Href)
+        router.push(
+          `/(root)/(meals)/${title.toLowerCase()}?totalCalories=${totalCalories}&caloriesConsumed=${caloriesConsumed}&title=${title.toLowerCase()}` as Href
+        )
       }
     >
       <View className="flex-row items-center gap-2">

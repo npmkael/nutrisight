@@ -13,12 +13,7 @@ function RootLayout() {
             headerShown: false,
           }}
         />
-        <Stack.Screen
-          name="(edit)"
-          options={{
-            headerShown: false,
-          }}
-        />
+
         <Stack.Screen
           name="onboarding"
           options={{

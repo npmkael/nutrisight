@@ -155,15 +155,15 @@ function Results() {
 
       // save result to cache
       // check first if its greater than 10
-      const stored = await AsyncStorage.getItem("recentResults");
+      const stored = await AsyncStorage.getItem(meal);
       const recentResults = stored ? (JSON.parse(stored) as any[]) : [];
       // keep max 10 entries
       while (recentResults.length >= 10) recentResults.shift();
-      recentResults.push(result);
-      await AsyncStorage.setItem(
-        "recentResults",
-        JSON.stringify(recentResults)
-      );
+      recentResults.push({ ...result, id: Date.now() }); // add unique id
+      await AsyncStorage.setItem(meal, JSON.stringify(recentResults));
+
+      const newStored = await AsyncStorage.getItem(meal);
+      console.log("Saved to AsyncStorage:", newStored);
 
       alert("Successfully saved results.");
       router.replace("/(root)/(tabs)/home");
