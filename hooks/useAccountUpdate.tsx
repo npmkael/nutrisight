@@ -5,7 +5,7 @@ type UpdatePayload = Partial<{
   name: string;
   email: string;
   gender: string;
-  age: number;
+  birthDate: Date;
   heightFeet: number;
   heightInches: number;
   weight: number;

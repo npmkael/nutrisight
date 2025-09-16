@@ -43,7 +43,11 @@ function Settings() {
             <View className="flex-row items-center gap-4">
               <View>
                 <Image
-                  source={require("../../../assets/images/sample-profile.jpg")}
+                  source={
+                    user?.profileLink
+                      ? { uri: user.profileLink }
+                      : require("../../../assets/images/sample-profile.jpg")
+                  }
                   className="w-16 h-16 rounded-full"
                 />
               </View>

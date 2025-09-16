@@ -39,7 +39,7 @@ function AllergensEdit() {
   }, [router]);
 
   const handleSave = useCallback(async () => {
-    const res = await updateAccount({ allergens: selectedAllergens });
+    await updateAccount({ allergens: selectedAllergens });
     if (!error) router.back();
   }, [router, selectedAllergens, updateAccount, setUser, error]);
 

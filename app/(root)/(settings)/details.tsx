@@ -1,8 +1,11 @@
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   Image,
   KeyboardAvoidingView,
@@ -31,16 +34,103 @@ const Container = ({
 
 function Details() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
+  const { user, setUser, uploadProfilePicture } = useAuth();
 
-  const [fullName, setFullName] = useState(user?.name || "Uncle Bob");
+  const [username, setUsername] = useState(user?.name || "Uncle Bob");
   const [email, setEmail] = useState(user?.email || "uncle.bob@yourdomain.com");
-  const [gender, setGender] = useState(user?.gender || "Male");
-  const [dateOfBirth, setDateOfBirth] = useState("12-25-1995");
+  const [birthDate, setBirthDate] = useState<Date | null>(
+    user?.birthDate ? new Date(user.birthDate as any) : null
+  );
+  const [showPicker, setShowPicker] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(
+    user?.profileLink || null
+  );
+  const [uploadingImage, setUploadingImage] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setUsername(user.name || "Uncle Bob");
+      setBirthDate(user.birthDate ? new Date(user.birthDate as any) : null);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (response) {
+      setUser((prev) =>
+        prev
+          ? {
+              ...prev,
+              name: response.data.name,
+              birthDate: response.data.birthDate,
+              profileLink: response.data.profileLink,
+            }
+          : prev
+      );
+    }
+  }, [response]);
+
+  const pickImage = useCallback(async () => {
+    const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
+    if (!permission.granted) {
+      alert("Permission to access gallery is required!");
+      return;
+    }
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: "images",
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 0.7,
+    });
+    if (!result.canceled && result.assets && result.assets.length > 0) {
+      const uri = result.assets[0].uri;
+      // just preview the picked image — actual upload is a separate action
+      setSelectedImage(uri);
+    }
+  }, [uploadProfilePicture]);
+
+  const uploadProfileImage = useCallback(async () => {
+    if (!selectedImage) return alert("No image selected");
+    try {
+      setUploadingImage(true);
+      // reuse uploadProfilePicture from useAuth (it posts form field "profilePicture")
+      await uploadProfilePicture(selectedImage);
+      alert("Profile picture updated successfully!");
+      router.back();
+    } catch (err) {
+      console.error("Upload profile picture error:", err);
+      alert("Failed to upload profile picture.");
+    } finally {
+      setUploadingImage(false);
+    }
+  }, [selectedImage, uploadProfilePicture]);
 
   const back = useCallback(() => {
     router.back();
   }, [router]);
+
+  const formatDate = useCallback((d: any) => {
+    const dt = new Date(d);
+    if (Number.isNaN(dt.getTime())) return "";
+    return dt.toLocaleDateString("en-US", {
+      month: "short",
+      day: "numeric",
+      year: "numeric",
+    });
+  }, []);
+
+  const handleSubmit = useCallback(async () => {
+    const payload: any = {
+      name: username,
+      birthDate: birthDate || user?.birthDate,
+    };
+
+    await updateAccount(payload);
+    if (!error) {
+      alert("Profile updated successfully!");
+      router.back();
+    }
+  }, [username, birthDate, updateAccount, error, router]);
 
   return (
     <KeyboardAvoidingView
@@ -60,28 +150,60 @@ function Details() {
         {/* Profile Photo Section */}
         <View style={styles.profileSection}>
           <View style={styles.profileImageContainer}>
-            <Image
-              source={require("@/assets/images/sample-profile.jpg")}
-              style={styles.profileImage}
-            />
-            <TouchableOpacity style={styles.editPhotoButton}>
+            <TouchableOpacity
+              activeOpacity={0.8}
+              onPress={pickImage}
+              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            >
+              <Image
+                source={
+                  selectedImage
+                    ? { uri: selectedImage }
+                    : require("@/assets/images/sample-profile.jpg")
+                }
+                style={styles.profileImage}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.editPhotoButton}
+              onPress={pickImage}
+              accessibilityLabel="Change profile photo"
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            >
               <View style={styles.editIcon}>
                 <Ionicons name="pencil" size={12} color="white" />
               </View>
             </TouchableOpacity>
+            {/* Save profile picture button (separate from save changes) */}
+            <View style={{ marginTop: 12, flexDirection: "row", gap: 8 }}>
+              <TouchableOpacity
+                onPress={uploadProfileImage}
+                disabled={!selectedImage || uploadingImage}
+                style={{
+                  paddingVertical: 8,
+                  paddingHorizontal: 12,
+                  backgroundColor: selectedImage ? colors.primary : "#E5E7EB",
+                  borderRadius: 8,
+                }}
+              >
+                <Text style={{ color: "white", fontFamily: "PoppinsSemiBold" }}>
+                  {uploadingImage ? "Uploading..." : "Save Photo"}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
 
         {/* Form Fields */}
         <View style={styles.formContainer}>
-          {/* Full Name */}
+          {/* Username */}
           <View style={styles.fieldContainer}>
-            <Text style={styles.fieldLabel}>Full Name</Text>
+            <Text style={styles.fieldLabel}>Username</Text>
             <TextInput
               style={styles.textInput}
-              value={fullName}
-              onChangeText={setFullName}
-              placeholder="Enter your full name"
+              value={username}
+              onChangeText={setUsername}
+              placeholder="Enter your username"
             />
           </View>
 
@@ -102,6 +224,8 @@ function Details() {
                 placeholder="Enter your email"
                 keyboardType="email-address"
                 autoCapitalize="none"
+                accessibilityState={{ disabled: true }}
+                editable={false}
               />
             </View>
           </View>
@@ -111,20 +235,61 @@ function Details() {
             <Text style={styles.fieldLabel}>Gender</Text>
             <TouchableOpacity style={styles.dropdownContainer}>
               <Text style={styles.dropdownText}>
-                {gender.charAt(0).toUpperCase() + gender.slice(1)}
+                {user?.gender
+                  ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
+                  : ""}
               </Text>
-              <Ionicons name="chevron-down" size={20} color="#9CA3AF" />
+              {/* <Ionicons name="chevron-down" size={20} color="#9CA3AF" /> */}
             </TouchableOpacity>
           </View>
 
           {/* Date of Birth */}
           <View style={styles.fieldContainer}>
             <Text style={styles.fieldLabel}>Date of Birth</Text>
-            <TouchableOpacity style={styles.dateInputContainer}>
-              <Text style={styles.dateText}>{dateOfBirth}</Text>
+            <TouchableOpacity
+              style={styles.dateInputContainer}
+              onPress={() => setShowPicker(true)}
+            >
+              <Text style={styles.dateText}>{formatDate(birthDate)}</Text>
               <Ionicons name="calendar-outline" size={20} color="#9CA3AF" />
             </TouchableOpacity>
+            {showPicker && (
+              <DateTimePicker
+                value={birthDate ?? new Date()}
+                mode="date"
+                display="default"
+                maximumDate={new Date()}
+                onChange={(_e, selectedDate) => {
+                  setShowPicker(false);
+                  if (selectedDate) setBirthDate(selectedDate);
+                }}
+              />
+            )}
           </View>
+
+          {/* Save Button */}
+          <TouchableOpacity
+            style={{
+              backgroundColor: colors.primary,
+              paddingVertical: 16,
+              borderRadius: 12,
+              alignItems: "center",
+              marginTop: 10,
+              marginBottom: 30,
+            }}
+            onPress={handleSubmit}
+            disabled={isLoading}
+          >
+            <Text
+              style={{
+                color: "white",
+                fontSize: 16,
+                fontFamily: "PoppinsSemiBold",
+              }}
+            >
+              {isLoading ? "Saving..." : "Save Changes"}
+            </Text>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </KeyboardAvoidingView>
