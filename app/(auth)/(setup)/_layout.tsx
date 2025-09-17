@@ -435,7 +435,7 @@ function SetupLayout() {
               style={{
                 color: isStepValid() && !loading ? "#fff" : "#9CA3AF",
                 fontSize: 16,
-                fontFamily: "Poppins",
+                fontFamily: "PoppinsMedium",
               }}
             >
               {loading

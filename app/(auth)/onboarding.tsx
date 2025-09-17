@@ -71,7 +71,10 @@ export default function OnboardingScreen() {
     <SafeAreaView style={styles.safe}>
       <View style={styles.container}>
         {/* Top: image carousel area */}
-        <View style={[styles.topArea, { height: IMAGE_MAX_HEIGHT }]}>
+        <View
+          className="relative"
+          style={[styles.topArea, { height: IMAGE_MAX_HEIGHT }]}
+        >
           <Animated.ScrollView
             ref={scrollRef}
             horizontal
@@ -100,10 +103,11 @@ export default function OnboardingScreen() {
                   style={[
                     styles.image,
                     {
-                      width: SCREEN_WIDTH * 1.25,
+                      width: SCREEN_WIDTH * 1.68,
                     },
                   ]}
                   resizeMode="contain"
+                  className="absolute top-96 left-1/2 -translate-x-1/2 -translate-y-1/2"
                 />
               </View>
             ))}

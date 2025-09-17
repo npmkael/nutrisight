@@ -17,6 +17,9 @@ import settingsFill from "@/assets/icons/sett-fill.png";
 import settingsOutline from "@/assets/icons/sett-outline.png";
 
 // images
+import carbs from "@/assets/icons/carbs.png";
+import fats from "@/assets/icons/fats.png";
+import protein from "@/assets/icons/protein.png";
 import signUpFood from "@/assets/images/signup-food.png";
 
 export const icons = {
@@ -35,6 +38,9 @@ export const icons = {
   settingsOutline,
   forkFill,
   forkOutline,
+  carbs,
+  protein,
+  fats,
 };
 
 export const images = {

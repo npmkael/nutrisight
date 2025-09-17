@@ -1,5 +1,6 @@
 import { capitalizeFirstLetter } from "@/utils/helpers";
-import { Text, View } from "react-native";
+import { Ionicons } from "@expo/vector-icons";
+import { Text, TouchableOpacity, View } from "react-native";
 
 interface IngredientProps {
   name: string;
@@ -37,9 +38,9 @@ export const Ingredient = ({ name, allergen }: IngredientProps) => {
           </View>
         )}
       </View>
-      {/* <TouchableOpacity onPress={onDelete}>
-        <Ionicons name="trash-outline" size={16} color="black" />
-      </TouchableOpacity> */}
+      <TouchableOpacity onPress={() => {}}>
+        <Ionicons name="trash-outline" size={16} color="#737373" />
+      </TouchableOpacity>
     </View>
   );
 };

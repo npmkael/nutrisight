@@ -9,7 +9,6 @@ import { useAuth } from "@/context/AuthContext";
 import { moderateScale, textScale } from "@/lib/utils";
 // components
 import BackHeader from "@/components/BackHeader";
-import CustomButton from "@/components/CustomButton";
 import OTPTextInput from "react-native-otp-textinput";
 
 function Otp() {
@@ -131,11 +130,19 @@ function Otp() {
         <View
           style={{ padding: 16, borderTopWidth: 1, borderTopColor: "#eee" }}
         >
-          <CustomButton
-            title="Continue"
+          <TouchableOpacity
             onPress={onContinuePress}
-            loading={loading}
-          />
+            className="bg-primary p-4 rounded-lg"
+          >
+            <Text
+              className="text-white text-center"
+              style={{
+                fontFamily: "PoppinsMedium",
+              }}
+            >
+              Continue
+            </Text>
+          </TouchableOpacity>
         </View>
       </View>
     </SafeAreaView>
