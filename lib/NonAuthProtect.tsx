@@ -1,7 +1,7 @@
+import LoadingScreen from "@/components/loading-screen";
 import { useAuth } from "@/context/AuthContext";
 import { Redirect, useSegments } from "expo-router";
 import { memo, ReactNode } from "react";
-import Loading from "../components/Loading";
 
 interface GuestProtectProps {
   children: ReactNode;
@@ -16,9 +16,9 @@ function GuestProtect({ children }: GuestProtectProps) {
   const isPublicAuthPage =
     path === "(auth)/sign-in" || path === "(auth)/sign-up";
 
-  if (checkingSession) return <Loading />;
+  if (checkingSession) return <LoadingScreen />;
 
-  if (loading && !isPublicAuthPage) return <Loading />;
+  if (loading && !isPublicAuthPage) return <LoadingScreen />;
 
   if (user && user.isVerified) return <Redirect href="/(root)/(tabs)/home" />;
 

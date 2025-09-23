@@ -80,13 +80,13 @@ function Layout() {
         }}
       />
       <Tabs.Screen
-        name="account"
+        name="settings"
         options={{
-          tabBarLabel: "Account",
+          tabBarLabel: "Settings",
           tabBarIcon: ({ focused }) => (
             <TabIcon
-              iconFill={icons.accountFill}
-              iconOutline={icons.accountOutline}
+              iconFill={icons.settingsFill}
+              iconOutline={icons.settingsOutline}
               focused={focused}
               className="w-7 h-7"
             />
