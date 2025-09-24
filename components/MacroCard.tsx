@@ -19,7 +19,7 @@ export const macronutrients = [
         style={{ width: 28, height: 28 }}
       />
     ),
-    route: "carbs",
+    route: "/(root)/(settings)/(edit)/edit-calories",
   },
   {
     id: "protein",
@@ -34,7 +34,7 @@ export const macronutrients = [
         style={{ width: 28, height: 28 }}
       />
     ),
-    route: "carbs",
+    route: "/(root)/(settings)/(edit)/edit-protein",
   },
   {
     id: "carbs",
@@ -49,7 +49,7 @@ export const macronutrients = [
         style={{ width: 28, height: 28 }}
       />
     ),
-    route: "carbs",
+    route: "/(root)/(settings)/(edit)/edit-carbs",
   },
   {
     id: "fats",
@@ -64,7 +64,7 @@ export const macronutrients = [
         style={{ width: 28, height: 28 }}
       />
     ),
-    route: "carbs",
+    route: "/(root)/(settings)/(edit)/edit-fats",
   },
 ];
 

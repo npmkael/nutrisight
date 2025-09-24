@@ -205,16 +205,6 @@ function Settings() {
             subtitle="Set your food allergens"
             onPress={() => router.push("/(root)/(settings)/allergens")}
           />
-
-          <SettingsItem
-            icon={
-              <Ionicons name="language-outline" size={20} color="#6B7280" />
-            }
-            title="Language & Region"
-            subtitle="English (US)"
-            onPress={() => handleLanguageSettings()}
-            showDivider={false}
-          />
         </Container>
 
         {/* Support & Help Section */}
