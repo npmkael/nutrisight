@@ -12,6 +12,7 @@ function RootLayout() {
       <Stack.Screen name="gender" options={{ headerShown: false }} />
       <Stack.Screen name="allergens" options={{ headerShown: false }} />
       <Stack.Screen name="change-password" options={{ headerShown: false }} />
+      <Stack.Screen name="dietary-goals" options={{ headerShown: false }} />
       <Stack.Screen
         name="(edit)"
         options={{

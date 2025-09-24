@@ -189,7 +189,7 @@ function Settings() {
             }
             title="Dietary Goals"
             subtitle="Set your nutrition targets"
-            onPress={() => router.push("/(root)/(settings)/details")}
+            onPress={() => router.push("/(root)/(settings)/dietary-goals")}
           />
 
           <SettingsItem
