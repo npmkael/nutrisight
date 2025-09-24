@@ -1,5 +1,6 @@
 import { AddMeal } from "@/components/add-meal";
 import { CustomCircularProgress } from "@/components/custom-circular-progress";
+import FloatingActionButton from "@/components/FloatingActionButton";
 import { Progress } from "@/components/line-progress";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
@@ -436,16 +437,8 @@ function Home() {
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-4 right-4">
-        <TouchableOpacity
-          className="flex-row items-center justify-between p-4 bg-[#2D3644] rounded-full shadow-lg"
-          onPress={() => router.push("/(root)/main-camera")}
-        >
-          <View className="flex-row items-center gap-2">
-            <Ionicons name="camera" size={24} color="white" />
-          </View>
-        </TouchableOpacity>
-      </View>
+      {/* Floating Action Button */}
+      <FloatingActionButton />
     </SafeAreaView>
   );
 }
@@ -475,6 +468,26 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins",
     fontSize: 12,
     color: "#a0a0a0",
+  },
+  container: {
+    flex: 1,
+  },
+  contentContainer: {
+    backgroundColor: "#2D3644",
+    position: "absolute",
+    bottom: 20,
+    right: 20,
+    borderRadius: 50,
+  },
+  iconContainer: {
+    width: 50,
+    height: 50,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  icon: {
+    width: 26,
+    height: 26,
   },
 });
 
