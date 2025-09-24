@@ -1,29 +1,33 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
+import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditCalories() {
-  const [calories, setCalories] = useState("1918");
-  const [progress, setProgress] = useState(75); // Based on some target calculation
+  const { user } = useAuth();
+  const [calories, setCalories] = useState(
+    user?.dailyRecommendation?.calories.toString() || "2000"
+  );
+  const [progress, setProgress] = useState(100); // Based on some target calculation
 
-  const handleIncrement = () => {
+  const handleIncrement = useCallback(() => {
     const newValue = parseInt(calories) + 50;
     setCalories(newValue.toString());
     // Update progress based on recommended range (e.g., 2000-2500)
     setProgress(Math.min(100, (newValue / 2500) * 100));
-  };
+  }, [calories]);
 
-  const handleDecrement = () => {
+  const handleDecrement = useCallback(() => {
     const newValue = Math.max(1000, parseInt(calories) - 50);
     setCalories(newValue.toString());
     setProgress(Math.min(100, (newValue / 2500) * 100));
-  };
+  }, [calories]);
 
-  const handleCalorieChange = (value: string) => {
+  const handleCalorieChange = useCallback((value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
     if (numericValue) {
@@ -32,13 +36,13 @@ function EditCalories() {
     } else {
       setCalories("");
     }
-  };
+  }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Save the calorie value
     console.log("Saving calories:", calories);
     router.back();
-  };
+  }, [calories]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>

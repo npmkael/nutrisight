@@ -1,5 +1,7 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
+import { useAuth } from "@/context/AuthContext";
+import { getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { memo, useState } from "react";
@@ -7,15 +9,28 @@ import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditProtein() {
-  const [protein, setProtein] = useState("90");
-  const [progress, setProgress] = useState(80); // Based on some target calculation
+  const { user } = useAuth();
+  const [protein, setProtein] = useState(
+    user?.dailyRecommendation?.protein.toString() || "120"
+  );
+  const [progress, setProgress] = useState(
+    getProgress(
+      parseInt(protein) * 4,
+      user?.dailyRecommendation?.calories || 1500
+    )
+  ); // Based on some target calculation
 
   const handleProteinChange = (value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
     if (numericValue) {
       setProtein(numericValue);
-      setProgress(Math.min(100, (parseInt(numericValue) / 150) * 100));
+      setProgress(
+        getProgress(
+          parseInt(numericValue) * 4,
+          user?.dailyRecommendation?.calories || 1500
+        )
+      );
     } else {
       setProtein("");
     }
