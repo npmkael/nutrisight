@@ -204,6 +204,7 @@ function Settings() {
             title="Allergens"
             subtitle="Set your food allergens"
             onPress={() => router.push("/(root)/(settings)/allergens")}
+            showDivider={false}
           />
         </Container>
 
@@ -242,13 +243,6 @@ function Settings() {
             title="Send Feedback"
             subtitle="Help us improve the app"
             onPress={() => handleSendFeedback()}
-          />
-
-          <SettingsItem
-            icon={<Ionicons name="star-outline" size={20} color="#6B7280" />}
-            title="Rate App"
-            subtitle="Rate NutriSight on the App Store"
-            onPress={() => handleRateApp()}
             showDivider={false}
           />
         </Container>
