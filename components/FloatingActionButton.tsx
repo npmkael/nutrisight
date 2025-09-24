@@ -1,4 +1,5 @@
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
   Easing,
@@ -13,6 +14,7 @@ import Animated, {
 } from "react-native-reanimated";
 
 const FloatingActionButton = () => {
+  const router = useRouter();
   const firstValue = useSharedValue(30);
   const firstWidth = useSharedValue(50);
   const secondValue = useSharedValue(30);
@@ -52,6 +54,17 @@ const FloatingActionButton = () => {
     isOpen.value = !isOpen.value;
   };
 
+  const handleAddFoodPress = () => {
+    router.push("/manual-food-entry");
+    handlePress(); // Close the FAB
+    console.log("Add Food Pressed");
+  };
+
+  const handleScanPress = () => {
+    router.push("/main-camera");
+    handlePress(); // Close the FAB
+  };
+
   // first tab
   const firstIcon = useAnimatedStyle(() => {
     const scale = interpolate(
@@ -60,8 +73,6 @@ const FloatingActionButton = () => {
       [0, 1],
       Extrapolation.CLAMP
     );
-
-    console.log("first value:", firstValue.value);
 
     return {
       bottom: firstValue.value,
@@ -88,8 +99,6 @@ const FloatingActionButton = () => {
       Extrapolation.CLAMP
     );
 
-    console.log("second value:", secondValue.value);
-
     return {
       bottom: secondValue.value,
       transform: [{ scale: scale }],
@@ -109,24 +118,28 @@ const FloatingActionButton = () => {
 
   return (
     <>
-      <Animated.View
-        style={[styles.contentContainer, secondIcon, secondWidthStyle]}
-      >
-        <View style={styles.iconContainer}>
-          <MaterialCommunityIcons name="food-apple" size={26} color="white" />
-        </View>
-        <Animated.Text style={[styles.text, opacityText]}>
-          Add Food
-        </Animated.Text>
-      </Animated.View>
-      <Animated.View
-        style={[styles.contentContainer, firstIcon, firstWidthStyle]}
-      >
-        <View style={styles.iconContainer}>
-          <Ionicons name="camera" size={26} color="white" />
-        </View>
-        <Animated.Text style={[styles.text, opacityText]}>Scan</Animated.Text>
-      </Animated.View>
+      <TouchableOpacity onPress={handleAddFoodPress}>
+        <Animated.View
+          style={[styles.contentContainer, secondIcon, secondWidthStyle]}
+        >
+          <View style={styles.iconContainer}>
+            <MaterialCommunityIcons name="food-apple" size={26} color="white" />
+          </View>
+          <Animated.Text style={[styles.text, opacityText]}>
+            Add Food
+          </Animated.Text>
+        </Animated.View>
+      </TouchableOpacity>
+      <TouchableOpacity onPress={handleScanPress}>
+        <Animated.View
+          style={[styles.contentContainer, firstIcon, firstWidthStyle]}
+        >
+          <View style={styles.iconContainer}>
+            <Ionicons name="camera" size={26} color="white" />
+          </View>
+          <Animated.Text style={[styles.text, opacityText]}>Scan</Animated.Text>
+        </Animated.View>
+      </TouchableOpacity>
       <TouchableOpacity
         style={styles.contentContainer}
         onPress={() => handlePress()}
