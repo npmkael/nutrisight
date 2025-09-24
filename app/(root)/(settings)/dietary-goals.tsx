@@ -1,9 +1,18 @@
-import MacroCard, { macronutrients } from "@/components/MacroCard";
+import MacroCard from "@/components/MacroCard";
+import { useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
+import { getDateString, getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import React, { memo } from "react";
+import React, {
+  memo,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
 import {
+  Image,
   Platform,
   ScrollView,
   StyleSheet,
@@ -13,14 +22,150 @@ import {
 } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
-// Mock data - replace with actual user data from context/API
+export type MacroFieldsType = {
+  id: string;
+  title: string;
+  value: string;
+  unit: string;
+  target: string;
+  percentage: number;
+  icon: ReactNode;
+  route: string;
+};
 
 function DietaryGoals() {
+  const { user } = useAuth();
   const router = useRouter();
+  const [macronutrients, setMacronutrients] = useState<MacroFieldsType[]>([
+    {
+      id: "calories",
+      title: "Calories",
+      value: user?.dailyRecommendation?.calories.toString() || "1925",
+      unit: "kcal",
+      target: "2,000",
+      percentage: 96,
+      icon: (
+        <Image
+          source={require("@/assets/icons/calories.png")}
+          style={{ width: 28, height: 28 }}
+        />
+      ),
+      route: "/(root)/(settings)/(edit)/edit-calories",
+    },
+    {
+      id: "protein",
+      title: "Protein",
+      value: "45",
+      unit: "g",
+      target: "60",
+      percentage: 75,
+      icon: (
+        <Image
+          source={require("@/assets/icons/protein.png")}
+          style={{ width: 28, height: 28 }}
+        />
+      ),
+      route: "/(root)/(settings)/(edit)/edit-protein",
+    },
+    {
+      id: "carbs",
+      title: "Carbohydrates",
+      value: "180",
+      unit: "g",
+      target: "250",
+      percentage: 72,
+      icon: (
+        <Image
+          source={require("@/assets/icons/carbs.png")}
+          style={{ width: 28, height: 28 }}
+        />
+      ),
+      route: "/(root)/(settings)/(edit)/edit-carbs",
+    },
+    {
+      id: "fats",
+      title: "Fats",
+      value: "42",
+      unit: "g",
+      target: "67",
+      percentage: 63,
+      icon: (
+        <Image
+          source={require("@/assets/icons/fats.png")}
+          style={{ width: 28, height: 28 }}
+        />
+      ),
+      route: "/(root)/(settings)/(edit)/edit-fats",
+    },
+  ]);
+  const [macros, setMacros] = useState<{
+    carbs: number;
+    protein: number;
+    fats: number;
+  } | null>(null);
 
-  const back = () => {
+  useEffect(() => {
+    if (user) {
+      // get the user's diet history date
+      const userDietHistory = user.dietHistory?.find((h) => {
+        return getDateString(h.date) === getDateString(new Date());
+      });
+
+      if (Array.isArray(userDietHistory?.nutritionalData)) {
+        // Get the first (and only) object in the array
+        const nutritionObj = userDietHistory.nutritionalData[0];
+
+        // Helper to sum all keys that include a keyword
+        const sumByKeyword = (obj: Record<string, number>, keyword: string) =>
+          Object.entries(obj)
+            .filter(([key]) => key.toLowerCase().includes(keyword))
+            .reduce((sum, [, value]) => sum + Number(value || 0), 0);
+
+        const carbs = sumByKeyword(nutritionObj, "carb");
+        const protein = sumByKeyword(nutritionObj, "protein");
+        const fats = sumByKeyword(nutritionObj, "fat");
+
+        setMacros({
+          carbs: Number(carbs.toFixed(2)),
+          protein: Number(protein.toFixed(2)),
+          fats: Number(fats.toFixed(2)),
+        });
+        setMacronutrients((prev) => ({
+          ...prev,
+          1: {
+            ...prev[1],
+            value: protein.toFixed(0),
+            target: user.dailyRecommendation?.protein.toString() || "60",
+            percentage: getProgress(
+              protein,
+              user.dailyRecommendation?.protein || 60
+            ),
+          },
+          2: {
+            ...prev[2],
+            value: carbs.toFixed(0),
+            target: user.dailyRecommendation?.carbs.toString() || "250",
+            percentage: getProgress(
+              carbs,
+              user.dailyRecommendation?.carbs || 250
+            ),
+          },
+          3: {
+            ...prev[3],
+            value: fats.toFixed(0),
+            target: user.dailyRecommendation?.fat.toString() || "67",
+            percentage: getProgress(fats, user.dailyRecommendation?.fat || 67),
+          },
+        }));
+      } else {
+        setMacronutrients([]);
+      }
+    }
+  }, [user, setMacros]);
+
+  const back = useCallback(() => {
     router.back();
-  };
+  }, [router]);
 
   return (
     <View style={styles.container}>

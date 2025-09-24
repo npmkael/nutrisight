@@ -1,74 +1,11 @@
 import React from "react";
 
+import { MacroFieldsType } from "@/app/(root)/(settings)/dietary-goals";
 import { Ionicons } from "@expo/vector-icons";
-import { Image } from "expo-image";
 import { useRouter } from "expo-router";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 
-export const macronutrients = [
-  {
-    id: "calories",
-    title: "Calories",
-    value: "1,918",
-    unit: "kcal",
-    target: "2,000",
-    percentage: 96,
-    icon: (
-      <Image
-        source={require("@/assets/icons/calories.png")}
-        style={{ width: 28, height: 28 }}
-      />
-    ),
-    route: "/(root)/(settings)/(edit)/edit-calories",
-  },
-  {
-    id: "protein",
-    title: "Protein",
-    value: "45",
-    unit: "g",
-    target: "60",
-    percentage: 75,
-    icon: (
-      <Image
-        source={require("@/assets/icons/protein.png")}
-        style={{ width: 28, height: 28 }}
-      />
-    ),
-    route: "/(root)/(settings)/(edit)/edit-protein",
-  },
-  {
-    id: "carbs",
-    title: "Carbohydrates",
-    value: "180",
-    unit: "g",
-    target: "250",
-    percentage: 72,
-    icon: (
-      <Image
-        source={require("@/assets/icons/carbs.png")}
-        style={{ width: 28, height: 28 }}
-      />
-    ),
-    route: "/(root)/(settings)/(edit)/edit-carbs",
-  },
-  {
-    id: "fats",
-    title: "Fats",
-    value: "42",
-    unit: "g",
-    target: "67",
-    percentage: 63,
-    icon: (
-      <Image
-        source={require("@/assets/icons/fats.png")}
-        style={{ width: 28, height: 28 }}
-      />
-    ),
-    route: "/(root)/(settings)/(edit)/edit-fats",
-  },
-];
-
-const MacroCard = ({ macro }: { macro: (typeof macronutrients)[0] }) => {
+const MacroCard = ({ macro }: { macro: MacroFieldsType }) => {
   const router = useRouter();
 
   return (

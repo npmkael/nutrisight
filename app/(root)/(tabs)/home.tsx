@@ -6,6 +6,7 @@ import { colors } from "@/lib/utils";
 import { calorieSum, getDateString } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { navigate } from "expo-router/build/global-state/routing";
 import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   Image,
@@ -200,7 +201,11 @@ function Home() {
           <View className="flex-row items-center gap-4">
             <View>
               <Image
-                source={require("@/assets/images/default-profile.jpg")}
+                source={
+                  user.profileLink
+                    ? { uri: user.profileLink }
+                    : require("@/assets/images/default-profile.jpg")
+                }
                 className="w-10 h-10 rounded-full"
                 resizeMode="cover"
               />
@@ -227,7 +232,10 @@ function Home() {
           </View>
 
           <View className="flex-row gap-2">
-            <TouchableOpacity className="p-2 bg-slate-50 rounded-full border border-gray-300">
+            <TouchableOpacity
+              onPress={() => navigate("/(root)/(tabs)/settings")}
+              className="p-2 bg-slate-50 rounded-full border border-gray-300"
+            >
               <Ionicons name="settings" size={20} color="#666" />
             </TouchableOpacity>
           </View>

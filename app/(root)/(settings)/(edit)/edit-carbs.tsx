@@ -1,31 +1,48 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
+import { useAuth } from "@/context/AuthContext";
+import { getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditCarbs() {
-  const [carbs, setCarbs] = useState("250");
-  const [progress, setProgress] = useState(70); // Based on some target calculation
+  const { user } = useAuth();
+  const [carbs, setCarbs] = useState(
+    user?.dailyRecommendation?.carbs.toString() || "100"
+  );
+  const [progress, setProgress] = useState(
+    getProgress(
+      parseInt(carbs) * 4,
+      user?.dailyRecommendation?.calories || 1500
+    )
+  );
 
-  const handleCarbsChange = (value: string) => {
+  console.log("User carbs:", user?.dailyRecommendation?.carbs);
+
+  const handleCarbsChange = useCallback((value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
     if (numericValue) {
       setCarbs(numericValue);
-      setProgress(Math.min(100, (parseInt(numericValue) / 350) * 100));
+      setProgress(
+        getProgress(
+          parseInt(numericValue) * 4,
+          user?.dailyRecommendation?.calories || 1500
+        )
+      );
     } else {
       setCarbs("");
     }
-  };
+  }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Save the carbs value
     console.log("Saving carbs:", carbs);
     router.back();
-  };
+  }, [carbs]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>

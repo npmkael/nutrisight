@@ -1,44 +1,60 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
+import { useAuth } from "@/context/AuthContext";
+import { getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { memo, useState } from "react";
+import React, { memo, useCallback, useState } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditFats() {
-  const [fats, setFats] = useState("65");
-  const [progress, setProgress] = useState(65); // Based on some target calculation
+  const { user } = useAuth();
+  const [fats, setFats] = useState(
+    user?.dailyRecommendation?.fat.toString() || "70"
+  );
+  const [progress, setProgress] = useState(
+    getProgress(parseInt(fats) * 9, user?.dailyRecommendation?.calories || 1500)
+  ); // Based on some target calculation
 
-  const handleIncrement = () => {
+  const handleIncrement = useCallback(() => {
     const newValue = parseInt(fats) + 10;
     setFats(newValue.toString());
     // Update progress based on recommended range (e.g., 50-100g)
-    setProgress(Math.min(100, (newValue / 100) * 100));
-  };
+    setProgress(
+      getProgress(newValue * 9, user?.dailyRecommendation?.calories || 1500)
+    );
+  }, [fats]);
 
-  const handleDecrement = () => {
+  const handleDecrement = useCallback(() => {
     const newValue = Math.max(20, parseInt(fats) - 10);
     setFats(newValue.toString());
-    setProgress(Math.min(100, (newValue / 100) * 100));
-  };
+    setProgress(
+      getProgress(newValue * 9, user?.dailyRecommendation?.calories || 1500)
+    );
+  }, [fats]);
 
-  const handleFatsChange = (value: string) => {
+  const handleFatsChange = useCallback((value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
     if (numericValue) {
       setFats(numericValue);
-      setProgress(Math.min(100, (parseInt(numericValue) / 100) * 100));
+      setProgress(
+        getProgress(
+          parseInt(numericValue) * 9,
+          user?.dailyRecommendation?.calories || 1500
+        )
+      );
     } else {
       setFats("");
     }
-  };
+  }, []);
 
-  const handleSave = () => {
+  const handleSave = useCallback(() => {
     // Save the fats value
     console.log("Saving fats:", fats);
     router.back();
-  };
+  }, [fats]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>

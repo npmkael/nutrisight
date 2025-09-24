@@ -207,3 +207,11 @@ export function convertLoggedWeightsToWeekly(
 
   return result;
 }
+
+export function getProgress(value: number, total: number) {
+  const v = Number(value) || 0;
+  const t = Number(total);
+  if (!isFinite(t) || t <= 0) return 0; // avoid divide-by-zero / invalid totals
+  const pct = (v / t) * 100;
+  return Math.max(0, Math.min(100, pct)); // clamp 0..100
+}

@@ -81,7 +81,7 @@ function SuccessAccount() {
       id: "calories",
       label: "Calories",
       value: "",
-      progress: 75,
+      progress: 100,
       color: "#000000",
       icon: require("@/assets/icons/meat.png"),
     },
