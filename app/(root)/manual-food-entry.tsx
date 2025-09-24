@@ -238,11 +238,11 @@ function ManualFoodEntry() {
 
   return (
     <GestureHandlerRootView className="flex-1">
-      <View className="flex-1 bg-[#F7F7F7]">
-        {/* Header */}
+      <View className="flex-1 bg-white">
+        {/* Enhanced Header */}
         <Animated.View
           entering={FadeIn.duration(400)}
-          className="flex-row items-center justify-between px-6 py-4 bg-white"
+          className="flex-row items-center justify-between px-6 py-4"
         >
           <TouchableOpacity
             onPress={() => router.back()}
@@ -252,13 +252,13 @@ function ManualFoodEntry() {
           </TouchableOpacity>
 
           <Text className="text-xl font-PoppinsSemiBold text-gray-900">
-            Manual Food Entry
+            Add Food Entry
           </Text>
 
           <View className="w-10 h-10" />
         </Animated.View>
 
-        <View className="flex-1 bg-white">
+        <View className="flex-1">
           {/* Date/Time and Quantity */}
           <View className="flex-row items-center justify-between p-6">
             {/* Date Section */}

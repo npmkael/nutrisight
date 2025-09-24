@@ -5,8 +5,9 @@ import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
 import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
+  Animated,
   Image,
   KeyboardAvoidingView,
   Platform,
@@ -47,6 +48,8 @@ function Details() {
     user?.profileLink || null
   );
   const [uploadingImage, setUploadingImage] = useState(false);
+  const overlayOpacity = useRef(new Animated.Value(0)).current;
+  const loadingRotation = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (user) {
@@ -54,6 +57,37 @@ function Details() {
       setBirthDate(user.birthDate ? new Date(user.birthDate as any) : null);
     }
   }, [user]);
+
+  useEffect(() => {
+    if (uploadingImage) {
+      // Start rotation animation for loading spinner
+      const rotateAnimation = Animated.loop(
+        Animated.timing(loadingRotation, {
+          toValue: 1,
+          duration: 1000,
+          useNativeDriver: true,
+        })
+      );
+      rotateAnimation.start();
+      return () => rotateAnimation.stop();
+    }
+  }, [uploadingImage, loadingRotation]);
+
+  const handlePressIn = useCallback(() => {
+    Animated.timing(overlayOpacity, {
+      toValue: 1,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [overlayOpacity]);
+
+  const handlePressOut = useCallback(() => {
+    Animated.timing(overlayOpacity, {
+      toValue: 0,
+      duration: 200,
+      useNativeDriver: true,
+    }).start();
+  }, [overlayOpacity]);
 
   useEffect(() => {
     if (response) {
@@ -153,17 +187,29 @@ function Details() {
             <TouchableOpacity
               activeOpacity={0.8}
               onPress={pickImage}
-              hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
+              style={styles.profileImageTouchable}
             >
-              <Image
-                source={
-                  selectedImage
-                    ? { uri: selectedImage }
-                    : require("@/assets/images/sample-profile.jpg")
-                }
-                style={styles.profileImage}
-              />
+              <View style={styles.profileImageWrapper}>
+                <Image
+                  source={
+                    selectedImage
+                      ? { uri: selectedImage }
+                      : require("@/assets/images/sample-profile.jpg")
+                  }
+                  style={styles.profileImage}
+                />
+                {/* Animated Overlay for better visual feedback */}
+                <Animated.View
+                  style={[styles.imageOverlay, { opacity: overlayOpacity }]}
+                >
+                  <Ionicons name="camera" size={20} color="white" />
+                  <Text style={styles.overlayText}>Change Photo</Text>
+                </Animated.View>
+              </View>
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.editPhotoButton}
               onPress={pickImage}
@@ -171,27 +217,58 @@ function Details() {
               hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
             >
               <View style={styles.editIcon}>
-                <Ionicons name="pencil" size={12} color="white" />
+                <Ionicons name="camera" size={14} color="white" />
               </View>
             </TouchableOpacity>
-            {/* Save profile picture button (separate from save changes) */}
-            <View style={{ marginTop: 12, flexDirection: "row", gap: 8 }}>
-              <TouchableOpacity
-                onPress={uploadProfileImage}
-                disabled={!selectedImage || uploadingImage}
-                style={{
-                  paddingVertical: 8,
-                  paddingHorizontal: 12,
-                  backgroundColor: selectedImage ? colors.primary : "#E5E7EB",
-                  borderRadius: 8,
-                }}
-              >
-                <Text style={{ color: "white", fontFamily: "PoppinsSemiBold" }}>
-                  {uploadingImage ? "Uploading..." : "Save Photo"}
-                </Text>
-              </TouchableOpacity>
-            </View>
           </View>
+
+          {/* Enhanced Save Photo Button Section */}
+          {selectedImage && selectedImage !== user?.profileLink && (
+            <View style={styles.savePhotoSection}>
+              <View style={styles.actionButtons}>
+                <TouchableOpacity
+                  onPress={() => setSelectedImage(user?.profileLink || null)}
+                  style={[styles.actionButton, styles.cancelButton]}
+                  disabled={uploadingImage}
+                >
+                  <Ionicons name="close" size={16} color="#6B7280" />
+                  <Text style={styles.cancelButtonText}>Cancel</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={uploadProfileImage}
+                  disabled={uploadingImage}
+                  style={[styles.actionButton, styles.saveButton]}
+                >
+                  {uploadingImage ? (
+                    <>
+                      <Animated.View
+                        style={[
+                          styles.loadingSpinner,
+                          {
+                            transform: [
+                              {
+                                rotate: loadingRotation.interpolate({
+                                  inputRange: [0, 1],
+                                  outputRange: ["0deg", "360deg"],
+                                }),
+                              },
+                            ],
+                          },
+                        ]}
+                      />
+                      <Text style={styles.saveButtonText}>Uploading...</Text>
+                    </>
+                  ) : (
+                    <>
+                      <Ionicons name="checkmark" size={16} color="white" />
+                      <Text style={styles.saveButtonText}>Save Photo</Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
         </View>
 
         {/* Form Fields */}
@@ -337,24 +414,126 @@ const styles = StyleSheet.create({
   },
   profileImageContainer: {
     position: "relative",
+    marginBottom: 16,
+  },
+  profileImageTouchable: {
+    borderRadius: 60,
+    overflow: "hidden",
+  },
+  profileImageWrapper: {
+    position: "relative",
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 4,
+    },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
   },
   profileImage: {
-    width: 100,
-    height: 100,
-    borderRadius: 50,
+    width: 120,
+    height: 120,
+    borderRadius: 60,
+    borderWidth: 4,
+    borderColor: "white",
+  },
+  imageOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: "rgba(0,0,0,0.4)",
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    opacity: 0,
+  },
+  overlayText: {
+    color: "white",
+    fontSize: 12,
+    fontFamily: "PoppinsMedium",
+    marginTop: 4,
   },
   editPhotoButton: {
     position: "absolute",
-    bottom: 0,
-    right: 0,
+    bottom: 8,
+    right: 8,
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
   },
   editIcon: {
-    width: 24,
-    height: 24,
-    borderRadius: 12,
+    width: 32,
+    height: 32,
+    borderRadius: 16,
     backgroundColor: colors.primary,
     alignItems: "center",
     justifyContent: "center",
+    borderWidth: 2,
+    borderColor: "white",
+  },
+  savePhotoSection: {
+    width: "100%",
+    alignItems: "center",
+  },
+  actionButtons: {
+    flexDirection: "row",
+    gap: 12,
+    paddingHorizontal: 20,
+  },
+  actionButton: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 12,
+    gap: 8,
+    minWidth: 120,
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  cancelButton: {
+    backgroundColor: "#F9FAFB",
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
+  },
+  cancelButtonText: {
+    color: "#6B7280",
+    fontSize: 14,
+    fontFamily: "PoppinsMedium",
+  },
+  saveButton: {
+    backgroundColor: colors.primary,
+  },
+  saveButtonText: {
+    color: "white",
+    fontSize: 14,
+    fontFamily: "PoppinsSemiBold",
+  },
+  loadingSpinner: {
+    width: 16,
+    height: 16,
+    borderRadius: 8,
+    borderWidth: 2,
+    borderColor: "white",
+    borderTopColor: "transparent",
   },
   formContainer: {
     flex: 1,
