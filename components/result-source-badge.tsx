@@ -89,8 +89,10 @@ function ResultSourceBadge({ source }: { source: string }) {
                 : source.toLowerCase() === "open food facts"
                   ? "#F59E42"
                   : source.toLowerCase() === "gemini"
-                    ? undefined
-                    : "#A259F7",
+                    ? "#A259F7"
+                    : source.toLowerCase() === "book"
+                      ? "#FBBF24"
+                      : "#9CA3AF",
         borderWidth: 1,
         borderColor: "#d1d5db",
         shadowColor: "#000",
@@ -100,7 +102,7 @@ function ResultSourceBadge({ source }: { source: string }) {
         elevation: 3,
       }}
     >
-      <StrokeText>{`by ${capitalizeFirstLetter(source === "mynetdiary" ? "MyNetDiary" : source === "open food facts" ? "Open Food Facts" : source === "usda" ? "USDA" : source)}`}</StrokeText>
+      <StrokeText>{`by ${capitalizeFirstLetter(source === "mynetdiary" ? "MyNetDiary" : source === "open food facts" ? "Open Food Facts" : source === "usda" ? "USDA" : source === "book" ? "FNRI" : source)}`}</StrokeText>
     </View>
   );
 }

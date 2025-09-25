@@ -5,10 +5,10 @@ import { Text, TouchableOpacity, View } from "react-native";
 interface IngredientProps {
   name: string;
   allergen?: string[];
-  // onDelete: () => void;
+  onDelete: () => void;
 }
 
-export const Ingredient = ({ name, allergen }: IngredientProps) => {
+export const Ingredient = ({ name, allergen, onDelete }: IngredientProps) => {
   return (
     <View className="flex-row items-center justify-between rounded-xl border border-border p-4">
       <View className="flex-1">
@@ -38,7 +38,7 @@ export const Ingredient = ({ name, allergen }: IngredientProps) => {
           </View>
         )}
       </View>
-      <TouchableOpacity onPress={() => {}}>
+      <TouchableOpacity onPress={onDelete}>
         <Ionicons name="trash-outline" size={16} color="#737373" />
       </TouchableOpacity>
     </View>

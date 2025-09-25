@@ -61,10 +61,10 @@ function Results() {
   );
 
   useEffect(() => {
-    if (scanResult) {
-      setResult(JSON.parse(scanResult as string) as ScanResultType);
+    if (result) {
+      console.log("Scan Result:", result);
     }
-  }, [scanResult]);
+  }, [result]);
 
   console.log("Meal Time results:", mealTime);
 
@@ -110,21 +110,61 @@ function Results() {
   }, []);
 
   // Handle macro save functions
-  const handleSaveCalories = useCallback((value: string) => {
-    setEditedValues((prev) => ({ ...prev, calories: value }));
-  }, []);
+  const applyEditedToResult = useCallback(
+    (searchKeys: string[], value: string) => {
+      setResult((prev) => {
+        if (!prev) return prev;
+        const num = Number(value);
+        const newNutritionData = prev.nutritionData.map((cat) => ({
+          ...cat,
+          items: cat.items.map((item) => {
+            const name = (item.name as string).toLowerCase();
+            if (searchKeys.some((k) => name.includes(k))) {
+              return { ...item, value: isNaN(num) ? item.value : num };
+            }
+            return item;
+          }),
+        }));
+        return { ...prev, nutritionData: newNutritionData };
+      });
+    },
+    []
+  );
 
-  const handleSaveCarbs = useCallback((value: string) => {
-    setEditedValues((prev) => ({ ...prev, carbs: value }));
-  }, []);
+  const handleSaveCalories = useCallback(
+    (value: string) => {
+      setEditedValues((prev) => ({ ...prev, calories: value }));
+      applyEditedToResult(["energy", "calorie", "kcal"], value);
+    },
+    [applyEditedToResult]
+  );
 
-  const handleSaveProtein = useCallback((value: string) => {
-    setEditedValues((prev) => ({ ...prev, protein: value }));
-  }, []);
+  const handleSaveCarbs = useCallback(
+    (value: string) => {
+      setEditedValues((prev) => ({ ...prev, carbs: value }));
+      applyEditedToResult(
+        ["carbohydrate", "carbs", "total carbohydrate"],
+        value
+      );
+    },
+    [applyEditedToResult]
+  );
 
-  const handleSaveFats = useCallback((value: string) => {
-    setEditedValues((prev) => ({ ...prev, fats: value }));
-  }, []);
+  const handleSaveProtein = useCallback(
+    (value: string) => {
+      setEditedValues((prev) => ({ ...prev, protein: value }));
+      applyEditedToResult(["protein", "total protein"], value);
+    },
+    [applyEditedToResult]
+  );
+
+  const handleSaveFats = useCallback(
+    (value: string) => {
+      setEditedValues((prev) => ({ ...prev, fats: value }));
+      applyEditedToResult(["fat", "total fat", "fats", "lipid"], value);
+    },
+    [applyEditedToResult]
+  );
 
   // Handle bottom sheet close functions
   const handleCloseCalories = useCallback(() => {
@@ -270,8 +310,52 @@ function Results() {
     }
   }, [result, setUser, router]);
 
+  const handleDecreaseQuantity = useCallback(() => {
+    setQuantity((prevQ) => {
+      const newQ = prevQ > 1 ? prevQ - 1 : 1;
+      setResult((p) => {
+        if (!p) return p;
+        return {
+          ...p,
+          nutritionData: p.nutritionData.map((category) => ({
+            ...category,
+            items: category.items.map((item) => ({
+              ...item,
+              value: (Number(item.value) / prevQ) * newQ,
+            })),
+          })),
+        };
+      });
+      return newQ;
+    });
+  }, []);
+
+  const handleIncreaseQuantity = useCallback(() => {
+    setQuantity((prevQ) => {
+      const newQ = prevQ + 1;
+      setResult((p) => {
+        if (!p) return p;
+        return {
+          ...p,
+          nutritionData: p.nutritionData.map((category) => ({
+            ...category,
+            items: category.items.map((item) => ({
+              ...item,
+              value: (Number(item.value) / prevQ) * newQ,
+            })),
+          })),
+        };
+      });
+      return newQ;
+    });
+  }, []);
+
   if (!result) {
-    return <Loading />;
+    return (
+      <View className="flex-1 items-center justify-center bg-white">
+        <Loading />
+      </View>
+    );
   }
 
   return (
@@ -315,14 +399,17 @@ function Results() {
             <View className="flex-row items-center justify-center gap-5">
               <TouchableOpacity
                 className="w-10 h-10 bg-white border border-gray-200 rounded-full items-center justify-center"
-                onPress={() => setQuantity(quantity <= 1 ? 1 : quantity - 1)}
+                onPress={handleDecreaseQuantity}
               >
                 <AntDesign name="minus" size={20} color="black" />
               </TouchableOpacity>
               <Text className="text-xl text-black font-PoppinsMedium">
                 {quantity}
               </Text>
-              <TouchableOpacity className="w-10 h-10 bg-white border border-gray-200 rounded-full items-center justify-center">
+              <TouchableOpacity
+                className="w-10 h-10 bg-white border border-gray-200 rounded-full items-center justify-center"
+                onPress={handleIncreaseQuantity}
+              >
                 <AntDesign name="plus" size={20} color="black" />
               </TouchableOpacity>
             </View>
@@ -361,7 +448,7 @@ function Results() {
                 </Text>
                 <Text className="text-gray-500 font-Poppins">
                   {result?.servingSize
-                    ? `${result.servingSize} Serving Size`
+                    ? `${quantity > 1 ? `${quantity} x ` : ""}${result.servingSize} Serving Size`
                     : ""}
                 </Text>
                 <Text className="font-PoppinsBold text-gray-900 text-4xl">
@@ -502,13 +589,10 @@ function Results() {
                       >
                         <View className="flex-row items-center justify-between">
                           <Text className="font-PoppinsMedium text-black text-sm">
-                            {item.name.charAt(0).toUpperCase() +
-                              item.name.slice(1)}
+                            {capitalizeFirstLetter(item.name as string)}
                           </Text>
                           <Text className="text-black font-PoppinsSemiBold bg-[#F4F4F4] px-3 py-1 rounded-full text-sm">
-                            {Number(item.value) % 1 === 0
-                              ? Number(item.value).toFixed(0)
-                              : Number(item.value).toFixed(2)}
+                            {item.value.toFixed(2)}
                             {item.unit}
                           </Text>
                         </View>
@@ -550,6 +634,19 @@ function Results() {
                             triggers.length > 0
                               ? triggers.map((t) => t.allergen)
                               : undefined
+                          }
+                          onDelete={() =>
+                            setResult((p) => ({
+                              ...p!,
+                              ingredients: p!.ingredients.filter(
+                                (i) => i !== ingredient
+                              ),
+                              triggeredAllergens: p!.triggeredAllergens.filter(
+                                (a) =>
+                                  a.ingredient.toLowerCase() !==
+                                  ingredient.toLowerCase()
+                              ),
+                            }))
                           }
                         />
                       );
