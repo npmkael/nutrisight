@@ -4,7 +4,7 @@ import { useAuth } from "@/context/AuthContext";
 import { getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
@@ -19,8 +19,42 @@ function EditCarbs() {
       user?.dailyRecommendation?.calories || 1500
     )
   );
+  const [rec, setRec] = useState({
+    upper: 0,
+    lower: 0,
+  });
 
-  console.log("User carbs:", user?.dailyRecommendation?.carbs);
+  useEffect(() => {
+    if (user) {
+      // Convert height to meters
+      const feet_x_12 = user.heightFeet! * 12;
+      const initHeight = feet_x_12 + user.heightInches!;
+      const heightMeters = initHeight * 0.0254;
+      const heightMetersPowerOf2 = heightMeters ** 2;
+
+      const heightInCM = heightMeters * 100;
+      const heightInCMLess100 = heightInCM - 100;
+      const heightInCMMultipledBy0_1 = 0.1 * heightInCM;
+      const desiredWeight = heightInCMLess100 - heightInCMMultipledBy0_1;
+
+      const targetCalories =
+        user.activityLevel === "sedentary"
+          ? desiredWeight * 30
+          : user.activityLevel === "active"
+            ? desiredWeight * 35
+            : 0;
+
+      const calories60PercentUpper = 0.6 * (targetCalories + 300);
+      const calories60PercentLower = 0.6 * (targetCalories - 300);
+
+      const targetCarbsUpper = calories60PercentUpper / 4;
+      const targetCarbsLower = calories60PercentLower / 4;
+      setRec({
+        upper: Math.round(targetCarbsUpper),
+        lower: Math.round(targetCarbsLower),
+      });
+    }
+  }, [user]);
 
   const handleCarbsChange = useCallback((value: string) => {
     // Only allow numbers
@@ -117,8 +151,8 @@ function EditCarbs() {
             </Text>
           </View>
           <Text className="text-sm font-Poppins text-blue-800 leading-5">
-            Based on your profile, we recommend 225-300 grams of carbohydrates
-            per day for optimal energy and performance.
+            Based on your profile, we recommend {`${rec.lower} - ${rec.upper}`}{" "}
+            grams of carbohydrates per day for optimal energy and performance.
           </Text>
         </Animated.View>
       </View>

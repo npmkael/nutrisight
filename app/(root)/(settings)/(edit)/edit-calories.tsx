@@ -3,7 +3,7 @@ import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
@@ -13,6 +13,31 @@ function EditCalories() {
     user?.dailyRecommendation?.calories.toString() || "2000"
   );
   const [progress, setProgress] = useState(100); // Based on some target calculation
+  const [rec, setRec] = useState(0);
+
+  useEffect(() => {
+    if (user) {
+      // Convert height to meters
+      const feet_x_12 = user.heightFeet! * 12;
+      const initHeight = feet_x_12 + user.heightInches!;
+      const heightMeters = initHeight * 0.0254;
+      const heightMetersPowerOf2 = heightMeters ** 2;
+
+      const heightInCM = heightMeters * 100;
+      const heightInCMLess100 = heightInCM - 100;
+      const heightInCMMultipledBy0_1 = 0.1 * heightInCM;
+      const desiredWeight = heightInCMLess100 - heightInCMMultipledBy0_1;
+
+      const targetCalories =
+        user.activityLevel === "sedentary"
+          ? desiredWeight * 30
+          : user.activityLevel === "active"
+            ? desiredWeight * 35
+            : null;
+
+      setRec(targetCalories ? Math.round(targetCalories) : 0);
+    }
+  }, [user]);
 
   const handleIncrement = useCallback(() => {
     const newValue = parseInt(calories) + 50;
@@ -117,8 +142,8 @@ function EditCalories() {
             </Text>
           </View>
           <Text className="text-sm font-Poppins text-blue-800 leading-5">
-            Based on your profile, we recommend 1800-2200 calories per day for
-            optimal health and your fitness goals.
+            Based on your profile, we recommend {`${rec - 300} - ${rec + 300}`}{" "}
+            calories per day for optimal health and your fitness goals.
           </Text>
         </Animated.View>
       </View>

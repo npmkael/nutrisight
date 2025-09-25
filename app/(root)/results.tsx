@@ -19,7 +19,7 @@ import FontAwesome from "@expo/vector-icons/FontAwesome";
 import BottomSheet from "@gorhom/bottom-sheet";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -59,6 +59,12 @@ function Results() {
   const uniqueAllergens = removeDuplicateTriggeredAllergens(
     result?.triggeredAllergens!
   );
+
+  useEffect(() => {
+    if (scanResult) {
+      setResult(JSON.parse(scanResult as string) as ScanResultType);
+    }
+  }, [scanResult]);
 
   console.log("Meal Time results:", mealTime);
 

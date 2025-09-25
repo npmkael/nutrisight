@@ -55,13 +55,13 @@ const FloatingActionButton = () => {
   };
 
   const handleAddFoodPress = () => {
-    router.push("/manual-food-entry");
+    router.push("/(root)/manual-food-entry");
     handlePress(); // Close the FAB
     console.log("Add Food Pressed");
   };
 
   const handleScanPress = () => {
-    router.push("/main-camera");
+    router.push("/(root)/main-camera");
     handlePress(); // Close the FAB
   };
 
@@ -118,7 +118,7 @@ const FloatingActionButton = () => {
 
   return (
     <>
-      <TouchableOpacity onPress={handleAddFoodPress}>
+      <TouchableOpacity onPressIn={handleAddFoodPress}>
         <Animated.View
           style={[styles.contentContainer, secondIcon, secondWidthStyle]}
         >
@@ -130,7 +130,7 @@ const FloatingActionButton = () => {
           </Animated.Text>
         </Animated.View>
       </TouchableOpacity>
-      <TouchableOpacity onPress={handleScanPress}>
+      <TouchableOpacity onPressIn={handleScanPress}>
         <Animated.View
           style={[styles.contentContainer, firstIcon, firstWidthStyle]}
         >

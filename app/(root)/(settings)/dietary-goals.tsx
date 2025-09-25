@@ -40,10 +40,10 @@ function DietaryGoals() {
     {
       id: "calories",
       title: "Calories",
-      value: user?.dailyRecommendation?.calories.toString() || "1925",
+      value: "0",
       unit: "kcal",
-      target: "2,000",
-      percentage: 96,
+      target: user?.dailyRecommendation?.calories.toString() || "2000",
+      percentage: getProgress(0, user?.dailyRecommendation?.calories || 2000),
       icon: (
         <Image
           source={require("@/assets/icons/calories.png")}
@@ -55,10 +55,10 @@ function DietaryGoals() {
     {
       id: "protein",
       title: "Protein",
-      value: "45",
+      value: "0",
       unit: "g",
-      target: "60",
-      percentage: 75,
+      target: user?.dailyRecommendation?.protein.toString() || "60",
+      percentage: getProgress(0, user?.dailyRecommendation?.protein || 60),
       icon: (
         <Image
           source={require("@/assets/icons/protein.png")}
@@ -70,10 +70,10 @@ function DietaryGoals() {
     {
       id: "carbs",
       title: "Carbohydrates",
-      value: "180",
+      value: "0",
       unit: "g",
-      target: "250",
-      percentage: 72,
+      target: user?.dailyRecommendation?.carbs.toString() || "250",
+      percentage: getProgress(0, user?.dailyRecommendation?.carbs || 250),
       icon: (
         <Image
           source={require("@/assets/icons/carbs.png")}
@@ -85,10 +85,10 @@ function DietaryGoals() {
     {
       id: "fats",
       title: "Fats",
-      value: "42",
+      value: "0",
       unit: "g",
-      target: "67",
-      percentage: 63,
+      target: user?.dailyRecommendation?.fat.toString() || "67",
+      percentage: getProgress(0, user?.dailyRecommendation?.fat || 67),
       icon: (
         <Image
           source={require("@/assets/icons/fats.png")}
@@ -125,43 +125,83 @@ function DietaryGoals() {
         const protein = sumByKeyword(nutritionObj, "protein");
         const fats = sumByKeyword(nutritionObj, "fat");
 
-        setMacros({
-          carbs: Number(carbs.toFixed(2)),
-          protein: Number(protein.toFixed(2)),
-          fats: Number(fats.toFixed(2)),
-        });
-        setMacronutrients((prev) => ({
-          ...prev,
-          1: {
-            ...prev[1],
-            value: protein.toFixed(0),
-            target: user.dailyRecommendation?.protein.toString() || "60",
-            percentage: getProgress(
-              protein,
-              user.dailyRecommendation?.protein || 60
-            ),
-          },
-          2: {
-            ...prev[2],
-            value: carbs.toFixed(0),
-            target: user.dailyRecommendation?.carbs.toString() || "250",
-            percentage: getProgress(
-              carbs,
-              user.dailyRecommendation?.carbs || 250
-            ),
-          },
-          3: {
-            ...prev[3],
-            value: fats.toFixed(0),
-            target: user.dailyRecommendation?.fat.toString() || "67",
-            percentage: getProgress(fats, user.dailyRecommendation?.fat || 67),
-          },
-        }));
+        setMacronutrients((prev) =>
+          prev.map((m) => {
+            if (m.id === "protein") {
+              return {
+                ...m,
+                value: protein.toFixed(0),
+                target: user.dailyRecommendation?.protein.toString() || "60",
+                percentage: getProgress(
+                  protein,
+                  user.dailyRecommendation?.protein || 60
+                ),
+              };
+            }
+            if (m.id === "carbs") {
+              return {
+                ...m,
+                value: carbs.toFixed(0),
+                target: user.dailyRecommendation?.carbs.toString() || "250",
+                percentage: getProgress(
+                  carbs,
+                  user.dailyRecommendation?.carbs || 250
+                ),
+              };
+            }
+            if (m.id === "fats") {
+              return {
+                ...m,
+                value: fats.toFixed(0),
+                target: user.dailyRecommendation?.fat.toString() || "67",
+                percentage: getProgress(
+                  fats,
+                  user.dailyRecommendation?.fat || 67
+                ),
+              };
+            }
+            return m;
+          })
+        );
       } else {
-        setMacronutrients([]);
+        setMacronutrients((prev) =>
+          prev.map((m) => {
+            if (m.id === "protein") {
+              return {
+                ...m,
+                value: "0",
+                target: user.dailyRecommendation?.protein.toString() || "60",
+                percentage: getProgress(
+                  0,
+                  user.dailyRecommendation?.protein || 60
+                ),
+              };
+            }
+            if (m.id === "carbs") {
+              return {
+                ...m,
+                value: "0",
+                target: user.dailyRecommendation?.carbs.toString() || "250",
+                percentage: getProgress(
+                  0,
+                  user.dailyRecommendation?.carbs || 250
+                ),
+              };
+            }
+            if (m.id === "fats") {
+              return {
+                ...m,
+                value: "0",
+                target: user.dailyRecommendation?.fat.toString() || "67",
+                percentage: getProgress(0, user.dailyRecommendation?.fat || 67),
+              };
+            }
+            return m;
+          })
+        );
       }
     }
-  }, [user, setMacros]);
+  }, [user]);
 
   const back = useCallback(() => {
     router.back();
