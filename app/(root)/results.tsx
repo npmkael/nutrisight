@@ -13,7 +13,7 @@ import {
   capitalizeFirstLetter,
   removeDuplicateTriggeredAllergens,
 } from "@/utils/helpers";
-import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import BottomSheet from "@gorhom/bottom-sheet";
@@ -653,7 +653,7 @@ function Results() {
                     })
                   : null}
               </View>
-              <View className="mx-4 mb-4">
+              {/* <View className="mx-4 mb-4">
                 <TouchableOpacity className="px-6 py-4 items-center justify-center bg-transparent border border-primary rounded-lg flex-row gap-2">
                   <Ionicons name="add" size={16} color="primary" />
                   <Text
@@ -665,7 +665,7 @@ function Results() {
                     Add Ingredients
                   </Text>
                 </TouchableOpacity>
-              </View>
+              </View> */}
             </View>
 
             {/* Allergens */}
