@@ -188,7 +188,7 @@ export default function DietSummary({
               className="font-Poppins  mb-2 text-gray-300"
               color="#000000"
             >
-              Total Nutrients ({totalLoggedCalories} cal)
+              Total Nutrients ({totalLoggedCalories} kcal)
             </Typo>
 
             {nutrientSummary2d.map((row, rowIdx) => (

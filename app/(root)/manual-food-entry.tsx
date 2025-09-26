@@ -4,8 +4,9 @@ import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
 import { capitalizeFirstLetter } from "@/utils/helpers";
 import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
-import { memo, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import {
   Alert,
   Image,
@@ -17,6 +18,7 @@ import {
 } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Animated, { FadeIn } from "react-native-reanimated";
+import { ScanResultType } from "./main-camera";
 
 const BREAKFAST_START = 6 * 60; // 360 (06:00)
 const BREAKFAST_END = 10 * 60; // 600 (10:00)
@@ -53,11 +55,11 @@ function ManualFoodEntry() {
   // Focus states for inputs
   const [focusedInput, setFocusedInput] = useState("");
 
-  const handleBack = () => {
+  const handleBack = useCallback(() => {
     router.back();
-  };
+  }, []);
 
-  const getMealTime = () => {
+  const getMealTime = useCallback(() => {
     const now = new Date();
     const hours = now.getHours();
     const minutes = now.getMinutes();
@@ -72,15 +74,15 @@ function ManualFoodEntry() {
     } else {
       return "snacks";
     }
-  };
+  }, []);
 
-  const getMealTimeDisplayName = () => {
+  const getMealTimeDisplayName = useCallback(() => {
     const mealTime = getMealTime();
     return mealTime.charAt(0).toUpperCase() + mealTime.slice(1);
-  };
+  }, []);
 
   // Validation functions
-  const validateField = (field: string, value: string) => {
+  const validateField = useCallback((field: string, value: string) => {
     let error = "";
 
     switch (field) {
@@ -113,9 +115,9 @@ function ManualFoodEntry() {
 
     setErrors((prev) => ({ ...prev, [field]: error }));
     return error === "";
-  };
+  }, []);
 
-  const validateForm = () => {
+  const validateForm = useCallback(() => {
     const isValidName = validateField("foodName", foodName);
     const isValidCalories = validateField("calories", calories);
     const isValidCarbs = validateField("carbs", carbs);
@@ -129,9 +131,63 @@ function ManualFoodEntry() {
       isValidProtein &&
       isValidFats
     );
-  };
+  }, [foodName, calories, carbs, protein, fats]);
 
-  const handleSave = async () => {
+  const handleDecreaseQuantity = useCallback(() => {
+    setQuantity((prevQ) => {
+      const newQ = prevQ > 1 ? prevQ - 1 : 1;
+      setCalories((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num) || prevQ === 1) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      setCarbs((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num) || prevQ === 1) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      setProtein((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num) || prevQ === 1) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      setFats((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num) || prevQ === 1) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      return newQ;
+    });
+  }, []);
+
+  const handleIncreaseQuantity = useCallback(() => {
+    setQuantity((prevQ) => {
+      const newQ = prevQ + 1;
+      setCalories((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num)) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      setCarbs((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num)) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      setProtein((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num)) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      setFats((prev) => {
+        const num = parseFloat(prev);
+        if (isNaN(num)) return prev;
+        return ((num / prevQ) * newQ).toFixed(2);
+      });
+      return newQ;
+    });
+  }, []);
+
+  const handleSave = useCallback(async () => {
     if (!validateForm()) {
       Alert.alert("Validation Error", "Please fix the errors before saving.");
       return;
@@ -145,7 +201,7 @@ function ManualFoodEntry() {
       // Create nutrition data in the same format as scan results
       const nutritionData = [
         {
-          category: "Energy",
+          title: "Other Nutrients",
           items: [
             {
               name: "Energy",
@@ -155,7 +211,7 @@ function ManualFoodEntry() {
           ],
         },
         {
-          category: "Macronutrients",
+          title: "Macronutrients",
           items: [
             {
               name: "Total Carbohydrate",
@@ -200,23 +256,52 @@ function ManualFoodEntry() {
         otherMealTime: meal === "other" ? [mealRecordPayload] : [],
       };
 
-      const response = await fetch(`${BACKEND_URL}/user/diet-history`, {
-        method: "POST",
+      const res = await fetch(`${BACKEND_URL}/account/update-diet-history`, {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(dietHistory),
+        body: JSON.stringify({
+          dietHistoryPayload: dietHistory,
+        }),
+        credentials: "include",
+      });
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.log("Error saving results:", errorData);
+        alert("Error saving results. Please try again.");
+        return;
+      }
+      const data = await res.json();
+      setUser((prevUser) => {
+        if (!prevUser) return prevUser;
+        return {
+          ...prevUser,
+          dietHistory: data.dietHistory, // <-- replace, not append
+        };
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to save food entry");
-      }
+      const result: ScanResultType = {
+        foodName: capitalizeFirstLetter(foodName),
+        id: Date.now(),
+        servingSize,
+        nutritionData,
+        source: "user input",
+        triggeredAllergens: [],
+        ingredients: [],
+      };
 
-      const data = await response.json();
+      // save result to cache
+      // check first if its greater than 10
+      const stored = await AsyncStorage.getItem(meal);
+      const recentResults = stored ? (JSON.parse(stored) as any[]) : [];
+      // keep max 10 entries
+      while (recentResults.length >= 10) recentResults.shift();
+      recentResults.push(result);
+      await AsyncStorage.setItem(meal, JSON.stringify(recentResults));
 
-      if (data.user) {
-        setUser(data.user);
-      }
+      const newStored = await AsyncStorage.getItem(meal);
+      console.log("Saved to AsyncStorage:", newStored);
 
       Alert.alert("Success!", "Food entry saved successfully!", [
         {
@@ -234,7 +319,7 @@ function ManualFoodEntry() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [foodName, calories, carbs, protein, fats]);
 
   return (
     <GestureHandlerRootView className="flex-1">
@@ -292,7 +377,7 @@ function ManualFoodEntry() {
                   className={`w-12 h-12 rounded-full items-center justify-center ${
                     quantity <= 1 ? "bg-gray-200" : ""
                   }`}
-                  onPress={() => setQuantity(quantity <= 1 ? 1 : quantity - 1)}
+                  onPress={handleDecreaseQuantity}
                   disabled={quantity <= 1}
                   style={{
                     elevation: quantity > 1 ? 2 : 0,
@@ -315,7 +400,7 @@ function ManualFoodEntry() {
                 </View>
                 <TouchableOpacity
                   className="w-12 h-12 rounded-full items-center justify-center"
-                  onPress={() => setQuantity(quantity + 1)}
+                  onPress={handleIncreaseQuantity}
                   style={{ elevation: 2, backgroundColor: "#2D3644" }}
                 >
                   <AntDesign name="plus" size={18} color="white" />

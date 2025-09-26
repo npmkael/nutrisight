@@ -352,6 +352,7 @@ export default function Lunch() {
                 alignItems: "center",
               }}
               className="border border-red-500 bg-white"
+              onPress={() => handleDeleteItem()}
             >
               <Text
                 style={{
