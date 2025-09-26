@@ -56,39 +56,57 @@ function Settings() {
   };
 
   const handleSendFeedback = () => {
-    Linking.openURL("mailto:feedback@nutrisight.com?subject=App Feedback");
+    Alert.alert("Send Feedback", "Feedback form coming soon!", [
+      { text: "OK" },
+    ]);
+
+    // Linking.openURL("mailto:feedback@nutrisight.com?subject=App Feedback");
   };
 
   const handleRateApp = () => {
+    Alert.alert("Rate App", "Rate our app coming soon!", [{ text: "OK" }]);
+
     // Replace with your actual App Store URL
-    const appStoreUrl = "https://apps.apple.com/app/nutrisight";
-    Linking.openURL(appStoreUrl).catch(() => {
-      Alert.alert("Error", "Unable to open App Store");
-    });
+    // const appStoreUrl = "https://apps.apple.com/app/nutrisight";
+    // Linking.openURL(appStoreUrl).catch(() => {
+    //   Alert.alert("Error", "Unable to open App Store");
+    // });
   };
 
   const handleTermsOfService = () => {
-    Linking.openURL("https://nutrisight.com/terms").catch(() => {
-      Alert.alert("Terms of Service", "Terms of Service coming soon!");
-    });
+    Alert.alert("Terms of Service", "Terms of Service coming soon!", [
+      { text: "OK" },
+    ]);
+
+    // Linking.openURL("https://nutrisight.com/terms").catch(() => {
+    //   Alert.alert("Terms of Service", "Terms of Service coming soon!");
+    // });
   };
 
   const handlePrivacyPolicy = () => {
-    Linking.openURL("https://nutrisight.com/privacy").catch(() => {
-      Alert.alert("Privacy Policy", "Privacy Policy coming soon!");
-    });
+    Alert.alert("Privacy Policy", "Privacy Policy coming soon!", [
+      { text: "OK" },
+    ]);
+
+    // Linking.openURL("https://nutrisight.com/privacy").catch(() => {
+    //   Alert.alert("Privacy Policy", "Privacy Policy coming soon!");
+    // });
   };
 
   const handleAbout = () => {
-    Alert.alert(
-      "About NutriSight",
-      "NutriSight v1.0.0\n\nYour personalized nutrition companion. Track your food, analyze nutrition, and achieve your health goals.\n\nDeveloped with ❤️ for better health.",
-      [{ text: "OK" }]
-    );
+    Alert.alert("About", "About coming soon!", [{ text: "OK" }]);
+
+    // Alert.alert(
+    //   "About NutriSight",
+    //   "NutriSight v1.0.0\n\nYour personalized nutrition companion. Track your food, analyze nutrition, and achieve your health goals.\n\nDeveloped with ❤️ for better health.",
+    //   [{ text: "OK" }]
+    // );
   };
 
   const handleContactUs = () => {
-    Linking.openURL("mailto:contact@nutrisight.com?subject=Contact Us");
+    Alert.alert("Contact Us", "Contact Us coming soon!", [{ text: "OK" }]);
+
+    // Linking.openURL("mailto:contact@nutrisight.com?subject=Contact Us");
   };
 
   const handleLogout = () => {
