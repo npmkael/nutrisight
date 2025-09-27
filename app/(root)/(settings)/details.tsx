@@ -130,10 +130,10 @@ function Details() {
       // reuse uploadProfilePicture from useAuth (it posts form field "profilePicture")
       await uploadProfilePicture(selectedImage);
       alert("Profile picture updated successfully!");
-      router.back();
     } catch (err) {
       console.error("Upload profile picture error:", err);
       alert("Failed to upload profile picture.");
+      router.back();
     } finally {
       setUploadingImage(false);
     }
