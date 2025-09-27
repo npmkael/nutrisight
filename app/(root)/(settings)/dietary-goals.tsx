@@ -131,7 +131,7 @@ function DietaryGoals() {
               return {
                 ...m,
                 value: protein.toFixed(0),
-                target: user.dailyRecommendation?.protein.toString() || "60",
+                target: user.dailyRecommendation?.protein.toFixed(2) || "60",
                 percentage: getProgress(
                   protein,
                   user.dailyRecommendation?.protein || 60
@@ -142,7 +142,7 @@ function DietaryGoals() {
               return {
                 ...m,
                 value: carbs.toFixed(0),
-                target: user.dailyRecommendation?.carbs.toString() || "250",
+                target: user.dailyRecommendation?.carbs.toFixed(2) || "250",
                 percentage: getProgress(
                   carbs,
                   user.dailyRecommendation?.carbs || 250
@@ -153,7 +153,7 @@ function DietaryGoals() {
               return {
                 ...m,
                 value: fats.toFixed(0),
-                target: user.dailyRecommendation?.fat.toString() || "67",
+                target: user.dailyRecommendation?.fat.toFixed(2) || "67",
                 percentage: getProgress(
                   fats,
                   user.dailyRecommendation?.fat || 67

@@ -413,25 +413,33 @@ function Home() {
           <AddMeal
             title="Breakfast"
             totalCalories={0.25 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={calorieSum(dietHistory?.breakfast || [])}
+            caloriesConsumed={Number(
+              calorieSum(dietHistory?.breakfast || []).toFixed(2)
+            )}
             disabled={!isToday}
           />
           <AddMeal
             title="Lunch"
             totalCalories={0.35 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={calorieSum(dietHistory?.lunch || [])}
+            caloriesConsumed={Number(
+              calorieSum(dietHistory?.lunch || []).toFixed(2)
+            )}
             disabled={!isToday}
           />
           <AddMeal
             title="Dinner"
             totalCalories={0.3 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={calorieSum(dietHistory?.dinner || [])}
+            caloriesConsumed={Number(
+              calorieSum(dietHistory?.dinner || []).toFixed(2)
+            )}
             disabled={!isToday}
           />
           <AddMeal
             title="Snacks"
             totalCalories={0.1 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={calorieSum(dietHistory?.otherMealTime || [])}
+            caloriesConsumed={Number(
+              calorieSum(dietHistory?.otherMealTime || []).toFixed(2)
+            )}
             disabled={false}
           />
         </View>
