@@ -544,7 +544,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setUser((prev) =>
           prev ? { ...prev, profileLink: data.profileLink } : prev
         );
-        router.replace("/(root)/(tabs)/account");
+        router.replace("/(root)/(tabs)/settings");
       } catch (error) {
         console.error("Upload profile picture error:", error);
         throw error;
