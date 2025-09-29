@@ -247,7 +247,7 @@ function Home() {
           <View className="items-center flex-row justify-center">
             <View>
               <CustomCircularProgress
-                calorieGoal={targetCalories}
+                calorieGoal={Math.round(targetCalories)}
                 progress={
                   (breakfastCalories +
                     lunchCalories +
