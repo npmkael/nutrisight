@@ -1,5 +1,7 @@
 import { ScanResultType } from "@/app/(root)/main-camera";
+import Constants from "expo-constants";
 import { useCallback, useState } from "react";
+const { EXPO_PUBLIC_SUSHI_SECRET } = Constants.expoConfig?.extra || {};
 
 export function useBarcodeScan() {
   const [barcodeData, setBarcodeData] = useState<ScanResultType | null>(null);
@@ -14,7 +16,7 @@ export function useBarcodeScan() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-APP-KEY": process.env.EXPO_PUBLIC_SUSHI_SECRET || "",
+              "X-APP-KEY": EXPO_PUBLIC_SUSHI_SECRET || "",
             },
             credentials: "include",
             body: JSON.stringify({ barcodeData }),

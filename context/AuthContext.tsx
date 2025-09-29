@@ -4,6 +4,7 @@ import {
   isSuccessResponse,
   statusCodes,
 } from "@react-native-google-signin/google-signin";
+import Constants from "expo-constants";
 import { useRouter } from "expo-router";
 import {
   createContext,
@@ -14,7 +15,11 @@ import {
   useState,
 } from "react";
 import { Alert } from "react-native";
-
+const {
+  EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+  EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,
+  EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+} = Constants.expoConfig?.extra || {};
 export const BACKEND_URL =
   "https://nutrisight-backend-dd22d1bd9780.herokuapp.com";
 
@@ -122,8 +127,8 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     GoogleSignin.configure({
-      iosClientId: process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
-      webClientId: process.env.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
+      iosClientId: EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID,
+      webClientId: EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
     });
   }, []);
 
