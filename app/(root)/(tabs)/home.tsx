@@ -4,7 +4,7 @@ import FloatingActionButton from "@/components/FloatingActionButton";
 import { Progress } from "@/components/line-progress";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
-import { calorieSum, getDateString } from "@/utils/helpers";
+import { calorieSum } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
@@ -55,12 +55,23 @@ function Home() {
     }
   }, [user, breakfastCalories, lunchCalories, dinnerCalories, otherCalories]);
 
+  // Compare two dates by local year/month/day to avoid UTC shift issues
+  const isSameLocalDate = useCallback((a: Date | string, b: Date | string) => {
+    const da = new Date(a);
+    const db = new Date(b);
+    return (
+      da.getFullYear() === db.getFullYear() &&
+      da.getMonth() === db.getMonth() &&
+      da.getDate() === db.getDate()
+    );
+  }, []);
+
   useEffect(() => {
     if (user) {
       // get the user's diet history date
-      const userDietHistory = user.dietHistory?.find((h) => {
-        return getDateString(h.date) === getDateString(selectedDate);
-      });
+      const userDietHistory = user.dietHistory?.find((h) =>
+        isSameLocalDate(h.date, selectedDate)
+      );
       setDietHistory(userDietHistory || null);
 
       if (Array.isArray(userDietHistory?.nutritionalData)) {
