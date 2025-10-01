@@ -63,7 +63,7 @@ export function AddMeal({
               }}
               className="text-foreground"
             >
-              {caloriesConsumed} / {totalCalories} kcal
+              {caloriesConsumed} / {totalCalories.toFixed(2)} kcal
             </Text>
           </View>
         </View>
