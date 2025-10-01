@@ -33,6 +33,7 @@ module.exports = ({ config }) => {
   // }
 
   return {
+    ...config, // preserve android, ios, projectId, slug, etc.
     extra: {
       ...(config.extra || {}),
       // only public values here
