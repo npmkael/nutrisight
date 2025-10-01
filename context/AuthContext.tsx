@@ -124,7 +124,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     GoogleSignin.configure({
       iosClientId: process.env.EXPO_GOOGLE_IOS_CLIENT_ID,
       webClientId: process.env.EXPO_GOOGLE_WEB_CLIENT_ID,
-      offlineAccess: true,
     });
 
     // Debug: verify extras from app config / .env are available at runtime
