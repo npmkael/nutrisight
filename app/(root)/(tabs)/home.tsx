@@ -4,7 +4,7 @@ import FloatingActionButton from "@/components/FloatingActionButton";
 import { Progress } from "@/components/line-progress";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
-import { calorieSum } from "@/utils/helpers";
+import { calorieSum, getPartOfDay } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
@@ -238,7 +238,7 @@ function Home() {
                   fontFamily: "PoppinsSemiBold",
                 }}
               >
-                Good Morning
+                Good {getPartOfDay(new Date().getHours())}
               </Text>
             </View>
           </View>
