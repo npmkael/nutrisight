@@ -33,8 +33,8 @@ module.exports = ({ config }) => {
   // }
 
   return {
-    ...config,
     extra: {
+      ...(config.extra || {}),
       // only public values here
       EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID,
       EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID,

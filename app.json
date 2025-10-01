@@ -55,12 +55,12 @@
     },
     "extra": {
       "router": {},
-      "eas": {
-        "projectId": "b34e9b49-f03d-4172-ab15-e790b52cb991"
-      },
       "EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID": "822396555982-u4ece5uji3434uvakcded327osvjr7bs.apps.googleusercontent.com",
       "EXPO_PUBLIC_GOOGLE_ANDROID_CLIENT_ID": "822396555982-pqqmr743cha4lm3nf5h2he99uqtub5eb.apps.googleusercontent.com",
-      "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "822396555982-cmefl6b3051htn2idiso17d8jpc3lved.apps.googleusercontent.com"
+      "EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID": "822396555982-cmefl6b3051htn2idiso17d8jpc3lved.apps.googleusercontent.com",
+      "eas": {
+        "projectId": "abc88b86-fca8-4007-a9ad-c924fde84daa"
+      }
     },
     "owner": "sush1sui"
   }
