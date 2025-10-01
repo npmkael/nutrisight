@@ -34,9 +34,10 @@ function WeightEdit() {
         prev
           ? {
               ...prev,
-              loggedWeights: response.data.loggedWeights, // <-- Use the array of objects
+              loggedWeights: response.data.loggedWeights,
               weight: response.data.weight,
               bmi: response.data.bmi,
+              dailyRecommendation: response.data.dailyRecommendation,
             }
           : prev
       );
@@ -76,10 +77,47 @@ function WeightEdit() {
     const heightMetersPowerOf2 = heightMeters ** 2;
     const bmi = weightKg / heightMetersPowerOf2;
 
+    // calculate desired weight
+    const heightInCM = heightMeters * 100;
+    const heightInCMLess100 = heightInCM - 100;
+    const heightInCMMultipledBy0_1 = 0.1 * heightInCM;
+    const desiredWeight = heightInCMLess100 - heightInCMMultipledBy0_1;
+
+    let targetCalories =
+      user?.activityLevel === "sedentary"
+        ? desiredWeight * 30
+        : user?.activityLevel === "active"
+          ? desiredWeight * 35
+          : 0;
+
+    if (user?.weightGoal === "lose" && targetCalories) {
+      targetCalories -= 300; // Reduce by 300 for weight loss
+    } else if (user?.weightGoal === "gain" && targetCalories) {
+      targetCalories += 300; // Increase by 300 for weight gain
+    }
+
+    const calories15Percent = 0.15 * targetCalories;
+    const calories25Percent = 0.25 * targetCalories;
+    const calories60Percent = 0.6 * targetCalories;
+
+    // Macronutrient distribution (15% fat, 25% protein, 60% carbs)
+    // All converted to grams
+    const targetFat = calories15Percent / 9;
+    const targetProtein = calories25Percent / 4;
+    const targetCarbs = calories60Percent / 4;
+
+    const dailyRecommendation = {
+      calories: Math.round(targetCalories),
+      protein: Math.round(targetProtein),
+      carbs: Math.round(targetCarbs),
+      fat: Math.round(targetFat),
+    };
+
     await updateAccount({
       bmi,
       weight: weightKg,
       loggedWeights: loggedWeightsPayload,
+      dailyRecommendation,
     });
     if (!error) router.back();
   }, [weight, weightUnit, router, updateAccount, setUser, error]);

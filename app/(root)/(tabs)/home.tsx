@@ -302,7 +302,7 @@ function Home() {
                   />
                 </View>
                 <Text className="text-white text-sm font-Poppins">
-                  {macros?.carbs || 0}g
+                  {macros?.carbs.toFixed(2) || 0}g
                 </Text>
               </View>
 
@@ -324,7 +324,7 @@ function Home() {
                   />
                 </View>
                 <Text className="text-white text-sm font-Poppins">
-                  {macros?.protein || 0}g
+                  {macros?.protein.toFixed(2) || 0}g
                 </Text>
               </View>
 
@@ -346,7 +346,7 @@ function Home() {
                   />
                 </View>
                 <Text className="text-white text-sm font-Poppins">
-                  {macros?.fats || 0}g
+                  {macros?.fats.toFixed(2) || 0}g
                 </Text>
               </View>
             </View>

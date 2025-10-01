@@ -12,6 +12,12 @@ type UpdatePayload = Partial<{
   bmi: number;
   allergens: string[];
   loggedWeights: LoggedWeight[];
+  dailyRecommendation: {
+    calories: number;
+    protein: number;
+    carbs: number;
+    fat: number;
+  };
   // Add other allowed fields as needed
 }>;
 
