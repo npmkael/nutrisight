@@ -14,7 +14,6 @@ export function useBarcodeScan() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-APP-KEY": process.env.EXPO_SUSHI_SECRET || "",
             },
             credentials: "include",
             body: JSON.stringify({ barcodeData }),

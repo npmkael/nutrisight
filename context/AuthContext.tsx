@@ -15,6 +15,7 @@ import {
   useState,
 } from "react";
 import { Alert } from "react-native";
+
 export const BACKEND_URL =
   "https://nutrisight-backend-dd22d1bd9780.herokuapp.com";
 
@@ -120,10 +121,25 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
   const router = useRouter();
 
+  const EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID =
+    Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID ??
+    process.env.EXPO_GOOGLE_IOS_CLIENT_ID;
+  const EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID =
+    Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID ??
+    process.env.EXPO_GOOGLE_WEB_CLIENT_ID;
+
+  console.log("ios client id:", EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID);
+  console.log("web client id:", EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID);
+
   useEffect(() => {
+    const WEB_CLIENT_ID =
+      Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_WEB_CLIENT_ID;
+    const IOS_CLIENT_ID =
+      Constants.expoConfig?.extra?.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+
     GoogleSignin.configure({
-      iosClientId: process.env.EXPO_GOOGLE_IOS_CLIENT_ID,
-      webClientId: process.env.EXPO_GOOGLE_WEB_CLIENT_ID,
+      iosClientId: IOS_CLIENT_ID,
+      webClientId: WEB_CLIENT_ID,
     });
 
     // Debug: verify extras from app config / .env are available at runtime
