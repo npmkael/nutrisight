@@ -431,7 +431,7 @@ function Results() {
                 fontFamily: "GeistSemiBold",
               }}
             >
-              {`${capitalizeFirstLetter(result.name || result.foodName || "")} ${result.brand ? `(${result.brand})` : ""}`}
+              {`${capitalizeFirstLetter(result.name || result.foodName || "")} ${result.brand?.toLowerCase() !== "unknown" ? `(${result.brand})` : ""}`}
             </Typo>
             {/* Calories Card */}
             <View className="flex-row items-center bg-white rounded-2xl px-6 py-4 border border-gray-200 mb-6">
