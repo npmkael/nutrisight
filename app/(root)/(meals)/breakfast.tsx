@@ -18,7 +18,7 @@ import { ScanResultType } from "../main-camera";
 export default function Breakfast() {
   const { totalCalories, caloriesConsumed, title } = useLocalSearchParams();
   const [mealData, setMealData] = useState<ScanResultType[]>([]);
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const [selectedItem, setSelectedItem] = useState<ScanResultType | null>(null);
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
@@ -71,16 +71,28 @@ export default function Breakfast() {
   );
 
   const handleDeleteItem = useCallback(() => {
-    if (selectedItemId == null) return;
-    const updatedData = mealData.filter((item) => item.id !== selectedItemId);
+    if (selectedItem == null) return;
+    const updatedData = mealData.filter((item) => item.id !== selectedItem.id);
     setMealData(updatedData);
     AsyncStorage.setItem(
       (title as string) === "snacks" ? "others" : (title as string),
       JSON.stringify(updatedData)
     );
     bottomSheetRef.current?.close();
-    setSelectedItemId(null);
-  }, [selectedItemId, mealData]);
+    setSelectedItem(null);
+  }, [selectedItem, mealData]);
+
+  const handleViewItem = useCallback(async () => {
+    if (selectedItem == null) return;
+
+    router.push({
+      pathname: "/(root)/results",
+      params: {
+        name: selectedItem.name,
+        scanResult: JSON.stringify(selectedItem),
+      },
+    });
+  }, [selectedItem]);
 
   // reset async storage for all
   const resetStorage = async () => {
@@ -244,7 +256,7 @@ export default function Breakfast() {
                   <TouchableOpacity
                     className="bg-gray-100 rounded-lg p-2"
                     onPress={() => {
-                      setSelectedItemId(item.id);
+                      setSelectedItem(item);
                       bottomSheetRef.current?.expand();
                     }}
                   >
@@ -344,6 +356,7 @@ export default function Breakfast() {
                 marginBottom: 12,
               }}
               className="bg-primary"
+              onPress={handleViewItem}
             >
               <Text
                 style={{
