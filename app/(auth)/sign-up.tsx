@@ -50,7 +50,22 @@ function SignUp() {
           <Ionicons name="arrow-back" size={20} color="black" />
         </TouchableOpacity>
       </View>
+
       <ScrollView className="flex-1 bg-white">
+        <View className="px-5 bg-white">
+          <Text
+            className="text-4xl text-black"
+            style={{ fontFamily: "GeistSemiBold" }}
+          >
+            Sign Up
+          </Text>
+          <Text
+            className="text-base text-gray-500"
+            style={{ fontFamily: "GeistRegular" }}
+          >
+            Welcome to NutriSight! Please enter your details.
+          </Text>
+        </View>
         <View className="flex-1 bg-white">
           <View className="p-5">
             <InputField
