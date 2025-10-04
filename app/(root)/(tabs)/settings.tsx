@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 
+import { LinearGradient } from "expo-linear-gradient";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 import { useAuth } from "@/context/AuthContext";
@@ -124,216 +125,238 @@ function Settings() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-[#FAFAFA]" edges={["top"]}>
-      {/* Fixed Header */}
-      <View className="flex-row items-center justify-between px-5 py-4 bg-transparent">
-        <Typo size={24} className="font-PoppinsSemiBold">
-          Settings
-        </Typo>
-      </View>
-
-      <ScrollView
-        className="flex-1 px-5"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
+    <SafeAreaView className="flex-1" edges={["top"]}>
+      <LinearGradient
+        colors={["rgba(236, 190, 88, 0.08)", "rgba(54, 102, 157, 0.08)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        locations={[0, 0.5, 1]}
+        className="flex-1"
       >
-        <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity
-            className="flex-row items-center justify-between gap-2"
-            onPress={() => router.push("/(root)/(settings)/details")}
-          >
-            <View className="flex-row items-center gap-4">
-              <View>
-                <Image
-                  source={
-                    user?.profileLink
-                      ? { uri: user.profileLink }
-                      : require("../../../assets/images/sample-profile.jpg")
-                  }
-                  className="w-16 h-16 rounded-full"
-                />
-              </View>
-              <View className="flex-col gap-1">
-                <Text className="text-md font-PoppinsSemiBold">
-                  {user.name ? user.name : "N/A"}
-                </Text>
-                <Text className="text-sm font-Poppins text-gray-500">
-                  {user.email ? user.email : "No email"}
-                </Text>
-              </View>
-            </View>
-            <Ionicons name="chevron-forward" size={14} color="grey" />
-          </TouchableOpacity>
-        </Container>
-
-        {/* Account Management Section */}
-        <Container className="px-4 py-2 mb-6">
-          <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
-            Account Management
-          </Text>
-
-          <SettingsItem
-            icon={<Ionicons name="person-outline" size={20} color="#6B7280" />}
-            title="Edit Profile"
-            subtitle="Update your personal information"
-            onPress={() => router.push("/(root)/(settings)/details")}
-          />
-
-          <SettingsItem
-            icon={<Ionicons name="key-outline" size={20} color="#6B7280" />}
-            title="Change Password"
-            subtitle="Update your account password"
-            onPress={() => handleChangePassword()}
-          />
-
-          <SettingsItem
-            icon={<Ionicons name="shield-outline" size={20} color="#6B7280" />}
-            title="Privacy Settings"
-            subtitle="Control your privacy options"
-            onPress={() => handlePrivacySettings()}
-            showDivider={false}
-          />
-        </Container>
-
-        {/* App Preferences Section */}
-        <Container className="px-4 py-2 mb-6">
-          <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
-            App Preferences
-          </Text>
-
-          <SettingsItem
-            icon={
-              <Ionicons name="restaurant-outline" size={20} color="#6B7280" />
-            }
-            title="Dietary Goals"
-            subtitle="Set your nutrition targets"
-            onPress={() => router.push("/(root)/(settings)/dietary-goals")}
-          />
-
-          <SettingsItem
-            icon={<Ionicons name="scale-outline" size={20} color="#6B7280" />}
-            title="Weight Tracking"
-            subtitle="Manage weight goals and history"
-            onPress={() => router.push("/(root)/log-weight")}
-          />
-
-          <SettingsItem
-            icon={<Ionicons name="warning-outline" size={20} color="#6B7280" />}
-            title="Allergens"
-            subtitle="Set your food allergens"
-            onPress={() => router.push("/(root)/(settings)/allergens")}
-            showDivider={false}
-          />
-        </Container>
-
-        {/* Support & Help Section */}
-        <Container className="px-4 py-2 mb-6">
-          <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
-            Support & Help
-          </Text>
-
-          <SettingsItem
-            icon={
-              <Ionicons name="help-circle-outline" size={20} color="#6B7280" />
-            }
-            title="Help & Support"
-            subtitle="Get help and contact support"
-            onPress={() => handleHelpSupport()}
-          />
-
-          <SettingsItem
-            icon={
-              <Ionicons
-                name="document-text-outline"
-                size={20}
-                color="#6B7280"
-              />
-            }
-            title="User Guide"
-            subtitle="Learn how to use NutriSight"
-            onPress={() => handleUserGuide()}
-          />
-
-          <SettingsItem
-            icon={
-              <Ionicons name="chatbubble-outline" size={20} color="#6B7280" />
-            }
-            title="Send Feedback"
-            subtitle="Help us improve the app"
-            onPress={() => handleSendFeedback()}
-            showDivider={false}
-          />
-        </Container>
-
-        {/* Legal & About Section */}
-        <Container className="px-4 py-2 mb-6">
-          <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
-            Legal & About
-          </Text>
-
-          <SettingsItem
-            icon={
-              <Ionicons name="document-outline" size={20} color="#6B7280" />
-            }
-            title="Terms of Service"
-            subtitle="Read our terms and conditions"
-            onPress={() => handleTermsOfService()}
-          />
-
-          <SettingsItem
-            icon={
-              <Ionicons name="lock-closed-outline" size={20} color="#6B7280" />
-            }
-            title="Privacy Policy"
-            subtitle="Learn about data protection"
-            onPress={() => handlePrivacyPolicy()}
-          />
-
-          <SettingsItem
-            icon={
-              <Ionicons
-                name="information-circle-outline"
-                size={20}
-                color="#6B7280"
-              />
-            }
-            title="About NutriSight"
-            subtitle="App information and credits"
-            onPress={() => handleAbout()}
-          />
-
-          <SettingsItem
-            icon={<Ionicons name="mail-outline" size={20} color="#6B7280" />}
-            title="Contact Us"
-            subtitle="Get in touch with our team"
-            onPress={() => handleContactUs()}
-            showDivider={false}
-          />
-        </Container>
-
-        {/* Logout Section */}
-        <Container className="px-4 py-4 mb-6">
-          <TouchableOpacity
-            onPress={handleLogout}
-            className="flex-row items-center gap-3"
-          >
-            <MaterialIcons name="logout" size={20} color="#EF4444" />
-            <Text className="text-base font-PoppinsMedium text-red-500">
-              Sign Out
-            </Text>
-          </TouchableOpacity>
-        </Container>
-
-        {/* App Version */}
-        <View className="items-center mb-4">
-          <Text className="text-xs font-Poppins text-gray-400 uppercase tracking-wide">
-            NutriSight Version 1.0.0
-          </Text>
-          <Text className="text-xs font-Poppins text-gray-400 mt-1">
-            © 2025 NutriSight. All rights reserved.
-          </Text>
+        {/* Fixed Header */}
+        <View className="flex-row items-center justify-between px-5 py-4 bg-transparent">
+          <Typo size={24} className="font-PoppinsSemiBold">
+            Settings
+          </Typo>
         </View>
-      </ScrollView>
+
+        <ScrollView
+          className="flex-1 px-5"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
+        >
+          <Container className="px-4 py-4 mb-6">
+            <TouchableOpacity
+              className="flex-row items-center justify-between gap-2"
+              onPress={() => router.push("/(root)/(settings)/details")}
+            >
+              <View className="flex-row items-center gap-4">
+                <View>
+                  <Image
+                    source={
+                      user?.profileLink
+                        ? { uri: user.profileLink }
+                        : require("../../../assets/images/sample-profile.jpg")
+                    }
+                    className="w-16 h-16 rounded-full"
+                  />
+                </View>
+                <View className="flex-col gap-1">
+                  <Text className="text-md font-PoppinsSemiBold">
+                    {user.name ? user.name : "N/A"}
+                  </Text>
+                  <Text className="text-sm font-Poppins text-gray-500">
+                    {user.email ? user.email : "No email"}
+                  </Text>
+                </View>
+              </View>
+              <Ionicons name="chevron-forward" size={14} color="grey" />
+            </TouchableOpacity>
+          </Container>
+
+          {/* Account Management Section */}
+          <Container className="px-4 py-2 mb-6">
+            <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
+              Account Management
+            </Text>
+
+            <SettingsItem
+              icon={
+                <Ionicons name="person-outline" size={20} color="#6B7280" />
+              }
+              title="Edit Profile"
+              subtitle="Update your personal information"
+              onPress={() => router.push("/(root)/(settings)/details")}
+            />
+
+            <SettingsItem
+              icon={<Ionicons name="key-outline" size={20} color="#6B7280" />}
+              title="Change Password"
+              subtitle="Update your account password"
+              onPress={() => handleChangePassword()}
+            />
+
+            <SettingsItem
+              icon={
+                <Ionicons name="shield-outline" size={20} color="#6B7280" />
+              }
+              title="Privacy Settings"
+              subtitle="Control your privacy options"
+              onPress={() => handlePrivacySettings()}
+              showDivider={false}
+            />
+          </Container>
+
+          {/* App Preferences Section */}
+          <Container className="px-4 py-2 mb-6">
+            <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
+              App Preferences
+            </Text>
+
+            <SettingsItem
+              icon={
+                <Ionicons name="restaurant-outline" size={20} color="#6B7280" />
+              }
+              title="Dietary Goals"
+              subtitle="Set your nutrition targets"
+              onPress={() => router.push("/(root)/(settings)/dietary-goals")}
+            />
+
+            <SettingsItem
+              icon={<Ionicons name="scale-outline" size={20} color="#6B7280" />}
+              title="Weight Tracking"
+              subtitle="Manage weight goals and history"
+              onPress={() => router.push("/(root)/log-weight")}
+            />
+
+            <SettingsItem
+              icon={
+                <Ionicons name="warning-outline" size={20} color="#6B7280" />
+              }
+              title="Allergens"
+              subtitle="Set your food allergens"
+              onPress={() => router.push("/(root)/(settings)/allergens")}
+              showDivider={false}
+            />
+          </Container>
+
+          {/* Support & Help Section */}
+          <Container className="px-4 py-2 mb-6">
+            <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
+              Support & Help
+            </Text>
+
+            <SettingsItem
+              icon={
+                <Ionicons
+                  name="help-circle-outline"
+                  size={20}
+                  color="#6B7280"
+                />
+              }
+              title="Help & Support"
+              subtitle="Get help and contact support"
+              onPress={() => handleHelpSupport()}
+            />
+
+            <SettingsItem
+              icon={
+                <Ionicons
+                  name="document-text-outline"
+                  size={20}
+                  color="#6B7280"
+                />
+              }
+              title="User Guide"
+              subtitle="Learn how to use NutriSight"
+              onPress={() => handleUserGuide()}
+            />
+
+            <SettingsItem
+              icon={
+                <Ionicons name="chatbubble-outline" size={20} color="#6B7280" />
+              }
+              title="Send Feedback"
+              subtitle="Help us improve the app"
+              onPress={() => handleSendFeedback()}
+              showDivider={false}
+            />
+          </Container>
+
+          {/* Legal & About Section */}
+          <Container className="px-4 py-2 mb-6">
+            <Text className="text-xs font-PoppinsSemiBold text-gray-600 uppercase tracking-wide mb-3 px-1">
+              Legal & About
+            </Text>
+
+            <SettingsItem
+              icon={
+                <Ionicons name="document-outline" size={20} color="#6B7280" />
+              }
+              title="Terms of Service"
+              subtitle="Read our terms and conditions"
+              onPress={() => handleTermsOfService()}
+            />
+
+            <SettingsItem
+              icon={
+                <Ionicons
+                  name="lock-closed-outline"
+                  size={20}
+                  color="#6B7280"
+                />
+              }
+              title="Privacy Policy"
+              subtitle="Learn about data protection"
+              onPress={() => handlePrivacyPolicy()}
+            />
+
+            <SettingsItem
+              icon={
+                <Ionicons
+                  name="information-circle-outline"
+                  size={20}
+                  color="#6B7280"
+                />
+              }
+              title="About NutriSight"
+              subtitle="App information and credits"
+              onPress={() => handleAbout()}
+            />
+
+            <SettingsItem
+              icon={<Ionicons name="mail-outline" size={20} color="#6B7280" />}
+              title="Contact Us"
+              subtitle="Get in touch with our team"
+              onPress={() => handleContactUs()}
+              showDivider={false}
+            />
+          </Container>
+
+          {/* Logout Section */}
+          <Container className="px-4 py-4 mb-6">
+            <TouchableOpacity
+              onPress={handleLogout}
+              className="flex-row items-center gap-3"
+            >
+              <MaterialIcons name="logout" size={20} color="#EF4444" />
+              <Text className="text-base font-PoppinsMedium text-red-500">
+                Sign Out
+              </Text>
+            </TouchableOpacity>
+          </Container>
+
+          {/* App Version */}
+          <View className="items-center mb-4">
+            <Text className="text-xs font-Poppins text-gray-400 uppercase tracking-wide">
+              NutriSight Version 1.0.0
+            </Text>
+            <Text className="text-xs font-Poppins text-gray-400 mt-1">
+              © 2025 NutriSight. All rights reserved.
+            </Text>
+          </View>
+        </ScrollView>
+      </LinearGradient>
     </SafeAreaView>
   );
 }

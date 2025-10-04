@@ -4,6 +4,7 @@ import InfoTooltip from "@/components/InfoTooltip";
 import TargetWeightChart from "@/components/target-weight-chart";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";
+import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { memo, useCallback } from "react";
 import { Image, ScrollView, View } from "react-native";
@@ -29,94 +30,102 @@ function Progress() {
   const loggedWeights = user.loggedWeights || [];
 
   return (
-    <SafeAreaView className="bg-white flex-1" edges={["top"]}>
-      {/* <StatusBar style="dark" /> */}
-      {/* Fixed Header */}
-      <View className="flex-row items-center justify-between px-5 py-4 bg-transparent">
-        <Typo size={24} className="font-PoppinsSemiBold">
-          My Progress
-        </Typo>
-      </View>
-
-      {/* Scrollable Content */}
-      <ScrollView
-        className="flex-1 px-5"
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
+    <SafeAreaView className="flex-1" edges={["top"]}>
+      <LinearGradient
+        colors={["rgba(236, 190, 88, 0.08)", "rgba(54, 102, 157, 0.08)"]}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        locations={[0, 0.5, 1]}
+        className="flex-1"
       >
-        {/* Profile Card with weight, bmi, and target weight */}
-        <View className="bg-white rounded-2xl relative shadow-xl mt-6">
-          {/* Profile */}
+        {/* <StatusBar style="dark" /> */}
+        {/* Fixed Header */}
+        <View className="flex-row items-center justify-between px-5 py-4 bg-transparent">
+          <Typo size={24} className="font-PoppinsSemiBold text-white">
+            My Progress
+          </Typo>
+        </View>
 
-          <Image
-            source={
-              user.profileLink
-                ? { uri: user.profileLink }
-                : require("@/assets/images/sample-profile.jpg")
-            }
-            resizeMethod="scale"
-            resizeMode="contain"
-            className="w-[65px] h-[65px] rounded-full absolute top-0 left-[50%] transform -translate-x-1/2 -translate-y-1/2 border-4 border-white shadow-lg"
-          />
+        {/* Scrollable Content */}
+        <ScrollView
+          className="flex-1 px-5"
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
+        >
+          {/* Profile Card with weight, bmi, and target weight */}
+          <View className="bg-white rounded-2xl relative shadow-xl mt-6">
+            {/* Profile */}
 
-          <View className="px-4 py-4">
-            <Typo size={18} className="font-PoppinsSemiBold text-center mt-6">
-              {user.name}
-            </Typo>
-            <View className="h-[1px] bg-gray-200 w-full mb-2" />
-            <View className="flex-row items-center justify-evenly">
-              <View className="flex-col items-center">
-                <Typo size={12} className="font-Poppins">
-                  Current Weight
-                </Typo>
-                <Typo size={16} className="font-PoppinsSemiBold">
-                  {user.weight ? `${user.weight} kg` : "N/A"}
-                </Typo>
-              </View>
-              <View className="flex-col items-center">
-                <Typo size={12} className="font-Poppins">
-                  Current BMI
-                </Typo>
-                <Typo size={16} className="font-PoppinsSemiBold">
-                  {user.bmi ? user.bmi.toFixed(2) : "N/A"}
-                </Typo>
-              </View>
-              <View className="flex-col items-center">
-                <Typo size={12} className="font-Poppins">
-                  Target Weight
-                </Typo>
-                <Typo size={16} className="font-PoppinsSemiBold">
-                  {user.targetWeight ? `${user.targetWeight} kg` : "N/A"}
-                </Typo>
+            <Image
+              source={
+                user.profileLink
+                  ? { uri: user.profileLink }
+                  : require("@/assets/images/sample-profile.jpg")
+              }
+              resizeMethod="scale"
+              resizeMode="contain"
+              className="w-[65px] h-[65px] rounded-full absolute top-0 left-[50%] transform -translate-x-1/2 -translate-y-1/2 border-4 border-white shadow-lg"
+            />
+
+            <View className="px-4 py-4">
+              <Typo size={18} className="font-PoppinsSemiBold text-center mt-6">
+                {user.name}
+              </Typo>
+              <View className="h-[1px] bg-gray-200 w-full mb-2" />
+              <View className="flex-row items-center justify-evenly">
+                <View className="flex-col items-center">
+                  <Typo size={12} className="font-Poppins">
+                    Current Weight
+                  </Typo>
+                  <Typo size={16} className="font-PoppinsSemiBold">
+                    {user.weight ? `${user.weight} kg` : "N/A"}
+                  </Typo>
+                </View>
+                <View className="flex-col items-center">
+                  <Typo size={12} className="font-Poppins">
+                    Current BMI
+                  </Typo>
+                  <Typo size={16} className="font-PoppinsSemiBold">
+                    {user.bmi ? user.bmi.toFixed(2) : "N/A"}
+                  </Typo>
+                </View>
+                <View className="flex-col items-center">
+                  <Typo size={12} className="font-Poppins">
+                    Target Weight
+                  </Typo>
+                  <Typo size={16} className="font-PoppinsSemiBold">
+                    {user.targetWeight ? `${user.targetWeight} kg` : "N/A"}
+                  </Typo>
+                </View>
               </View>
             </View>
           </View>
-        </View>
 
-        {/* BMI Classification Card */}
-        <BMIClassification
-          bmi={user.bmi ? Number(user.bmi.toFixed(2)) : 0}
-          onLogWeight={redirectToLogWeight}
-          name={user.firstName}
-        />
-
-        <View className="flex-row justify-between items-center mt-6 mb-2 mx-4">
-          <Typo size={18} className="font-PoppinsSemiBold">
-            Target Weight Weekly Progress (kg)
-          </Typo>
-          <InfoTooltip
-            title="Target Weight Weekly Progress"
-            content="This chart tracks your weekly weight changes towards your target weight goal. Each point represents your recorded weight for that week. The trend line helps you visualize your progress over time and see if you're moving closer to your target weight. Log your weight regularly for more accurate tracking."
+          {/* BMI Classification Card */}
+          <BMIClassification
+            bmi={user.bmi ? Number(user.bmi.toFixed(2)) : 0}
+            onLogWeight={redirectToLogWeight}
+            name={user.firstName}
           />
-        </View>
 
-        <View className="bg-white rounded-lg p-4 shadow-xl">
-          <TargetWeightChart loggedWeights={loggedWeights} />
-        </View>
+          <View className="flex-row justify-between items-center mt-6 mb-2 mx-4">
+            <Typo size={18} className="font-PoppinsSemiBold">
+              Target Weight Weekly Progress (kg)
+            </Typo>
+            <InfoTooltip
+              title="Target Weight Weekly Progress"
+              content="This chart tracks your weekly weight changes towards your target weight goal. Each point represents your recorded weight for that week. The trend line helps you visualize your progress over time and see if you're moving closer to your target weight. Log your weight regularly for more accurate tracking."
+            />
+          </View>
 
-        {/* Diet Summary Card */}
-        <DietSummary totalCalories={1000} user={user} />
-      </ScrollView>
+          <View className="bg-white rounded-lg p-4 shadow-xl">
+            <TargetWeightChart loggedWeights={loggedWeights} />
+          </View>
+
+          {/* Diet Summary Card */}
+          <DietSummary totalCalories={1000} user={user} />
+        </ScrollView>
+      </LinearGradient>
     </SafeAreaView>
   );
 }
