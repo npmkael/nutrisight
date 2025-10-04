@@ -161,8 +161,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   genderButtonActive: {
-    backgroundColor: "#000000",
-    borderColor: "#000000",
+    backgroundColor: "#2D3644",
+    borderColor: "#2D3644",
   },
   genderButtonInactive: {
     backgroundColor: "#FFFFFF",

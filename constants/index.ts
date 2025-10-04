@@ -20,6 +20,7 @@ import settingsOutline from "@/assets/icons/sett-outline.png";
 import carbs from "@/assets/icons/carbs.png";
 import fats from "@/assets/icons/fats.png";
 import protein from "@/assets/icons/protein.png";
+import sedentary from "@/assets/icons/sedentary.png";
 import signUpFood from "@/assets/images/signup-food.png";
 
 export const icons = {
@@ -41,6 +42,7 @@ export const icons = {
   carbs,
   protein,
   fats,
+  sedentary,
 };
 
 export const images = {

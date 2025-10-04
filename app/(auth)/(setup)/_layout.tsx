@@ -15,7 +15,7 @@ import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
-const totalSteps = 8;
+const totalSteps = 7;
 
 type OnboardingContextType = {
   name: string;
@@ -116,10 +116,11 @@ function SetupLayout() {
         return selectedAllergens.length > 0;
       case 5:
         // Step 5: Weight goal
-        return weightGoal.length > 0;
+
+        return activityLevel.length > 0;
       case 6:
         // Step 6: Activity level selection
-        return activityLevel.length > 0;
+        return weightGoal.length > 0;
       case 7:
         // Step 7: Target weight with validation based on goal
         if (
@@ -140,9 +141,6 @@ function SetupLayout() {
           return true; // Any valid weight is acceptable for maintain
         }
         return true;
-      case 8:
-        // Step 8: Diet type selection
-        return dietType.length > 0;
       default:
         return false;
     }
@@ -226,8 +224,7 @@ function SetupLayout() {
         | "4"
         | "5"
         | "6"
-        | "7"
-        | "8";
+        | "7";
 
       console.log(currentStep);
 

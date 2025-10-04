@@ -1,25 +1,29 @@
-import React, { memo, useEffect } from "react";
+import React, { memo } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useOnboarding } from "./_layout";
 
-import { Armchair, PersonStanding } from "lucide-react-native";
+function WeightGoalSelection() {
+  const { weightGoal, setWeightGoal } = useOnboarding();
 
-function DailyActivitySelection() {
-  const { activityLevel, setActivityLevel } = useOnboarding();
-
-  const activityLevels = [
+  const goals = [
     {
-      id: "sedentary",
-      title: "Not Very Active",
-      icon: <Armchair fill={"#000"} />,
-      details: "Minimal physical activity throughout the day",
+      id: "lose",
+      title: "Lose Weight",
+      description: "Reduce body weight through caloric deficit",
+      icon: "📉",
     },
     {
-      id: "active",
-      title: "Active",
-      icon: <PersonStanding fill={"#000"} />,
-      details: "Exercise 3-5 times per week, stay on your feet often",
+      id: "maintain",
+      title: "Maintain Weight",
+      description: "Keep current weight stable",
+      icon: "⚖️",
+    },
+    {
+      id: "gain",
+      title: "Gain Weight",
+      description: "Increase body weight through caloric surplus",
+      icon: "📈",
     },
   ];
 
@@ -27,61 +31,39 @@ function DailyActivitySelection() {
     <Animated.View className="flex-1 bg-white" entering={FadeIn.duration(600)}>
       <View className="flex-1 px-4">
         <Text className="text-3xl font-PoppinsSemiBold text-black mb-2">
-          How active are you?
+          What's your goal?
         </Text>
-        <Text className="text-sm font-Poppins text-foreground mb-8">
-          This helps us calculate your daily calorie needs more accurately.
+        <Text className="text-s, font-Poppins text-foreground mb-8">
+          This helps us personalize your nutrition recommendations
         </Text>
 
-        <View className="space-y-4 gap-4">
-          {activityLevels.map((level) => (
+        <View className="space-y-4 gap-2">
+          {goals.map((goal) => (
             <TouchableOpacity
-              key={level.id}
-              className={`p-6 rounded-xl border ${
-                activityLevel === level.id
-                  ? "bg-primary border-primary"
+              key={goal.id}
+              className={`p-4 rounded-lg border ${
+                weightGoal === goal.id
+                  ? "bg-primary border-transparent"
                   : "bg-white border-gray-200"
               }`}
-              onPress={() => setActivityLevel(level.id)}
-              style={{
-                shadowColor: activityLevel === level.id ? "#2D3644" : "#000",
-                shadowOffset: {
-                  width: 0,
-                  height: activityLevel === level.id ? 4 : 0,
-                },
-                shadowOpacity: activityLevel === level.id ? 0.15 : 0,
-                shadowRadius: activityLevel === level.id ? 6 : 0,
-                elevation: activityLevel === level.id ? 8 : 0,
-              }}
+              onPress={() => setWeightGoal(goal.id)}
             >
-              <View className="items-center">
-                {/* Icon Section */}
-                <View
-                  className={`w-20 h-20 rounded-full items-center justify-center mb-4 ${
-                    activityLevel === level.id
-                      ? "bg-white bg-opacity-20"
-                      : "bg-gray-100"
-                  }`}
-                >
-                  {level.icon}
-                </View>
-                {/* Content Section */}
-                <View className="items-center">
+              <View className="flex-row items-center">
+                <Text className="text-2xl mr-4">{goal.icon}</Text>
+                <View className="flex-1">
                   <Text
-                    className={`text-xl font-PoppinsSemiBold mb-2 ${
-                      activityLevel === level.id ? "text-white" : "text-black"
+                    className={`text-lg font-PoppinsSemiBold ${
+                      weightGoal === goal.id ? "text-white" : "text-black"
                     }`}
                   >
-                    {level.title}
+                    {goal.title}
                   </Text>
                   <Text
-                    className={`text-xs font-Poppins text-center ${
-                      activityLevel === level.id
-                        ? "text-gray-300"
-                        : "text-gray-500"
+                    className={`text-sm font-Poppins ${
+                      weightGoal === goal.id ? "text-gray-200" : "text-gray-500"
                     }`}
                   >
-                    {level.details}
+                    {goal.description}
                   </Text>
                 </View>
               </View>
@@ -93,4 +75,4 @@ function DailyActivitySelection() {
   );
 }
 
-export default memo(DailyActivitySelection);
+export default memo(WeightGoalSelection);
