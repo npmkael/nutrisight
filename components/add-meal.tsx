@@ -8,6 +8,7 @@ type AddMealProps = {
   title: "Breakfast" | "Lunch" | "Dinner" | "Snacks";
   totalCalories: number;
   caloriesConsumed: number;
+  date: string;
   disabled: boolean;
 };
 
@@ -17,13 +18,15 @@ export function AddMeal({
   totalCalories,
   caloriesConsumed,
   disabled,
+  date,
 }: AddMealProps) {
+  console.log({ date });
   return (
     <TouchableOpacity
       className="bg-white rounded-md shadow-sm border border-gray-200 px-4 py-4 flex-row items-center justify-between"
       onPress={() =>
         router.push(
-          `/(root)/(meals)/${title.toLowerCase()}?totalCalories=${totalCalories}&caloriesConsumed=${caloriesConsumed}&title=${title.toLowerCase()}` as Href
+          `/(root)/(meals)/${title.toLowerCase()}?totalCalories=${totalCalories}&caloriesConsumed=${caloriesConsumed}&title=${title.toLowerCase()}&date=${date}` as Href
         )
       }
     >

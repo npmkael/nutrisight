@@ -1,3 +1,4 @@
+import { ScanResultType } from "@/app/(root)/main-camera";
 import {
   GoogleSignin,
   isErrorWithCode,
@@ -19,17 +20,12 @@ import { Alert } from "react-native";
 export const BACKEND_URL =
   "https://nutrisight-backend-dd22d1bd9780.herokuapp.com";
 
-export interface NutritionalData {
-  [key: string]: number;
-}
-
 export interface DietHistory {
   date: string;
-  nutritionalData: NutritionalData[];
-  breakfast: { name: string; calorie: number }[];
-  lunch: { name: string; calorie: number }[];
-  dinner: { name: string; calorie: number }[];
-  otherMealTime: { name: string; calorie: number }[];
+  breakfast: (ScanResultType & { quantity: number })[];
+  lunch: (ScanResultType & { quantity: number })[];
+  dinner: (ScanResultType & { quantity: number })[];
+  otherMealTime: (ScanResultType & { quantity: number })[];
 }
 
 export interface LoggedWeight {

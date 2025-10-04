@@ -1,4 +1,6 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
+import LoadingScreen from "@/components/loading-screen";
+import { BACKEND_URL, useAuth } from "@/context/AuthContext";
 import { capitalizeFirstLetter } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -6,7 +8,6 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -16,26 +17,59 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ScanResultType } from "../main-camera";
 
 export default function Breakfast() {
-  const { totalCalories, caloriesConsumed, title } = useLocalSearchParams();
-  const [mealData, setMealData] = useState<ScanResultType[]>([]);
-  const [selectedItem, setSelectedItem] = useState<ScanResultType | null>(null);
+  const { user, setUser } = useAuth();
+  const { totalCalories, caloriesConsumed, title, date } =
+    useLocalSearchParams();
+  const [mealData, setMealData] = useState<
+    (ScanResultType & { quantity: number })[]
+  >([]);
+  const [selectedItem, setSelectedItem] = useState<
+    (ScanResultType & { quantity: number }) | null
+  >(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [consumedCalories, setConsumedCalories] = useState(
+    Number(caloriesConsumed) || 0
+  );
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
+    if (!date) return;
     async function fetchMealData() {
-      const stored = await AsyncStorage.getItem(
-        (title as string) === "snacks" ? "others" : (title as string)
-      );
-      const recentResults = stored
-        ? (JSON.parse(stored) as any[]).map((i) => ({
-            ...i,
-            image: require("@/assets/images/fried-rice.jpg"),
-          }))
-        : [];
-      setMealData(recentResults);
+      console.log("Fetching meal data for date:", date);
+      setIsLoading(true);
+      try {
+        const res = await fetch(`${BACKEND_URL}/account/diet-history`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ date }),
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (!res.ok)
+          throw new Error(data.message || "Failed to fetch meal data");
+
+        console.log("Fetched meal data:", data);
+
+        if (!data.dietHistory || !data.dietHistory.breakfast) {
+          setMealData([]);
+          return;
+        }
+
+        setMealData(data.dietHistory.breakfast || []);
+        setConsumedCalories(Number(caloriesConsumed) || 0);
+      } catch (error) {
+        console.error("Error fetching meal data:", error);
+        alert("Failed to load meal data.");
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchMealData();
-  }, [title]);
+  }, [date]);
 
   // BottomSheet snap points
   const snapPoints = useMemo(() => ["25%", "25%"], []);
@@ -70,17 +104,62 @@ export default function Breakfast() {
     []
   );
 
-  const handleDeleteItem = useCallback(() => {
+  const handleDeleteItem = useCallback(async () => {
     if (selectedItem == null) return;
-    const updatedData = mealData.filter((item) => item.id !== selectedItem.id);
-    setMealData(updatedData);
-    AsyncStorage.setItem(
-      (title as string) === "snacks" ? "others" : (title as string),
-      JSON.stringify(updatedData)
-    );
-    bottomSheetRef.current?.close();
-    setSelectedItem(null);
-  }, [selectedItem, mealData]);
+    if (!date || !user) {
+      alert("Failed to delete item.");
+      return;
+    }
+    setDeleting(true);
+    try {
+      // subtract calories of deleted item from consumedCalories
+      setConsumedCalories((prev) => {
+        const calorieToSubtract = selectedItem.nutritionData
+          .flatMap((category) => category.items)
+          .filter((item) =>
+            ["energy", "calories", "kcal"].some((key) =>
+              (item.name as string).toLowerCase().includes(key)
+            )
+          )
+          .reduce((sum, item) => sum + Number(item.value || 0), 0);
+        return prev - calorieToSubtract;
+      });
+
+      const res = await fetch(`${BACKEND_URL}/account/diet-history`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          date,
+          mealTime: title,
+          id: selectedItem.id,
+        }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Failed to delete item");
+
+      // Update local state
+      const updatedMealData = mealData.filter(
+        (item) => item.id !== selectedItem.id
+      );
+      setMealData(updatedMealData);
+
+      // Update user context
+      setUser(data.user);
+
+      bottomSheetRef.current?.close();
+      setSelectedItem(null);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      alert("Failed to delete item.");
+    } finally {
+      setDeleting(false);
+    }
+  }, [selectedItem, mealData, date, user]);
 
   const handleViewItem = useCallback(async () => {
     if (selectedItem == null) return;
@@ -94,15 +173,9 @@ export default function Breakfast() {
     });
   }, [selectedItem]);
 
-  // reset async storage for all
-  const resetStorage = async () => {
-    await AsyncStorage.removeItem("breakfast");
-    await AsyncStorage.removeItem("lunch");
-    await AsyncStorage.removeItem("dinner");
-    await AsyncStorage.removeItem("others");
-    await AsyncStorage.removeItem("recentResults");
-    setMealData([]);
-  };
+  if (isLoading) {
+    return <LoadingScreen message="Loading breakfast data..." />;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: "grey" }}>
@@ -158,7 +231,7 @@ export default function Breakfast() {
             <View className="items-center mb-4">
               <CircularProgressBar
                 progress={Math.min(
-                  (Number(caloriesConsumed) / Number(totalCalories)) * 100,
+                  (consumedCalories / Number(totalCalories)) * 100,
                   100
                 )}
                 size={120}
@@ -177,7 +250,7 @@ export default function Breakfast() {
                     lineHeight: 32,
                   }}
                 >
-                  {totalCalories}
+                  {caloriesConsumed}
                 </Text>
                 <Text
                   style={{
@@ -193,7 +266,7 @@ export default function Breakfast() {
             </View>
 
             <Text className="text-xs font-Poppins text-gray-500 text-center">
-              {caloriesConsumed} / {totalCalories} kcal daily breakfast goal
+              {consumedCalories} / {totalCalories} kcal daily breakfast goal
             </Text>
           </Animated.View>
 
@@ -206,105 +279,106 @@ export default function Breakfast() {
               </Text>
             </View>
 
-            {mealData.map((item, index) => (
-              <Animated.View
-                key={item.id}
-                entering={ZoomIn.duration(500).delay(300 + index * 100)}
-                className="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100"
-              >
-                <View className="flex-row items-center justify-between mb-3">
-                  <View className="flex-row items-center gap-3 flex-1">
-                    <View className="bg-gray-100 rounded-lg p-2">
-                      <Image
-                        source={require("@/assets/images/breakfast.png")}
-                        className="w-8 h-8 rounded-xl"
-                        resizeMode="cover"
+            {!isLoading &&
+              mealData.map((item, index) => (
+                <Animated.View
+                  key={index}
+                  entering={ZoomIn.duration(500).delay(300 + index * 100)}
+                  className="bg-white rounded-2xl p-4 mb-3 shadow-sm border border-gray-100"
+                >
+                  <View className="flex-row items-center justify-between mb-3">
+                    <View className="flex-row items-center gap-3 flex-1">
+                      <View className="bg-gray-100 rounded-lg p-2">
+                        <Image
+                          source={require("@/assets/images/breakfast.png")}
+                          className="w-8 h-8 rounded-xl"
+                          resizeMode="cover"
+                        />
+                      </View>
+                      <View className="flex-1">
+                        <Text className="text-base font-PoppinsSemiBold text-black">
+                          {item.name
+                            ? capitalizeFirstLetter(item.name)
+                            : item.foodName
+                              ? capitalizeFirstLetter(item.foodName)
+                              : "Unknown Food"}
+                        </Text>
+                        <Text className="text-sm font-Poppins text-gray-500">
+                          {(() => {
+                            const calorieItem = item.nutritionData
+                              .flatMap((category) => category.items)
+                              .find((item) =>
+                                ["energy", "calories", "kcal"].some((key) =>
+                                  (item.name as string)
+                                    .toLowerCase()
+                                    .includes(key)
+                                )
+                              );
+                            return calorieItem
+                              ? `${
+                                  Number(calorieItem.value) % 1 === 0
+                                    ? Number(calorieItem.value).toFixed(0)
+                                    : Number(calorieItem.value).toFixed(2)
+                                }`
+                              : "N/A";
+                          })()}{" "}
+                          kcal • {item.servingSize} serving size
+                        </Text>
+                      </View>
+                    </View>
+
+                    <TouchableOpacity
+                      className="bg-gray-100 rounded-lg p-2"
+                      onPress={() => {
+                        setSelectedItem(item);
+                        bottomSheetRef.current?.expand();
+                      }}
+                    >
+                      <Entypo
+                        name="dots-three-vertical"
+                        size={14}
+                        color="black"
                       />
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-base font-PoppinsSemiBold text-black">
-                        {item.name
-                          ? capitalizeFirstLetter(item.name)
-                          : item.foodName
-                            ? capitalizeFirstLetter(item.foodName)
-                            : "Unknown Food"}
-                      </Text>
-                      <Text className="text-sm font-Poppins text-gray-500">
-                        {(() => {
-                          const calorieItem = item.nutritionData
-                            .flatMap((category) => category.items)
-                            .find((item) =>
-                              ["energy", "calories", "kcal"].some((key) =>
-                                (item.name as string)
-                                  .toLowerCase()
-                                  .includes(key)
-                              )
-                            );
-                          return calorieItem
-                            ? `${
-                                Number(calorieItem.value) % 1 === 0
-                                  ? Number(calorieItem.value).toFixed(0)
-                                  : Number(calorieItem.value).toFixed(2)
-                              }`
-                            : "N/A";
-                        })()}{" "}
-                        kcal • {item.servingSize} serving size
-                      </Text>
-                    </View>
+                    </TouchableOpacity>
                   </View>
 
-                  <TouchableOpacity
-                    className="bg-gray-100 rounded-lg p-2"
-                    onPress={() => {
-                      setSelectedItem(item);
-                      bottomSheetRef.current?.expand();
-                    }}
-                  >
-                    <Entypo
-                      name="dots-three-vertical"
-                      size={14}
-                      color="black"
-                    />
-                  </TouchableOpacity>
-                </View>
-
-                {/* Nutrition Values */}
-                <View className="flex-row justify-between">
-                  <View className="items-center flex-1">
-                    <Text className="text-lg font-PoppinsBold text-primary">
-                      {sumByKeyword(item.nutritionData, "protein")}g
-                    </Text>
-                    <View className="flex-row items-center gap-1">
-                      <Text className="text-xs font-PoppinsMedium text-gray-600">
-                        Protein
+                  {/* Nutrition Values */}
+                  <View className="flex-row justify-between">
+                    <View className="items-center flex-1">
+                      <Text className="text-lg font-PoppinsBold text-primary">
+                        {sumByKeyword(item.nutritionData, "protein")}g
                       </Text>
+                      <View className="flex-row items-center gap-1">
+                        <Text className="text-xs font-PoppinsMedium text-gray-600">
+                          Protein
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="items-center flex-1">
+                      <Text className="text-lg font-PoppinsBold text-primary">
+                        {sumByKeyword(item.nutritionData, "carb")}g
+                      </Text>
+                      <View className="flex-row items-center gap-1">
+                        <Text className="text-xs font-PoppinsMedium text-gray-600">
+                          Carbs
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="items-center flex-1">
+                      <Text className="text-lg font-PoppinsBold text-primary">
+                        {sumByKeyword(item.nutritionData, "fat")}g
+                      </Text>
+                      <View className="flex-row items-center gap-1">
+                        <Text className="text-xs font-PoppinsMedium text-gray-600">
+                          Fat
+                        </Text>
+                      </View>
                     </View>
                   </View>
-
-                  <View className="items-center flex-1">
-                    <Text className="text-lg font-PoppinsBold text-primary">
-                      {sumByKeyword(item.nutritionData, "carb")}g
-                    </Text>
-                    <View className="flex-row items-center gap-1">
-                      <Text className="text-xs font-PoppinsMedium text-gray-600">
-                        Carbs
-                      </Text>
-                    </View>
-                  </View>
-
-                  <View className="items-center flex-1">
-                    <Text className="text-lg font-PoppinsBold text-primary">
-                      {sumByKeyword(item.nutritionData, "fat")}g
-                    </Text>
-                    <View className="flex-row items-center gap-1">
-                      <Text className="text-xs font-PoppinsMedium text-gray-600">
-                        Fat
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </Animated.View>
-            ))}
+                </Animated.View>
+              ))}
           </View>
 
           {/* Add More Foods Button */}
@@ -375,7 +449,8 @@ export default function Breakfast() {
                 alignItems: "center",
               }}
               className="border border-red-500 bg-white"
-              onPress={() => handleDeleteItem()}
+              onPress={handleDeleteItem}
+              disabled={deleting}
             >
               <Text
                 style={{
@@ -384,7 +459,7 @@ export default function Breakfast() {
                   color: "#ef4444",
                 }}
               >
-                Delete
+                {deleting ? "Deleting..." : "Delete"}
               </Text>
             </TouchableOpacity>
           </BottomSheetView>

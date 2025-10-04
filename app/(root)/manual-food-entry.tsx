@@ -237,19 +237,60 @@ function ManualFoodEntry() {
         (category) => category.items
       );
 
+      const now = new Date();
+      const date = now.toISOString();
+
       // Create meal record payload
-      const mealRecordPayload = {
-        name: capitalizeFirstLetter(foodName.trim()),
-        calorie: parseFloat(calories) || 0,
+      const mealRecordPayload: ScanResultType & { quantity: number } = {
+        foodName,
+        servingSize,
+        ingredients: [],
+        triggeredAllergens: [],
+        nutritionData: [
+          {
+            title: "Macronutrients",
+            items: [
+              {
+                name: "carbohydrates",
+                value: carbs ? parseFloat(carbs) : 0,
+                unit: "g",
+              },
+              {
+                name: "protein",
+                value: protein ? parseFloat(protein) : 0,
+                unit: "g",
+              },
+              {
+                name: "fats",
+                value: fats ? parseFloat(fats) : 0,
+                unit: "g",
+              },
+            ],
+          },
+          {
+            title: "Micronutrients",
+            items: [],
+          },
+          {
+            title: "Other Nutrients",
+            items: [
+              {
+                name: "energy",
+                value: calories ? parseFloat(calories) : 0,
+                unit: "kcal",
+              },
+            ],
+          },
+        ],
+        source: "user",
+        quantity,
+        id: date, // use date as unique id
       };
 
       // Create diet history object following the correct interface
       const meal = mealTime === "snacks" ? "other" : mealTime;
       const dietHistory: DietHistory = {
         date: new Date().toISOString(),
-        nutritionalData: allNutritionItems.map((nutrient) => ({
-          [nutrient.name.toLowerCase()]: Number(nutrient.value),
-        })),
         breakfast: meal === "breakfast" ? [mealRecordPayload] : [],
         lunch: meal === "lunch" ? [mealRecordPayload] : [],
         dinner: meal === "dinner" ? [mealRecordPayload] : [],

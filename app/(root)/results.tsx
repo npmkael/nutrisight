@@ -17,7 +17,6 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
 import BottomSheet from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
@@ -41,7 +40,7 @@ const DINNER_START = 18 * 60; // 1080 (18:00)
 const DINNER_END = 21 * 60; // 1260 (21:00)
 
 function Results() {
-  const { setUser } = useAuth();
+  const { setUser, user } = useAuth();
   const { image, name, scanResult, mealTime } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
   const [quantity, setQuantity] = useState(1);
@@ -75,6 +74,7 @@ function Results() {
         return editedValues[macroName];
       }
 
+      console.log("Searching for macro:", macroName, "with keys:", searchKeys);
       const macroItem = result?.nutritionData
         .flatMap((category) => category.items)
         .find((item) =>
@@ -192,6 +192,7 @@ function Results() {
   }, [name, router]);
 
   const handleSave = useCallback(async () => {
+    console.log("Final Result to Save:", result);
     const allNutritionItems = result?.nutritionData.flatMap(
       (category) => category.items
     );
@@ -234,17 +235,18 @@ function Results() {
         meal = "other";
       }
     }
-    const mealRecordPayload = {
-      name: result?.name || result?.foodName || "Unknown",
-      calorie: calorieValue || 0,
+
+    const date = now.toISOString();
+
+    const mealRecordPayload: ScanResultType & { quantity: number } = {
+      ...(result as ScanResultType),
+      quantity,
+      id: date, // use date as unique id
     };
 
     // Save the result or perform any action
     const dietHistoryPayload: DietHistory = {
-      date: now.toISOString(),
-      nutritionalData: (allNutritionItems ?? []).map((nutrient) => ({
-        [(nutrient.name as string).toLowerCase()]: Number(nutrient.value),
-      })),
+      date,
       breakfast: meal === "breakfast" ? [mealRecordPayload] : [],
       lunch: meal === "lunch" ? [mealRecordPayload] : [],
       dinner: meal === "dinner" ? [mealRecordPayload] : [],
@@ -287,18 +289,6 @@ function Results() {
           dietHistory: data.dietHistory, // <-- replace, not append
         };
       });
-
-      // save result to cache
-      // check first if its greater than 10
-      const stored = await AsyncStorage.getItem(meal);
-      const recentResults = stored ? (JSON.parse(stored) as any[]) : [];
-      // keep max 10 entries
-      while (recentResults.length >= 10) recentResults.shift();
-      recentResults.push({ ...result, id: Date.now() }); // add unique id
-      await AsyncStorage.setItem(meal, JSON.stringify(recentResults));
-
-      const newStored = await AsyncStorage.getItem(meal);
-      console.log("Saved to AsyncStorage:", newStored);
 
       alert("Successfully saved results.");
       router.replace("/(root)/(tabs)/home");

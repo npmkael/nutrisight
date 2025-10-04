@@ -1,4 +1,6 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
+import LoadingScreen from "@/components/loading-screen";
+import { BACKEND_URL, useAuth } from "@/context/AuthContext";
 import { capitalizeFirstLetter } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
@@ -6,7 +8,6 @@ import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router, useLocalSearchParams } from "expo-router";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Image, ScrollView, Text, TouchableOpacity, View } from "react-native";
@@ -16,26 +17,59 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ScanResultType } from "../main-camera";
 
 export default function Lunch() {
-  const { totalCalories, caloriesConsumed, title } = useLocalSearchParams();
-  const [mealData, setMealData] = useState<ScanResultType[]>([]);
-  const [selectedItemId, setSelectedItemId] = useState<number | null>(null);
+  const { user, setUser } = useAuth();
+  const { totalCalories, caloriesConsumed, title, date } =
+    useLocalSearchParams();
+  const [mealData, setMealData] = useState<
+    (ScanResultType & { quantity: number })[]
+  >([]);
+  const [selectedItem, setSelectedItem] = useState<
+    (ScanResultType & { quantity: number }) | null
+  >(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [consumedCalories, setConsumedCalories] = useState(
+    Number(caloriesConsumed) || 0
+  );
   const bottomSheetRef = useRef<BottomSheet>(null);
 
   useEffect(() => {
+    if (!date) return;
     async function fetchMealData() {
-      const stored = await AsyncStorage.getItem(
-        (title as string) === "snacks" ? "others" : (title as string)
-      );
-      const recentResults = stored
-        ? (JSON.parse(stored) as any[]).map((i) => ({
-            ...i,
-            image: require("@/assets/images/fried-rice.jpg"),
-          }))
-        : [];
-      setMealData(recentResults);
+      console.log("Fetching meal data for date:", date);
+      setIsLoading(true);
+      try {
+        const res = await fetch(`${BACKEND_URL}/account/diet-history`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ date }),
+          credentials: "include",
+        });
+        const data = await res.json();
+
+        if (!res.ok)
+          throw new Error(data.message || "Failed to fetch meal data");
+
+        console.log("Fetched meal data:", data);
+
+        if (!data.dietHistory || !data.dietHistory.lunch) {
+          setMealData([]);
+          return;
+        }
+
+        setMealData(data.dietHistory.lunch || []);
+        setConsumedCalories(Number(caloriesConsumed) || 0);
+      } catch (error) {
+        console.error("Error fetching meal data:", error);
+        alert("Failed to load meal data.");
+      } finally {
+        setIsLoading(false);
+      }
     }
     fetchMealData();
-  }, [title]);
+  }, [date]);
 
   // BottomSheet snap points
   const snapPoints = useMemo(() => ["25%", "25%"], []);
@@ -70,17 +104,66 @@ export default function Lunch() {
     []
   );
 
-  const handleDeleteItem = useCallback(() => {
-    if (selectedItemId == null) return;
-    const updatedData = mealData.filter((item) => item.id !== selectedItemId);
-    setMealData(updatedData);
-    AsyncStorage.setItem(
-      (title as string) === "snacks" ? "others" : (title as string),
-      JSON.stringify(updatedData)
-    );
-    bottomSheetRef.current?.close();
-    setSelectedItemId(null);
-  }, [selectedItemId, mealData]);
+  const handleDeleteItem = useCallback(async () => {
+    if (selectedItem == null) return;
+    if (!date || !user) {
+      alert("Failed to delete item.");
+      return;
+    }
+    setDeleting(true);
+    try {
+      // subtract calories of deleted item from consumedCalories
+      setConsumedCalories((prev) => {
+        const calorieToSubtract = selectedItem.nutritionData
+          .flatMap((category) => category.items)
+          .filter((item) =>
+            ["energy", "calories", "kcal"].some((key) =>
+              (item.name as string).toLowerCase().includes(key)
+            )
+          )
+          .reduce((sum, item) => sum + Number(item.value || 0), 0);
+        return prev - calorieToSubtract;
+      });
+
+      const res = await fetch(`${BACKEND_URL}/account/diet-history`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          date,
+          mealTime: title,
+          id: selectedItem.id,
+        }),
+        credentials: "include",
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) throw new Error(data.message || "Failed to delete item");
+
+      // Update local state
+      const updatedMealData = mealData.filter(
+        (item) => item.id !== selectedItem.id
+      );
+      setMealData(updatedMealData);
+
+      // Update user context
+      setUser(data.user);
+
+      bottomSheetRef.current?.close();
+      setSelectedItem(null);
+    } catch (error) {
+      console.error("Error deleting item:", error);
+      alert("Failed to delete item.");
+    } finally {
+      setDeleting(false);
+    }
+  }, [selectedItem, mealData, date, user]);
+
+  if (isLoading) {
+    return <LoadingScreen message="Loading lunch..." />;
+  }
 
   return (
     <GestureHandlerRootView style={{ flex: 1, backgroundColor: "grey" }}>
@@ -136,7 +219,7 @@ export default function Lunch() {
             <View className="items-center mb-4">
               <CircularProgressBar
                 progress={Math.min(
-                  (Number(caloriesConsumed) / Number(totalCalories)) * 100,
+                  (Number(consumedCalories) / Number(totalCalories)) * 100,
                   100
                 )}
                 size={120}
@@ -155,7 +238,7 @@ export default function Lunch() {
                     lineHeight: 32,
                   }}
                 >
-                  {totalCalories}
+                  {caloriesConsumed}
                 </Text>
                 <Text
                   style={{
@@ -171,7 +254,7 @@ export default function Lunch() {
             </View>
 
             <Text className="text-xs font-Poppins text-gray-500 text-center">
-              {caloriesConsumed} / {totalCalories} kcal daily lunch goal
+              {consumedCalories} / {totalCalories} kcal daily lunch goal
             </Text>
           </Animated.View>
 
@@ -234,7 +317,7 @@ export default function Lunch() {
                   <TouchableOpacity
                     className="bg-gray-100 rounded-lg p-2"
                     onPress={() => {
-                      setSelectedItemId(item.id);
+                      setSelectedItem(item);
                       bottomSheetRef.current?.expand();
                     }}
                   >
@@ -352,7 +435,8 @@ export default function Lunch() {
                 alignItems: "center",
               }}
               className="border border-red-500 bg-white"
-              onPress={() => handleDeleteItem()}
+              onPress={handleDeleteItem}
+              disabled={deleting}
             >
               <Text
                 style={{
@@ -361,7 +445,7 @@ export default function Lunch() {
                   color: "#ef4444",
                 }}
               >
-                Delete
+                {deleting ? "Deleting..." : "Delete"}
               </Text>
             </TouchableOpacity>
           </BottomSheetView>

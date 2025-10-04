@@ -4,6 +4,7 @@ import InfoTooltip from "./InfoTooltip";
 import Typo from "./Typo";
 
 import { UserType } from "@/context/AuthContext";
+import { getCaloriesFromMealEntry } from "@/utils/helpers";
 import { PieChart } from "react-native-gifted-charts";
 
 export default function DietSummary({
@@ -36,10 +37,30 @@ export default function DietSummary({
     meals?.reduce((sum, meal) => sum + Number(meal.calorie || 0), 0);
 
   // Get calories for each meal from dietHistory
-  const breakfastCalories = sumMealCalories(dietHistory?.breakfast) || 0;
-  const lunchCalories = sumMealCalories(dietHistory?.lunch) || 0;
-  const dinnerCalories = sumMealCalories(dietHistory?.dinner) || 0;
-  const otherCalories = sumMealCalories(dietHistory?.otherMealTime) || 0;
+  const breakfastCalories =
+    sumMealCalories(
+      (dietHistory?.breakfast ?? []).map((b) => ({
+        calorie: getCaloriesFromMealEntry(b),
+      }))
+    ) || 0;
+  const lunchCalories =
+    sumMealCalories(
+      (dietHistory?.lunch ?? []).map((l) => ({
+        calorie: getCaloriesFromMealEntry(l),
+      }))
+    ) || 0;
+  const dinnerCalories =
+    sumMealCalories(
+      (dietHistory?.dinner ?? []).map((d) => ({
+        calorie: getCaloriesFromMealEntry(d),
+      }))
+    ) || 0;
+  const otherCalories =
+    sumMealCalories(
+      (dietHistory?.otherMealTime ?? []).map((o) => ({
+        calorie: getCaloriesFromMealEntry(o),
+      }))
+    ) || 0;
 
   // Calculate percentages
   const totalLoggedCalories =
@@ -72,24 +93,61 @@ export default function DietSummary({
     },
   ];
 
-  const nutrientSummary =
-    dietHistory?.nutritionalData
-      .flatMap((item) => {
-        return Object.entries(item).map(([key, value]) => ({
-          name: key,
-          value: value,
-          color: "#3EC6E0",
-        }));
-      })
-      .filter((item) =>
-        ["energy", "calories", "kcal"].some(
-          (key) => !(item.name as string).toLowerCase().includes(key)
-        )
-      ) || [];
+  const breakfastNutrientSummary =
+    dietHistory?.breakfast
+      .map((meal) => meal.nutritionData.map((cat) => cat.items).flat())
+      .flat() || [];
+  const lunchNutrientSummary =
+    dietHistory?.lunch
+      .map((meal) => meal.nutritionData.map((cat) => cat.items).flat())
+      .flat() || [];
+  const dinnerNutrientSummary =
+    dietHistory?.dinner
+      .map((meal) => meal.nutritionData.map((cat) => cat.items).flat())
+      .flat() || [];
+  const otherNutrientSummary =
+    dietHistory?.otherMealTime
+      .map((meal) => meal.nutritionData.map((cat) => cat.items).flat())
+      .flat() || [];
+
+  const rawNutrientSummary = [
+    ...breakfastNutrientSummary,
+    ...lunchNutrientSummary,
+    ...dinnerNutrientSummary,
+    ...otherNutrientSummary,
+  ];
+
+  // Simple color map for common nutrients — extend as needed
+  const NUTRIENT_COLOR_MAP: Record<string, string> = {
+    calories: "#FFB703",
+    protein: "#4CC9F0",
+    carbs: "#90E0EF",
+    fat: "#F94144",
+    fiber: "#8ECAE6",
+    sugar: "#F8961E",
+  };
+
+  // Normalize items to include color and ensure numeric value
+  const nutrientSummary: {
+    name: string;
+    value: number;
+    color: string;
+    unit?: string;
+  }[] = rawNutrientSummary.map((n: any) => {
+    const name = String(n.name || n.label || "").trim();
+    const key = name.toLowerCase();
+    const value = Number(n.value ?? n.amount ?? 0);
+    const color = NUTRIENT_COLOR_MAP[key] ?? "#0369A1"; // default color
+    return { name, value, color, unit: n.unit };
+  });
 
   // Split nutrientSummary into two rows for display
-  const nutrientSummary2d: { name: string; value: number; color: string }[][] =
-    [];
+  const nutrientSummary2d: {
+    name: string;
+    value: number;
+    color: string;
+    unit?: string;
+  }[][] = [];
   for (let i = 0; i < nutrientSummary.length; i += 3) {
     nutrientSummary2d.push(nutrientSummary.slice(i, i + 3));
   }

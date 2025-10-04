@@ -1,4 +1,6 @@
+import { ScanResultType } from "@/app/(root)/main-camera";
 import { LoggedWeight } from "@/context/AuthContext";
+import { MealEntry } from "./types";
 
 export function scanForAllergen(
   userAllergens: string[],
@@ -113,10 +115,24 @@ export function removeDuplicateTriggeredAllergens(
   return unique;
 }
 
-export function calorieSum(mealRecords: { name: string; calorie: number }[]) {
+export function calorieSum(
+  mealRecords: (ScanResultType & { quantity: number })[]
+) {
   let sum = 0;
   for (const m of mealRecords) {
-    sum += m.calorie;
+    for (const n of m.nutritionData || []) {
+      for (const i of n.items) {
+        if (
+          i.name.toLowerCase().includes("energy") ||
+          i.name.toLowerCase().includes("calorie") ||
+          i.name.toLowerCase().includes("kcal") ||
+          i.unit.toLowerCase().includes("kcal")
+        ) {
+          sum += Number(i.value) || 0;
+          break; // found calories, no need to check other items
+        }
+      }
+    }
   }
   return sum;
 }
@@ -231,4 +247,29 @@ export function getPartOfDay(
 
   // everything else -> evening (hours 19..23 and 0..3)
   return "evening";
+}
+
+export function getCaloriesFromMealEntry(meal?: MealEntry): number {
+  if (!meal) return 0;
+  if (typeof meal.calorie !== "undefined") return Number(meal.calorie) || 0;
+
+  const categories = meal.nutritionData ?? [];
+  for (const cat of categories) {
+    const items = cat.items ?? [];
+    for (const item of items) {
+      const name = String(item.name ?? "").toLowerCase();
+      const unit = String(item.unit ?? "").toLowerCase();
+      if (
+        name.includes("calorie") ||
+        name.includes("energy") ||
+        name.includes("kcal") ||
+        unit.includes("kcal")
+      ) {
+        const value = item.value ?? item.calorie ?? 0;
+        return Number(value) || 0;
+      }
+    }
+  }
+
+  return 0;
 }

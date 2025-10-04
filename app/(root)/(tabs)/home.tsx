@@ -4,7 +4,11 @@ import FloatingActionButton from "@/components/FloatingActionButton";
 import { Progress } from "@/components/line-progress";
 import { DietHistory, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
-import { calorieSum, getPartOfDay } from "@/utils/helpers";
+import {
+  calorieSum,
+  getCaloriesFromMealEntry,
+  getPartOfDay,
+} from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
@@ -38,10 +42,30 @@ function Home() {
   );
 
   // Get calories for each meal from dietHistory
-  const breakfastCalories = sumMealCalories(dietHistory?.breakfast) || 0;
-  const lunchCalories = sumMealCalories(dietHistory?.lunch) || 0;
-  const dinnerCalories = sumMealCalories(dietHistory?.dinner) || 0;
-  const otherCalories = sumMealCalories(dietHistory?.otherMealTime) || 0;
+  const breakfastCalories =
+    sumMealCalories(
+      (dietHistory?.breakfast ?? []).map((b) => ({
+        calorie: getCaloriesFromMealEntry(b),
+      }))
+    ) || 0;
+  const lunchCalories =
+    sumMealCalories(
+      (dietHistory?.lunch ?? []).map((l) => ({
+        calorie: getCaloriesFromMealEntry(l),
+      }))
+    ) || 0;
+  const dinnerCalories =
+    sumMealCalories(
+      (dietHistory?.dinner ?? []).map((d) => ({
+        calorie: getCaloriesFromMealEntry(d),
+      }))
+    ) || 0;
+  const otherCalories =
+    sumMealCalories(
+      (dietHistory?.otherMealTime ?? []).map((o) => ({
+        calorie: getCaloriesFromMealEntry(o),
+      }))
+    ) || 0;
 
   useEffect(() => {
     if (user && user.dailyRecommendation?.calories) {
@@ -74,9 +98,35 @@ function Home() {
       );
       setDietHistory(userDietHistory || null);
 
-      if (Array.isArray(userDietHistory?.nutritionalData)) {
-        // Get the first (and only) object in the array
-        const nutritionObj = userDietHistory.nutritionalData[0];
+      if (userDietHistory) {
+        // Extract nutritional data from breakfast, lunch, dinner, otherMealTime
+        // and sum them up
+        const allMeals = [
+          ...(userDietHistory.breakfast.map((b) =>
+            b.nutritionData.map((i) => i.items.flatMap((f) => f) || [])
+          ) || []),
+          ...(userDietHistory.lunch.map((l) =>
+            l.nutritionData.map((i) => i.items.flatMap((f) => f) || [])
+          ) || []),
+          ...(userDietHistory.dinner.map((d) =>
+            d.nutritionData.map((i) => i.items.flatMap((f) => f) || [])
+          ) || []),
+          ...(userDietHistory.otherMealTime.map((o) =>
+            o.nutritionData.map((i) => i.items.flatMap((f) => f) || [])
+          ) || []),
+        ];
+
+        const allNutritionItems = allMeals.flat(3); // flatten to get all items
+        const nutritionObj: Record<string, number> = {};
+        allNutritionItems.forEach((item) => {
+          const name = (item.name as string).toLowerCase();
+          const value = Number(item.value) || 0;
+          if (name in nutritionObj) {
+            nutritionObj[name] += value;
+          } else {
+            nutritionObj[name] = value;
+          }
+        });
 
         // Helper to sum all keys that include a keyword
         const sumByKeyword = (obj: Record<string, number>, keyword: string) =>
@@ -428,6 +478,7 @@ function Home() {
               calorieSum(dietHistory?.breakfast || []).toFixed(2)
             )}
             disabled={!isToday}
+            date={selectedDate.toISOString()}
           />
           <AddMeal
             title="Lunch"
@@ -436,6 +487,7 @@ function Home() {
               calorieSum(dietHistory?.lunch || []).toFixed(2)
             )}
             disabled={!isToday}
+            date={selectedDate.toISOString()}
           />
           <AddMeal
             title="Dinner"
@@ -444,6 +496,7 @@ function Home() {
               calorieSum(dietHistory?.dinner || []).toFixed(2)
             )}
             disabled={!isToday}
+            date={selectedDate.toISOString()}
           />
           <AddMeal
             title="Snacks"
@@ -452,6 +505,7 @@ function Home() {
               calorieSum(dietHistory?.otherMealTime || []).toFixed(2)
             )}
             disabled={false}
+            date={selectedDate.toISOString()}
           />
         </View>
       </ScrollView>
