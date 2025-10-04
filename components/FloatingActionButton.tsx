@@ -48,7 +48,7 @@ const FloatingActionButton = () => {
       firstWidth.value = withDelay(1200, withSpring(100));
       opacity.value = withDelay(1200, withSpring(1));
       secondValue.value = withDelay(250, withSpring(160));
-      secondWidth.value = withDelay(1100, withSpring(130));
+      secondWidth.value = withDelay(1100, withSpring(160));
     }
 
     isOpen.value = !isOpen.value;

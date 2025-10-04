@@ -143,15 +143,53 @@ export default function DietSummary({
     })
     .filter((n) => !n.name.includes(":"));
 
-  // Split nutrientSummary into two rows for display
-  const nutrientSummary2d: {
+  // Define macronutrient names (case-insensitive check)
+  const macronutrientNames = [
+    "calories",
+    "protein",
+    "carbs",
+    "carbohydrate",
+    "fat",
+    "fiber",
+    "sugar",
+    "total fat",
+    "total carbohydrate",
+  ];
+
+  // Separate macronutrients and micronutrients
+  const macronutrients = nutrientSummary.filter((n) =>
+    macronutrientNames.some((macro) =>
+      n.name.toLowerCase().includes(macro.toLowerCase())
+    )
+  );
+
+  const micronutrients = nutrientSummary.filter(
+    (n) =>
+      !macronutrientNames.some((macro) =>
+        n.name.toLowerCase().includes(macro.toLowerCase())
+      )
+  );
+
+  // Split macronutrients into rows of 3 for display
+  const macronutrients2d: {
     name: string;
     value: number;
     color: string;
     unit?: string;
   }[][] = [];
-  for (let i = 0; i < nutrientSummary.length; i += 3) {
-    nutrientSummary2d.push(nutrientSummary.slice(i, i + 3));
+  for (let i = 0; i < macronutrients.length; i += 3) {
+    macronutrients2d.push(macronutrients.slice(i, i + 3));
+  }
+
+  // Split micronutrients into rows of 3 for display
+  const micronutrients2d: {
+    name: string;
+    value: number;
+    color: string;
+    unit?: string;
+  }[][] = [];
+  for (let i = 0; i < micronutrients.length; i += 3) {
+    micronutrients2d.push(micronutrients.slice(i, i + 3));
   }
 
   return (
@@ -243,21 +281,53 @@ export default function DietSummary({
           </>
         ) : (
           <View className="flex-col">
-            <Typo
-              size={14}
-              className="font-Poppins  mb-2 text-gray-300"
-              color="#000000"
-            >
-              Total Nutrients ({totalLoggedCalories} kcal)
-            </Typo>
-
-            {nutrientSummary2d.map((row, rowIdx) => (
-              <View key={rowIdx} className="flex-row gap-4 mb-4">
-                {row.map((data) => (
-                  <Nutrient key={data.name} {...data} />
+            {/* Macronutrients Section */}
+            {macronutrients.length > 0 && (
+              <>
+                <Text
+                  className=" mb-2 text-md"
+                  style={{ fontFamily: "GeistSemiBold" }}
+                >
+                  Macronutrients
+                </Text>
+                {macronutrients.map((data, idx) => (
+                  <NutrientListItem
+                    key={data.name}
+                    {...data}
+                    isLast={idx === macronutrients.length - 1}
+                  />
                 ))}
-              </View>
-            ))}
+              </>
+            )}
+
+            {/* Micronutrients Section */}
+            {micronutrients.length > 0 && (
+              <>
+                <Text
+                  className=" mb-2 mt-4 text-md"
+                  style={{ fontFamily: "GeistSemiBold" }}
+                >
+                  Micronutrients
+                </Text>
+                {micronutrients.map((data, idx) => (
+                  <NutrientListItem
+                    key={data.name}
+                    {...data}
+                    isLast={idx === micronutrients.length - 1}
+                  />
+                ))}
+              </>
+            )}
+
+            {/* Empty state */}
+            {macronutrients.length === 0 && micronutrients.length === 0 && (
+              <Typo
+                size={14}
+                className="font-Poppins text-center text-gray-400 py-4"
+              >
+                No nutrient data available
+              </Typo>
+            )}
           </View>
         )}
       </View>
@@ -265,48 +335,42 @@ export default function DietSummary({
   );
 }
 
-const Nutrient = ({
+const NutrientListItem = ({
   name,
   value,
   color,
+  unit,
+  isLast,
 }: {
   name: string;
   value: number;
   color: string;
+  unit?: string;
+  isLast?: boolean;
 }) => {
   return (
-    <View className="bg-gray-100 rounded-xl px-6 py-4 items-center flex-1">
-      <Text className="font-PoppinsSemiBold tracking-widest text-sm uppercase mb-1">
-        {name}
-      </Text>
-      <View
-        style={{
-          flexDirection: "row",
-          alignItems: "center",
-          width: 80,
-          marginBottom: 8,
-        }}
-      >
+    <View
+      className={`flex-row justify-between items-center py-3 ${!isLast ? "border-b border-gray-200" : ""}`}
+    >
+      <View className="flex-row items-center gap-3">
         <View
-          style={{
-            height: 2,
-            width: 32,
-            backgroundColor: color,
-            borderRadius: 1,
-          }}
+          className="w-3 h-3 rounded-full"
+          style={{ backgroundColor: color }}
         />
-        <View
-          style={{
-            flex: 1,
-            height: 2,
-            backgroundColor: "#d1d5db",
-            marginLeft: 0,
-          }}
-        />
+        <Text
+          className="text-sm capitalize"
+          style={{ fontFamily: "GeistMedium" }}
+        >
+          {name}
+        </Text>
       </View>
       <Text className="flex-row items-end">
-        <Text className="text-xl font-PoppinsSemiBold">{value}</Text>
-        <Text className="text-xs font-Poppins ml-1 self-end">g</Text>
+        <Text className="text-base" style={{ fontFamily: "GeistSemiBold" }}>
+          {value.toFixed(1)}
+        </Text>
+        <Text className="text-sm  ml-1" style={{ fontFamily: "GeistMedium" }}>
+          {unit || "g"}
+        </Text>
       </Text>
     </View>
   );

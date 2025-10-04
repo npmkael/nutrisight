@@ -44,26 +44,6 @@ export const getRecommendedWeightRangeCm = (heightCm: number) => {
   return desiredWeight;
 };
 
-export const convertCmToFeetAndInches = (cm: number) => {
-  const totalInches = cm / 2.54;
-  const feet = Math.floor(totalInches / 12);
-  const inches = (totalInches % 12).toFixed(0);
-  return { feet, inches };
-};
-
-export const convertFeetAndInchesToCm = (feet: number, inches: number) => {
-  const totalInches = feet * 12 + inches;
-  return Math.round(totalInches * 2.54);
-};
-
-export const convertKgToLbs = (kg: number) => {
-  return Math.round(kg * 2.20462);
-};
-
-export const convertLbsToKg = (lbs: number) => {
-  return Math.round(lbs * 0.453592);
-};
-
 export const ftToCM = (ft: string, inch: string) => {
   const ftIn = Number(ft) * 12;
   const totalIn = ftIn + Number(inch);
