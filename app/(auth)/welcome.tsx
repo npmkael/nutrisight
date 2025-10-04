@@ -67,7 +67,6 @@ const Welcome = () => {
 };
 
 export default Welcome;
-
 const styles = StyleSheet.create({
   background: {
     flex: 1,
