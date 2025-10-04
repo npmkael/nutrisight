@@ -133,13 +133,15 @@ export default function DietSummary({
     value: number;
     color: string;
     unit?: string;
-  }[] = rawNutrientSummary.map((n: any) => {
-    const name = String(n.name || n.label || "").trim();
-    const key = name.toLowerCase();
-    const value = Number(n.value ?? n.amount ?? 0);
-    const color = NUTRIENT_COLOR_MAP[key] ?? "#0369A1"; // default color
-    return { name, value, color, unit: n.unit };
-  });
+  }[] = rawNutrientSummary
+    .map((n: any) => {
+      const name = String(n.name || n.label || "").trim();
+      const key = name.toLowerCase();
+      const value = Number(n.value ?? n.amount ?? 0);
+      const color = NUTRIENT_COLOR_MAP[key] ?? "#0369A1"; // default color
+      return { name, value, color, unit: n.unit };
+    })
+    .filter((n) => !n.name.includes(":"));
 
   // Split nutrientSummary into two rows for display
   const nutrientSummary2d: {
