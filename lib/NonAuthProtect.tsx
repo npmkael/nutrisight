@@ -16,9 +16,23 @@ function GuestProtect({ children }: GuestProtectProps) {
   const isPublicAuthPage =
     path === "(auth)/sign-in" || path === "(auth)/sign-up";
 
-  if (checkingSession) return <LoadingScreen />;
+  if (checkingSession)
+    return (
+      <LoadingScreen
+        messages={[
+          "Checking your session…",
+          "Verifying your account…",
+          "Loading your data…",
+        ]}
+      />
+    );
 
-  if (loading && !isPublicAuthPage) return <LoadingScreen />;
+  if (loading && !isPublicAuthPage)
+    return (
+      <LoadingScreen
+        messages={["Loading…", "Getting things ready…", "Almost there…"]}
+      />
+    );
 
   if (user && user.isVerified) return <Redirect href="/(root)/(tabs)/home" />;
 

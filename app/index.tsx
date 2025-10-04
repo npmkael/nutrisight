@@ -3,7 +3,7 @@ import { memo } from "react";
 
 function Index() {
   console.log("Index component rendered");
-  return <Redirect href="/(auth)/(setup)/1" />;
+  return <Redirect href="/(auth)/onboarding" />;
 }
 
 export default memo(Index);
