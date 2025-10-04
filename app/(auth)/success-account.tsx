@@ -233,129 +233,139 @@ function SuccessAccount() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
-      {/* child page renders here */}
-      <ScrollView
-        style={{ flex: 1 }}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: 10 }}
-      >
-        {loading ? (
-          <LoadingScreen />
-        ) : (
-          <SafeAreaView className="flex-1 bg-white">
-            <View className="flex-1 justify-center items-center px-8 mt-6">
-              {/* Success Icon Container */}
-              <Animated.View
-                style={containerStyle}
-                className="w-24 h-24 bg-black/5 rounded-full items-center justify-center mb-8"
-              >
-                <Animated.View style={checkmarkStyle}>
-                  <View className="w-16 h-16 bg-primary rounded-full items-center justify-center">
-                    <Ionicons name="checkmark" size={32} color="white" />
-                  </View>
+    <>
+      {loading ? (
+        <LoadingScreen
+          messages={[
+            "Finalizing your account…",
+            "Calculating your daily goals…",
+            "Setting up your dashboard…",
+            "Preparing your nutrition insights…",
+          ]}
+          cycleInterval={2500}
+        />
+      ) : (
+        <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
+          {/* child page renders here */}
+          <ScrollView
+            style={{ flex: 1 }}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: 10 }}
+          >
+            <SafeAreaView className="flex-1 bg-white">
+              <View className="flex-1 justify-center items-center px-8 mt-6">
+                {/* Success Icon Container */}
+                <Animated.View
+                  style={containerStyle}
+                  className="w-24 h-24 bg-black/5 rounded-full items-center justify-center mb-8"
+                >
+                  <Animated.View style={checkmarkStyle}>
+                    <View className="w-16 h-16 bg-primary rounded-full items-center justify-center">
+                      <Ionicons name="checkmark" size={32} color="white" />
+                    </View>
+                  </Animated.View>
                 </Animated.View>
+
+                {/* Success Text */}
+                <Animated.View style={textStyle} className="items-center">
+                  <Text className="text-3xl font-PoppinsSemiBold text-black text-center mb-4">
+                    Congratulations! You're all set up.
+                  </Text>
+
+                  <Text className="text-md font-Poppins text-foreground text-center mb-8 leading-6">
+                    Welcome to NutriSight! Your account has been created and
+                    you're ready to start your nutrition journey.
+                  </Text>
+                </Animated.View>
+              </View>
+
+              {/* Daily Nutrition Recommendation Section */}
+              <Animated.View
+                style={textStyle}
+                className="bg-[#FAFAFA] px-6 pt-6 pb-6 mx-4 rounded-2xl"
+              >
+                {/* Header Section */}
+                <View className="mb-6">
+                  <Text className="text-2xl font-PoppinsSemiBold text-gray-900">
+                    Daily Recommendation
+                  </Text>
+                  <Text className="text-base font-Poppins text-gray-500">
+                    You can edit this any time
+                  </Text>
+                </View>
+
+                {/* Nutrition Cards Grid */}
+                <View>
+                  <View className="flex-row justify-between mb-4">
+                    <View className="w-[48%]">
+                      <NutritionCard
+                        label={nutritionData[0].label}
+                        value={nutritionData[0].value}
+                        progress={nutritionData[0].progress}
+                        color={nutritionData[0].color}
+                        icon={nutritionData[0].icon}
+                      />
+                    </View>
+                    <View className="w-[48%]">
+                      <NutritionCard
+                        label={nutritionData[1].label}
+                        value={nutritionData[1].value}
+                        progress={nutritionData[1].progress}
+                        color={nutritionData[1].color}
+                        icon={nutritionData[1].icon}
+                      />
+                    </View>
+                  </View>
+
+                  <View className="flex-row justify-between">
+                    <View className="w-[48%]">
+                      <NutritionCard
+                        label={nutritionData[2].label}
+                        value={nutritionData[2].value}
+                        progress={nutritionData[2].progress}
+                        color={nutritionData[2].color}
+                        icon={nutritionData[2].icon}
+                      />
+                    </View>
+                    <View className="w-[48%]">
+                      <NutritionCard
+                        label={nutritionData[3].label}
+                        value={nutritionData[3].value}
+                        progress={nutritionData[3].progress}
+                        color={nutritionData[3].color}
+                        icon={nutritionData[3].icon}
+                      />
+                    </View>
+                  </View>
+                </View>
               </Animated.View>
+            </SafeAreaView>
+          </ScrollView>
 
-              {/* Success Text */}
-              <Animated.View style={textStyle} className="items-center">
-                <Text className="text-3xl font-PoppinsSemiBold text-black text-center mb-4">
-                  Congratulations! You're all set up.
-                </Text>
-
-                <Text className="text-md font-Poppins text-foreground text-center mb-8 leading-6">
-                  Welcome to NutriSight! Your account has been created and
-                  you're ready to start your nutrition journey.
-                </Text>
-              </Animated.View>
-            </View>
-
-            {/* Daily Nutrition Recommendation Section */}
-            <Animated.View
-              style={textStyle}
-              className="bg-[#FAFAFA] px-6 pt-6 pb-6 mx-4 rounded-2xl"
+          {/* footer */}
+          <Animated.View
+            entering={FadeIn.duration(600)}
+            style={{ padding: 16, borderTopWidth: 1, borderTopColor: "#eee" }}
+          >
+            <TouchableOpacity
+              onPress={handleAgreement}
+              style={{
+                backgroundColor: "#2D3644",
+                padding: 14,
+                borderRadius: 12,
+                alignItems: "center",
+                opacity: loading ? 0.6 : 1,
+              }}
+              disabled={loading}
             >
-              {/* Header Section */}
-              <View className="mb-6">
-                <Text className="text-2xl font-PoppinsSemiBold text-gray-900">
-                  Daily Recommendation
-                </Text>
-                <Text className="text-base font-Poppins text-gray-500">
-                  You can edit this any time
-                </Text>
-              </View>
-
-              {/* Nutrition Cards Grid */}
-              <View>
-                <View className="flex-row justify-between mb-4">
-                  <View className="w-[48%]">
-                    <NutritionCard
-                      label={nutritionData[0].label}
-                      value={nutritionData[0].value}
-                      progress={nutritionData[0].progress}
-                      color={nutritionData[0].color}
-                      icon={nutritionData[0].icon}
-                    />
-                  </View>
-                  <View className="w-[48%]">
-                    <NutritionCard
-                      label={nutritionData[1].label}
-                      value={nutritionData[1].value}
-                      progress={nutritionData[1].progress}
-                      color={nutritionData[1].color}
-                      icon={nutritionData[1].icon}
-                    />
-                  </View>
-                </View>
-
-                <View className="flex-row justify-between">
-                  <View className="w-[48%]">
-                    <NutritionCard
-                      label={nutritionData[2].label}
-                      value={nutritionData[2].value}
-                      progress={nutritionData[2].progress}
-                      color={nutritionData[2].color}
-                      icon={nutritionData[2].icon}
-                    />
-                  </View>
-                  <View className="w-[48%]">
-                    <NutritionCard
-                      label={nutritionData[3].label}
-                      value={nutritionData[3].value}
-                      progress={nutritionData[3].progress}
-                      color={nutritionData[3].color}
-                      icon={nutritionData[3].icon}
-                    />
-                  </View>
-                </View>
-              </View>
-            </Animated.View>
-          </SafeAreaView>
-        )}
-      </ScrollView>
-
-      {/* footer */}
-      <Animated.View
-        entering={FadeIn.duration(600)}
-        style={{ padding: 16, borderTopWidth: 1, borderTopColor: "#eee" }}
-      >
-        <TouchableOpacity
-          onPress={handleAgreement}
-          style={{
-            backgroundColor: "#000",
-            padding: 14,
-            borderRadius: 12,
-            alignItems: "center",
-            opacity: loading ? 0.6 : 1,
-          }}
-          disabled={loading}
-        >
-          <Text className="text-white text-lg font-PoppinsSemiBold">
-            {"Finish"}
-          </Text>
-        </TouchableOpacity>
-      </Animated.View>
-    </SafeAreaView>
+              <Text className="text-white text-lg font-PoppinsSemiBold">
+                {"Finish"}
+              </Text>
+            </TouchableOpacity>
+          </Animated.View>
+        </SafeAreaView>
+      )}
+    </>
   );
 }
 
