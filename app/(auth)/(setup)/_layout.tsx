@@ -42,8 +42,6 @@ type OnboardingContextType = {
   setTargetWeight: (w: string) => void;
   activityLevel: string;
   setActivityLevel: (a: string) => void;
-  dietType: string;
-  setDietType: (d: string) => void;
   isStepValid: () => boolean;
 };
 
@@ -73,7 +71,6 @@ function SetupLayout() {
   const [weightGoal, setWeightGoal] = useState("");
   const [targetWeight, setTargetWeight] = useState("");
   const [activityLevel, setActivityLevel] = useState("");
-  const [dietType, setDietType] = useState("");
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
@@ -156,7 +153,6 @@ function SetupLayout() {
     weightGoal,
     targetWeight,
     activityLevel,
-    dietType,
   ]);
 
   const value = useMemo(
@@ -185,8 +181,6 @@ function SetupLayout() {
       setTargetWeight,
       activityLevel,
       setActivityLevel,
-      dietType,
-      setDietType,
       isStepValid,
     }),
     [
@@ -202,7 +196,6 @@ function SetupLayout() {
       weightGoal,
       targetWeight,
       activityLevel,
-      dietType,
       isStepValid,
     ]
   );
@@ -291,7 +284,6 @@ function SetupLayout() {
           onboardingEmail,
           weightGoal,
           finalTarget,
-          dietType,
           activityLevel,
           loggedWeightPayload,
         });
@@ -307,7 +299,6 @@ function SetupLayout() {
           onboardingEmail!,
           weightGoal,
           finalTarget,
-          dietType,
           activityLevel,
           loggedWeightPayload
         );
@@ -343,7 +334,6 @@ function SetupLayout() {
     weight,
     targetWeight,
     weightGoal,
-    dietType,
     onboardingComplete,
     router,
   ]);

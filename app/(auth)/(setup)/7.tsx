@@ -1,6 +1,8 @@
+import weight from "@/app/(root)/(settings)/weight";
 import {
-  getRecommendedWeightRangeCm,
+  cmToFt,
   getRecommendedWeightRangeFeetAndInches,
+  lbToKg,
 } from "@/lib/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import React, { memo, useEffect, useMemo } from "react";
@@ -15,24 +17,42 @@ function SetTargetWeight() {
     setTargetWeight,
     weightGoal,
     weight: currentWeight,
+    weightUnit,
     heightUnit,
     heightFeet,
     heightInches,
   } = useOnboarding();
 
   // Calculate recommended healthy weight based on height
-  const recommendedWeight = useMemo(() => {
+  const recommendedWeightRange = useMemo(() => {
     if (!heightFeet) return null;
 
     if (heightUnit === "ft/in") {
-      return Math.round(
-        getRecommendedWeightRangeFeetAndInches(
-          Number(heightFeet),
-          Number(heightInches || 0)
-        )
+      const {
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      } = getRecommendedWeightRangeFeetAndInches(
+        Number(heightFeet),
+        Number(heightInches || 0),
+        Number(currentWeight || 0)
       );
+
+      return {
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      };
     } else {
-      return Math.round(getRecommendedWeightRangeCm(Number(heightFeet)));
+      const { ft, inch } = cmToFt(heightFeet || "0");
+      const kg = lbToKg(weight.toString() || "0");
+      const {
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      } = getRecommendedWeightRangeFeetAndInches(ft, inch, kg);
+
+      return {
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      };
     }
   }, [heightFeet, heightInches, heightUnit]);
 
@@ -40,22 +60,28 @@ function SetTargetWeight() {
   const suggestedTargetWeight = useMemo(() => {
     const currentWeightNum = parseFloat(currentWeight);
 
-    if (!weightGoal || !recommendedWeight || !currentWeight) {
+    if (!weightGoal || !recommendedWeightRange || !currentWeight) {
       return null;
     }
 
     switch (weightGoal) {
       case "lose":
-        if (currentWeightNum > recommendedWeight) {
-          return recommendedWeight;
+        if (
+          currentWeightNum >
+          recommendedWeightRange.desiredWeightInMoreThan10Percent
+        ) {
+          return recommendedWeightRange.desiredWeightInMoreThan10Percent;
         } else {
           // Suggest 7.5% reduction (midpoint of 5-10%)
           return Math.round(currentWeightNum * 0.925);
         }
 
       case "gain":
-        if (currentWeightNum < recommendedWeight) {
-          return recommendedWeight;
+        if (
+          currentWeightNum <
+          recommendedWeightRange.desiredWeightInLessThan10Percent
+        ) {
+          return recommendedWeightRange.desiredWeightInLessThan10Percent;
         } else {
           // Suggest 7.5% increase (midpoint of 5-10%)
           return Math.round(currentWeightNum * 1.075);
@@ -65,9 +91,9 @@ function SetTargetWeight() {
         return currentWeightNum;
 
       default:
-        return recommendedWeight;
+        return recommendedWeightRange;
     }
-  }, [weightGoal, currentWeight, recommendedWeight]);
+  }, [weightGoal, currentWeight, recommendedWeightRange]);
 
   // Auto-fill target weight with recommendation when screen loads
   useEffect(() => {
@@ -80,27 +106,33 @@ function SetTargetWeight() {
   const getRecommendationMessage = () => {
     const currentWeightNum = parseFloat(currentWeight);
 
-    if (!weightGoal || !recommendedWeight || !currentWeight) {
+    if (!weightGoal || !recommendedWeightRange || !currentWeight) {
       return "Based on your profile, we'll help you track your progress toward your ideal weight.";
     }
 
     switch (weightGoal) {
       case "lose":
-        if (currentWeightNum > recommendedWeight) {
-          return `Based on your height and current weight, we recommend aiming for ${recommendedWeight} kg. This is a healthy weight range that supports your weight loss goal.`;
+        if (
+          currentWeightNum >
+          recommendedWeightRange.desiredWeightInMoreThan10Percent
+        ) {
+          return `Based on your height and current weight, we recommend aiming for ${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg - ${recommendedWeightRange.desiredWeightInLessThan10Percent}kg. This is a healthy weight range that supports your weight loss goal.`;
         } else {
           return `Your current weight is already in a healthy range. Consider setting a target that's 5-10% lower than your current weight (${Math.round(currentWeightNum * 0.9)}-${Math.round(currentWeightNum * 0.95)} kg) for gradual, sustainable weight loss.`;
         }
 
       case "gain":
-        if (currentWeightNum < recommendedWeight) {
-          return `Based on your height, we recommend targeting ${recommendedWeight} kg. This healthy weight supports your weight gain goal and overall wellness.`;
+        if (
+          currentWeightNum <
+          recommendedWeightRange.desiredWeightInLessThan10Percent
+        ) {
+          return `Based on your height, we recommend targeting ${recommendedWeightRange.desiredWeightInLessThan10Percent}kg - ${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg. This healthy weight supports your weight gain goal and overall wellness.`;
         } else {
-          return `Consider setting a target that's 5-10% higher than your current weight (${Math.round(currentWeightNum * 1.05)}-${Math.round(currentWeightNum * 1.1)} kg) for gradual, healthy weight gain.`;
+          return `Consider setting a target that's 5-10% higher than your current weight (${Math.round(currentWeightNum * 1.05)}-${Math.round(currentWeightNum * 1.1)}kg) for gradual, healthy weight gain.`;
         }
 
       case "maintain":
-        return `Great choice! Maintaining your current weight of ${currentWeight} kg will help you establish healthy habits. Your recommended healthy weight is ${recommendedWeight} kg.`;
+        return `Great choice! Maintaining your current weight of ${currentWeight}kg will help you establish healthy habits. Your recommended healthy weight is ${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg - ${recommendedWeightRange.desiredWeightInLessThan10Percent}kg.`;
 
       default:
         return "Based on your profile, we'll help you track your progress toward your ideal weight.";
@@ -156,7 +188,9 @@ function SetTargetWeight() {
             <Text className="font-Poppins text-sm text-foreground">
               Current weight:{" "}
               <Text className="font-PoppinsSemiBold text-black">
-                {currentWeight} kg
+                {weightUnit === "kg"
+                  ? `${currentWeight}kg`
+                  : `${Math.round(lbToKg(currentWeight))}lb`}
               </Text>
             </Text>
           </View>
@@ -165,7 +199,7 @@ function SetTargetWeight() {
         {/* Input Field */}
         <View className="mb-6">
           <Text className="font-Poppins text-md text-foreground mb-3">
-            Target Weight (kg)
+            Target Weight ({weightUnit})
           </Text>
           <View className="flex-row items-center gap-2">
             <TextInputField

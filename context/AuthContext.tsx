@@ -102,7 +102,6 @@ export interface AuthContextType {
     email: string,
     weightGoal: string,
     targetWeight: number,
-    dietType: string,
     activityLevel: string,
     loggedWeightPayload: LoggedWeight[]
   ) => Promise<string>;
@@ -391,7 +390,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       email: string,
       weightGoal: string,
       targetWeight: number,
-      dietType: string,
       activityLevel: string,
       loggedWeightPayload: LoggedWeight[]
     ) => {
@@ -407,7 +405,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           !weightGoal ||
           targetWeight === null ||
           targetWeight === undefined ||
-          !dietType ||
           !activityLevel ||
           !loggedWeightPayload ||
           loggedWeightPayload.length === 0
@@ -424,7 +421,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             !weightGoal && "weightGoal",
             targetWeight === null && "targetWeight",
             targetWeight === undefined && "targetWeight",
-            !dietType && "dietType",
             !activityLevel && "activityLevel",
             !loggedWeightPayload && "loggedWeightPayload",
             loggedWeightPayload.length === 0 && "loggedWeightPayload",
@@ -452,7 +448,6 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             email,
             weightGoal,
             targetWeight,
-            dietType,
             activityLevel,
             loggedWeightPayload,
           }),
