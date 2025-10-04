@@ -1,12 +1,14 @@
-import React, { memo, useEffect, useMemo } from "react";
+import React, { memo, useEffect } from "react";
 import { StyleSheet, Text, View } from "react-native";
 
 import { Switch } from "../../../components/switch";
 
 import {
-  convertFeetAndInchesToCm,
-  getRecommendedWeightRangeCm,
+  cmToFt,
+  ftToCM,
   getRecommendedWeightRangeFeetAndInches,
+  kgToLb,
+  lbToKg,
 } from "@/lib/helpers";
 import { useState } from "react";
 import Animated, {
@@ -18,7 +20,7 @@ import Animated, {
 import TextInputField from "../../../components/TextInputField";
 import { useOnboarding } from "./_layout";
 
-type Unit = "Imperial" | "Metric";
+type Unit = "ft/kg" | "cm/lb";
 
 function HeightAndWeight() {
   const {
@@ -32,81 +34,90 @@ function HeightAndWeight() {
     setWeightUnit,
   } = useOnboarding();
 
-  const [unit, setUnit] = useState<Unit>("Imperial");
-  const [showRecommendation, setShowRecommendation] = useState(true);
+  const [unit, setUnit] = useState<Unit>("ft/kg");
+  const [recommendation, setRecommendation] = useState<{
+    desiredWeight: number;
+    recommendation: string;
+    desiredWeightInLessThan10Percent: number;
+    desiredWeightInMoreThan10Percent: number;
+  } | null>(null);
+  const [converting, setConverting] = useState(false);
   const isOn = useSharedValue(false);
 
   useEffect(() => {
-    if (unit === "Imperial") {
-      setHeightUnit("ft/in");
-      setWeightUnit("lb");
-    } else {
+    // When switching to "cm/lb" we want height in cm and weight in lb.
+    // When switching to "ft/kg" we want height in ft+in and weight in kg.
+    setConverting(true);
+    if (unit === "cm/lb") {
       setHeightUnit("cm");
+      setWeightUnit("lb");
+      // convert current ft/in -> cm
+      const cm = ftToCM(heightFeet || "0", heightInches || "0");
+      setHeightFeet(cm > 0 ? cm.toString() : "");
+      setHeightInches("");
+      // convert current kg -> lb
+      const lb = kgToLb(weight || "0");
+      setWeight(lb > 0 ? lb.toString() : "");
+    } else {
+      setHeightUnit("ft/in");
       setWeightUnit("kg");
+      // convert current cm -> ft/in
+      const { ft, inch } = cmToFt(heightFeet || "0");
+      setHeightFeet(ft > 0 ? ft.toString() : "");
+      setHeightInches(inch > 0 ? inch.toString() : "");
+      // convert current lb -> kg
+      const kg = lbToKg(weight || "0");
+      setWeight(kg > 0 ? kg.toString() : "");
     }
-
-    console.log(convertFeetAndInchesToCm(5, 10));
+    setTimeout(() => setConverting(false), 0);
   }, [unit]);
 
-  // Calculate height in cm and weight in kg
-  const heightInCm = useMemo(() => {
-    if (!heightFeet) return null;
-
-    if (unit === "Imperial") {
-      const feet = parseFloat(heightFeet) || 0;
-      const inches = parseFloat(heightInches) || 0;
-      return feet * 30.48 + inches * 2.54;
-    } else {
-      return parseFloat(heightFeet) || 0;
+  useEffect(() => {
+    if (converting) return;
+    if (!heightFeet || !weight) {
+      setRecommendation(null);
+      return;
     }
-  }, [heightFeet, heightInches, unit]);
 
-  const weightInKg = useMemo(() => {
-    if (!weight) return null;
-
-    if (unit === "Imperial") {
-      return (parseFloat(weight) || 0) * 0.453592;
+    if (unit === "ft/kg") {
+      const {
+        desiredWeight,
+        recommendation,
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      } = getRecommendedWeightRangeFeetAndInches(
+        Number(heightFeet),
+        Number(heightInches),
+        Number(weight)
+      );
+      setRecommendation({
+        desiredWeight,
+        recommendation,
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      });
     } else {
-      return parseFloat(weight) || 0;
+      const { ft, inch } = cmToFt(heightFeet || "0");
+      const kg = lbToKg(weight || "0");
+      const {
+        desiredWeight,
+        recommendation,
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      } = getRecommendedWeightRangeFeetAndInches(ft, inch, kg);
+      setRecommendation({
+        desiredWeight,
+        recommendation,
+        desiredWeightInLessThan10Percent,
+        desiredWeightInMoreThan10Percent,
+      });
     }
-  }, [weight, unit]);
-
-  // Calculate recommended weight range based on healthy BMI (18.5 - 24.9)
-  const recommendedWeightRange = useMemo(() => {
-    if (!heightInCm || heightInCm === 0) return null;
-
-    const heightInMeters = heightInCm / 100;
-    const minWeight = 18.5 * heightInMeters * heightInMeters;
-    const maxWeight = 24.9 * heightInMeters * heightInMeters;
-
-    if (unit === "Imperial") {
-      // Convert to pounds
-      return {
-        min: Math.round(minWeight * 2.20462),
-        max: Math.round(maxWeight * 2.20462),
-        unit: "lb",
-      };
-    } else {
-      return {
-        min: Math.round(minWeight),
-        max: Math.round(maxWeight),
-        unit: "kg",
-      };
-    }
-  }, [heightInCm, unit]);
-
-  const shouldShowRecommendation = useMemo(() => {
-    return (
-      showRecommendation &&
-      heightFeet &&
-      weight &&
-      recommendedWeightRange !== null
-    );
-  }, [showRecommendation, heightFeet, weight, recommendedWeightRange]);
+  }, [heightFeet, heightInches, weight, unit, converting]);
 
   const handlePress = () => {
+    setConverting(true);
     isOn.value = !isOn.value;
-    setUnit(isOn.value ? "Imperial" : "Metric");
+    setUnit(isOn.value ? "ft/kg" : "cm/lb");
   };
 
   return (
@@ -118,11 +129,11 @@ function HeightAndWeight() {
 
         <View className="flex-row items-center justify-center gap-2 mt-2">
           <Text className="font-PoppinsMedium text-lg text-foreground">
-            Imperial
+            ft/kg
           </Text>
           <Switch value={isOn} onPress={handlePress} style={styles.switch} />
           <Text className="font-PoppinsMedium text-lg text-foreground">
-            Metric
+            cm/lb
           </Text>
         </View>
 
@@ -132,7 +143,7 @@ function HeightAndWeight() {
             Height
           </Text>
           <View className="flex-row items-center gap-2">
-            {unit === "Imperial" ? (
+            {unit === "ft/kg" ? (
               <>
                 <TextInputField
                   value={heightFeet}
@@ -167,13 +178,13 @@ function HeightAndWeight() {
             <TextInputField
               value={weight}
               onChangeText={setWeight}
-              placeholderText={unit === "Imperial" ? "kg" : "lb"}
+              placeholderText={unit === "ft/kg" ? "kg" : "lb"}
             />
           </View>
         </View>
 
         {/* Recommendation Card */}
-        {shouldShowRecommendation && recommendedWeightRange && (
+        {recommendation && recommendation.recommendation !== "" && (
           <Animated.View
             entering={FadeInDown.duration(500).springify()}
             exiting={FadeOutDown.duration(300)}
@@ -189,16 +200,9 @@ function HeightAndWeight() {
               </Text>
               <View className="bg-green-50 rounded-xl p-4 border border-green-200">
                 <Text className="text-2xl font-PoppinsBold text-green-700 text-center">
-                  {unit === "Imperial"
-                    ? Math.round(
-                        getRecommendedWeightRangeFeetAndInches(
-                          Number(heightFeet),
-                          Number(heightInches)
-                        )
-                      ) + " kg"
-                    : Math.round(
-                        getRecommendedWeightRangeCm(Number(heightFeet))
-                      ) + " kg"}
+                  {recommendation?.recommendation === "underweight"
+                    ? `Your weight is below the recommended range \n(${unit === "ft/kg" ? recommendation.desiredWeightInLessThan10Percent + " kg - " + recommendation.desiredWeightInMoreThan10Percent + " kg" : kgToLb(recommendation?.desiredWeightInLessThan10Percent.toString() || "0") + " lb - " + kgToLb(recommendation?.desiredWeightInMoreThan10Percent.toString() || "0") + " lb"}).`
+                    : `Your weight is above the recommended range \n(${unit === "ft/kg" ? recommendation?.desiredWeightInLessThan10Percent + " kg - " + recommendation?.desiredWeightInMoreThan10Percent + " kg" : kgToLb(recommendation?.desiredWeightInLessThan10Percent.toString() || "0") + " lb - " + kgToLb(recommendation?.desiredWeightInMoreThan10Percent.toString() || "0") + " lb"}).`}
                 </Text>
               </View>
             </View>

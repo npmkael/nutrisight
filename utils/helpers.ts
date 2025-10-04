@@ -216,9 +216,19 @@ export function getProgress(value: number, total: number) {
   return Math.max(0, Math.min(100, pct)); // clamp 0..100
 }
 
-export function getPartOfDay(hour: number) {
-  if (hour >= 5 && hour < 12) return "morning";
-  if (hour >= 12 && hour < 17) return "afternoon";
-  if (hour >= 17 && hour < 21) return "evening";
-  return "night";
+export function getPartOfDay(
+  hour: number
+): "morning" | "afternoon" | "evening" {
+  // use whole-hour boundaries, normalize input to 0-23
+  const h = Math.floor(Number(hour) || 0);
+  const hourNorm = ((h % 24) + 24) % 24;
+
+  // 04:00 - 10:59 -> morning (hours 4..10)
+  if (hourNorm >= 4 && hourNorm <= 10) return "morning";
+
+  // 11:00 - 18:59 -> afternoon (hours 11..18)
+  if (hourNorm >= 11 && hourNorm <= 18) return "afternoon";
+
+  // everything else -> evening (hours 19..23 and 0..3)
+  return "evening";
 }
