@@ -8,6 +8,7 @@ import {
   calorieSum,
   getCaloriesFromMealEntry,
   getPartOfDay,
+  setPrecisionIfNotInteger,
 } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
@@ -139,9 +140,9 @@ function Home() {
         const fats = sumByKeyword(nutritionObj, "fat");
 
         setMacros({
-          carbs: Number(carbs.toFixed(2)),
-          protein: Number(protein.toFixed(2)),
-          fats: Number(fats.toFixed(2)),
+          carbs: setPrecisionIfNotInteger(carbs),
+          protein: setPrecisionIfNotInteger(protein),
+          fats: setPrecisionIfNotInteger(fats),
         });
       } else {
         setMacros({
@@ -352,7 +353,7 @@ function Home() {
                   />
                 </View>
                 <Text className="text-white text-sm font-Poppins">
-                  {macros?.carbs.toFixed(2) || 0}g
+                  {setPrecisionIfNotInteger(macros?.carbs || 0)} g
                 </Text>
               </View>
 
@@ -374,7 +375,7 @@ function Home() {
                   />
                 </View>
                 <Text className="text-white text-sm font-Poppins">
-                  {macros?.protein.toFixed(2) || 0}g
+                  {setPrecisionIfNotInteger(macros?.protein || 0)} g
                 </Text>
               </View>
 
@@ -396,7 +397,7 @@ function Home() {
                   />
                 </View>
                 <Text className="text-white text-sm font-Poppins">
-                  {macros?.fats.toFixed(2) || 0}g
+                  {setPrecisionIfNotInteger(macros?.fats || 0)} g
                 </Text>
               </View>
             </View>
@@ -474,8 +475,8 @@ function Home() {
           <AddMeal
             title="Breakfast"
             totalCalories={0.25 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={Number(
-              calorieSum(dietHistory?.breakfast || []).toFixed(2)
+            caloriesConsumed={setPrecisionIfNotInteger(
+              calorieSum(dietHistory?.breakfast || [])
             )}
             disabled={!isToday}
             date={selectedDate.toISOString()}
@@ -483,8 +484,8 @@ function Home() {
           <AddMeal
             title="Lunch"
             totalCalories={0.35 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={Number(
-              calorieSum(dietHistory?.lunch || []).toFixed(2)
+            caloriesConsumed={setPrecisionIfNotInteger(
+              calorieSum(dietHistory?.lunch || [])
             )}
             disabled={!isToday}
             date={selectedDate.toISOString()}
@@ -492,8 +493,8 @@ function Home() {
           <AddMeal
             title="Dinner"
             totalCalories={0.3 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={Number(
-              calorieSum(dietHistory?.dinner || []).toFixed(2)
+            caloriesConsumed={setPrecisionIfNotInteger(
+              calorieSum(dietHistory?.dinner || [])
             )}
             disabled={!isToday}
             date={selectedDate.toISOString()}
@@ -501,8 +502,8 @@ function Home() {
           <AddMeal
             title="Snacks"
             totalCalories={0.1 * (user.dailyRecommendation?.calories || 0)}
-            caloriesConsumed={Number(
-              calorieSum(dietHistory?.otherMealTime || []).toFixed(2)
+            caloriesConsumed={setPrecisionIfNotInteger(
+              calorieSum(dietHistory?.otherMealTime || [])
             )}
             disabled={false}
             date={selectedDate.toISOString()}

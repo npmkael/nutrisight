@@ -1,4 +1,5 @@
 import { colors } from "@/lib/utils";
+import { setPrecisionIfNotInteger } from "@/utils/helpers";
 import { Feather, Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { Href, router } from "expo-router";
 import { useEffect, useRef, useState } from "react";
@@ -66,7 +67,8 @@ export function AddMeal({
               }}
               className="text-foreground"
             >
-              {caloriesConsumed} / {totalCalories.toFixed(2)} kcal
+              {caloriesConsumed} / {setPrecisionIfNotInteger(totalCalories)}{" "}
+              kcal
             </Text>
           </View>
         </View>

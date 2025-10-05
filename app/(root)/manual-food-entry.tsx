@@ -3,8 +3,9 @@ import { FoodSearchResultItem } from "@/components/FoodSearchResultItem";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchResultShimmer } from "@/components/SearchResultShimmer";
 import { BACKEND_URL, useAuth } from "@/context/AuthContext";
-import { capitalizeFirstLetter } from "@/utils/helpers";
+import { capitalizeFirstLetter, getMacroValue } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { router } from "expo-router";
 import { memo, useCallback, useEffect, useState } from "react";
 import {
@@ -20,28 +21,25 @@ import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { ScanResultType } from "./main-camera";
 
-// Food search result type
-interface FoodSearchResult {
-  foodName: string;
-  name?: string;
-  brand?: string;
-  servingSize?: string;
-  calories?: number;
-  carbs?: number;
-  protein?: number;
-  fats?: number;
-  nutritionData?: any;
-  source?: string;
-}
-
 function ManualFoodEntry() {
   const { user } = useAuth();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
-  const [searchResults, setSearchResults] = useState<FoodSearchResult[]>([]);
+  const [searchResults, setSearchResults] = useState<ScanResultType[]>([]);
+  const [quickSearches, setQuickSearches] = useState<ScanResultType[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+
+  // Load recent searches from local storage on mount
+  useEffect(() => {
+    const loadRecentSearches = async () => {
+      const raw = await AsyncStorage.getItem("recent_searches");
+      const list: ScanResultType[] = raw ? JSON.parse(raw) : [];
+      setQuickSearches(list);
+    };
+    loadRecentSearches();
+  }, []);
 
   // Modal state
   const [showManualEntry, setShowManualEntry] = useState(false);
@@ -84,46 +82,7 @@ function ManualFoodEntry() {
       const data = await res.json();
       console.log("Search result:", data);
 
-      // Extract nutrition data
-      const nutritionData = data.data?.nutritionData || [];
-      const allItems = nutritionData.flatMap((cat: any) => cat.items);
-
-      // Extract calories
-      const calorieItem = allItems.find(
-        (item: any) =>
-          item.name?.toLowerCase().includes("energy") ||
-          item.name?.toLowerCase().includes("calorie")
-      );
-
-      // Extract carbs
-      const carbsItem = allItems.find((item: any) =>
-        item.name?.toLowerCase().includes("carbohydrate")
-      );
-
-      // Extract protein
-      const proteinItem = allItems.find((item: any) =>
-        item.name?.toLowerCase().includes("protein")
-      );
-
-      // Extract fats
-      const fatsItem = allItems.find(
-        (item: any) =>
-          item.name?.toLowerCase().includes("fat") ||
-          item.name?.toLowerCase().includes("lipid")
-      );
-
-      const result: FoodSearchResult = {
-        foodName: data.data?.foodName || data.data?.name || query,
-        name: data.data?.name || data.data?.foodName,
-        brand: data.data?.brand,
-        servingSize: data.data?.servingSize,
-        calories: calorieItem?.value,
-        carbs: carbsItem?.value,
-        protein: proteinItem?.value,
-        fats: fatsItem?.value,
-        nutritionData: data.data,
-        source: data.data?.source,
-      };
+      const result: ScanResultType = data.data as ScanResultType;
 
       setSearchResults([result]);
     } catch (error) {
@@ -143,7 +102,7 @@ function ManualFoodEntry() {
     if (searchQuery.trim()) {
       const timeout = setTimeout(() => {
         searchFood(searchQuery);
-      }, 500); // 500ms debounce
+      }, 1500); // 1500ms debounce
 
       setDebounceTimeout(timeout);
     } else {
@@ -160,14 +119,32 @@ function ManualFoodEntry() {
   }, [searchQuery]);
 
   // Handle search result selection
-  const handleSelectFood = useCallback(async (food: FoodSearchResult) => {
+  const handleSelectFood = useCallback(async (food: ScanResultType) => {
     Keyboard.dismiss();
+
+    // save to local storage for quick search next time
+    const raw = await AsyncStorage.getItem("recent_searches");
+    const list: ScanResultType[] = raw ? JSON.parse(raw) : [];
+    const id = `${food.foodName ?? food.name}-${food.brand ?? ""}`;
+
+    // remove existing entry with same id
+    const deduped = list.filter(
+      (f) => `${f.foodName ?? f.name}-${f.brand ?? ""}` !== id
+    );
+
+    // newest first
+    deduped.unshift(food);
+    const truncated = deduped.slice(0, 5); // keep only latest 5 entries
+
+    // store back to local storage
+    await AsyncStorage.setItem("recent_searches", JSON.stringify(truncated));
+    setQuickSearches(truncated);
 
     // Navigate to results screen with the food data
     router.push({
       pathname: "/results",
       params: {
-        scanResult: JSON.stringify(food.nutritionData),
+        scanResult: JSON.stringify(food),
         name: food.foodName || food.name,
         image: "", // No image for searched items
       },
@@ -246,6 +223,11 @@ function ManualFoodEntry() {
     setHasSearched(false);
   }, []);
 
+  const handleClearRecentSearches = useCallback(async () => {
+    await AsyncStorage.removeItem("recent_searches");
+    setQuickSearches([]);
+  }, []);
+
   return (
     <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
       <KeyboardAvoidingView
@@ -262,7 +244,7 @@ function ManualFoodEntry() {
               onPress={handleBack}
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-50"
             >
-              <Ionicons name="arrow-back" size={20} color="#374151" />
+              <Ionicons name="arrow-back" size={20} color="#af4545ff" />
             </TouchableOpacity>
 
             <Text className="text-xl font-PoppinsSemiBold text-gray-900">
@@ -302,10 +284,42 @@ function ManualFoodEntry() {
                 <FoodSearchResultItem
                   foodName={item.foodName || item.name || ""}
                   servingSize={item.servingSize}
-                  calories={item.calories}
-                  carbs={item.carbs}
-                  protein={item.protein}
-                  fats={item.fats}
+                  calories={
+                    Number(
+                      getMacroValue(
+                        "calories",
+                        ["energy", "calorie", "kcal"],
+                        item
+                      )
+                    ) || 0
+                  }
+                  carbs={
+                    Number(
+                      getMacroValue(
+                        "carbs",
+                        ["carbohydrate", "carbs", "total carbohydrate"],
+                        item
+                      )
+                    ) || 0
+                  }
+                  protein={
+                    Number(
+                      getMacroValue(
+                        "protein",
+                        ["protein", "total protein"],
+                        item
+                      )
+                    ) || 0
+                  }
+                  fats={
+                    Number(
+                      getMacroValue(
+                        "fats",
+                        ["fat", "total fat", "fats", "lipid"],
+                        item
+                      )
+                    ) || 0
+                  }
                   brand={item.brand}
                   onPress={() => handleSelectFood(item)}
                   index={index}
@@ -341,19 +355,41 @@ function ManualFoodEntry() {
                   </Text>
                 </View>
 
-                <View className="space-y-3">
-                  <Text className="text-gray-700 font-PoppinsMedium mb-2">
-                    Quick searches:
-                  </Text>
-                  {["Apple", "Chicken breast", "White rice", "Banana"].map(
-                    (suggestion, idx) => (
+                {quickSearches.length > 0 && (
+                  <View className="space-y-3">
+                    <View className="flex-row items-center justify-between mb-2">
+                      <Text className="text-gray-700 font-PoppinsMedium mb-2">
+                        Quick searches:
+                      </Text>
+
+                      <TouchableOpacity
+                        onPress={handleClearRecentSearches}
+                        activeOpacity={0.8}
+                        accessibilityRole="button"
+                        accessibilityLabel="Clear recent searches"
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        className="flex-row items-center bg-white border border-gray-200 rounded-full p-3"
+                      >
+                        <Ionicons
+                          name="trash-outline"
+                          size={16}
+                          color="#9CA3AF"
+                          style={{ marginRight: 8 }}
+                        />
+                        <Text className="text-sm font-PoppinsMedium text-gray-600">
+                          Clear
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    {quickSearches.map((suggestion, idx) => (
                       <TouchableOpacity
                         key={idx}
-                        onPress={() => setSearchQuery(suggestion)}
+                        onPress={() => handleSelectFood(suggestion)}
                         className="bg-gray-50 rounded-xl p-4 flex-row items-center justify-between mb-2"
                       >
                         <Text className="text-gray-700 font-Poppins">
-                          {suggestion}
+                          {suggestion.foodName || suggestion.name}
                         </Text>
                         <Ionicons
                           name="arrow-forward"
@@ -361,9 +397,9 @@ function ManualFoodEntry() {
                           color="#9CA3AF"
                         />
                       </TouchableOpacity>
-                    )
-                  )}
-                </View>
+                    ))}
+                  </View>
+                )}
               </View>
             </Animated.View>
           )}

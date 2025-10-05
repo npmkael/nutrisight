@@ -11,6 +11,7 @@ import { icons } from "@/constants";
 import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
 import {
   capitalizeFirstLetter,
+  getMacroValue,
   removeDuplicateTriggeredAllergens,
 } from "@/utils/helpers";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -66,31 +67,6 @@ function Results() {
   }, [result]);
 
   console.log("Meal Time results:", mealTime);
-
-  // Helper function to get macro value
-  const getMacroValue = useCallback(
-    (macroName: string, searchKeys: string[]) => {
-      if (editedValues[macroName]) {
-        return editedValues[macroName];
-      }
-
-      console.log("Searching for macro:", macroName, "with keys:", searchKeys);
-      const macroItem = result?.nutritionData
-        .flatMap((category) => category.items)
-        .find((item) =>
-          searchKeys.some((key) =>
-            (item.name as string).toLowerCase().includes(key)
-          )
-        );
-
-      return macroItem
-        ? Number(macroItem.value) % 1 === 0
-          ? Number(macroItem.value).toFixed(0)
-          : Number(macroItem.value).toFixed(2)
-        : "0";
-    },
-    [result, editedValues]
-  );
 
   // Handle macro edit functions
   const handleEditCalories = useCallback(() => {
@@ -442,7 +418,11 @@ function Results() {
                     : ""}
                 </Text>
                 <Text className="font-PoppinsBold text-gray-900 text-4xl">
-                  {getMacroValue("calories", ["energy", "calories", "kcal"])}{" "}
+                  {getMacroValue(
+                    "calories",
+                    ["energy", "calories", "kcal"],
+                    result
+                  )}{" "}
                   kcal
                 </Text>
               </View>
@@ -471,11 +451,11 @@ function Results() {
                   className="font-PoppinsBold text-gray-900"
                   style={{ fontSize: 24 }}
                 >
-                  {getMacroValue("carbs", [
-                    "carbohydrate",
+                  {getMacroValue(
                     "carbs",
-                    "total carbohydrate",
-                  ])}
+                    ["carbohydrate", "carbs", "total carbohydrate"],
+                    result
+                  )}
                   g
                 </Text>
               </View>
@@ -502,7 +482,12 @@ function Results() {
                   className="font-PoppinsBold text-gray-900"
                   style={{ fontSize: 24 }}
                 >
-                  {getMacroValue("protein", ["protein", "total protein"])}g
+                  {getMacroValue(
+                    "protein",
+                    ["protein", "total protein"],
+                    result
+                  )}
+                  g
                 </Text>
               </View>
               <TouchableOpacity
@@ -528,7 +513,11 @@ function Results() {
                   className="font-PoppinsBold text-gray-900"
                   style={{ fontSize: 24 }}
                 >
-                  {getMacroValue("fats", ["fat", "total fat", "fats", "lipid"])}
+                  {getMacroValue(
+                    "fats",
+                    ["fat", "total fat", "fats", "lipid"],
+                    result
+                  )}
                   g
                 </Text>
               </View>
@@ -718,41 +707,44 @@ function Results() {
         {/* Bottom Sheets for Editing Macros */}
         <CaloriesBottomSheet
           bottomSheetRef={caloriesBottomSheetRef}
-          currentValue={getMacroValue("calories", [
-            "energy",
+          currentValue={getMacroValue(
             "calories",
-            "kcal",
-          ])}
+            ["energy", "calorie", "kcal"],
+            result
+          )}
           onSave={handleSaveCalories}
           onClose={handleCloseCalories}
         />
 
         <CarbsBottomSheet
           bottomSheetRef={carbsBottomSheetRef}
-          currentValue={getMacroValue("carbs", [
-            "carbohydrate",
+          currentValue={getMacroValue(
             "carbs",
-            "total carbohydrate",
-          ])}
+            ["carbohydrate", "carbs", "total carbohydrate"],
+            result
+          )}
           onSave={handleSaveCarbs}
           onClose={handleCloseCarbs}
         />
 
         <ProteinBottomSheet
           bottomSheetRef={proteinBottomSheetRef}
-          currentValue={getMacroValue("protein", ["protein", "total protein"])}
+          currentValue={getMacroValue(
+            "protein",
+            ["protein", "total protein"],
+            result
+          )}
           onSave={handleSaveProtein}
           onClose={handleCloseProtein}
         />
 
         <FatsBottomSheet
           bottomSheetRef={fatsBottomSheetRef}
-          currentValue={getMacroValue("fats", [
-            "fat",
-            "total fat",
+          currentValue={getMacroValue(
             "fats",
-            "lipid",
-          ])}
+            ["fat", "total fat", "fats", "lipid"],
+            result
+          )}
           onSave={handleSaveFats}
           onClose={handleCloseFats}
         />

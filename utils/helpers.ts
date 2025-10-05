@@ -273,3 +273,28 @@ export function getCaloriesFromMealEntry(meal?: MealEntry): number {
 
   return 0;
 }
+
+export function setPrecisionIfNotInteger(num: number, precision = 2) {
+  return Number.isInteger(num) ? num : Number(num.toFixed(precision));
+}
+
+export const getMacroValue = (
+  macroName: string,
+  searchKeys: string[],
+  result: ScanResultType | null
+) => {
+  console.log("Searching for macro:", macroName, "with keys:", searchKeys);
+  const macroItem = result?.nutritionData
+    .flatMap((category) => category.items)
+    .find((item) =>
+      searchKeys.some((key) =>
+        (item.name as string).toLowerCase().includes(key)
+      )
+    );
+
+  return macroItem
+    ? Number(macroItem.value) % 1 === 0
+      ? Number(macroItem.value).toFixed(0)
+      : Number(macroItem.value).toFixed(2)
+    : "0";
+};
