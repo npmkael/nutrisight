@@ -285,19 +285,6 @@ function Settings() {
             />
 
             <SettingsItem
-              icon={
-                <Ionicons
-                  name="information-circle-outline"
-                  size={20}
-                  color="#6B7280"
-                />
-              }
-              title="About NutriSight"
-              subtitle="App information and credits"
-              onPress={() => handleAbout()}
-            />
-
-            <SettingsItem
               icon={<Ionicons name="mail-outline" size={20} color="#6B7280" />}
               title="Contact Us"
               subtitle="Get in touch with our team"
