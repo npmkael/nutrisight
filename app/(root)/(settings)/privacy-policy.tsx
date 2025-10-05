@@ -1,6 +1,5 @@
 import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { memo, useState } from "react";
 import {
@@ -189,91 +188,83 @@ function PrivacyPolicy() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <LinearGradient
-        colors={["rgba(236, 190, 88, 0.08)", "rgba(54, 102, 157, 0.08)"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.gradient}
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={20} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Privacy Policy</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={20} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.title}>Privacy Policy</Text>
-          <View style={styles.headerSpacer} />
+        {/* Header Card */}
+        <View style={styles.headerCard}>
+          <View style={styles.iconCircle}>
+            <Ionicons name="lock-closed" size={32} color={colors.primary} />
+          </View>
+          <Text style={styles.headerTitle}>Your Privacy Matters</Text>
+          <View style={styles.dateContainer}>
+            <Ionicons name="calendar-outline" size={16} color="#6B7280" />
+            <Text style={styles.dateText}>Effective Date: January 1, 2025</Text>
+          </View>
+          <Text style={styles.headerSubtext}>
+            At NutriSight, we are committed to protecting your privacy and
+            ensuring your personal data is handled securely and transparently.
+            This policy explains how we collect, use, and safeguard your
+            information.
+          </Text>
         </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header Card */}
-          <View style={styles.headerCard}>
-            <View style={styles.iconCircle}>
-              <Ionicons name="lock-closed" size={32} color={colors.primary} />
-            </View>
-            <Text style={styles.headerTitle}>Your Privacy Matters</Text>
-            <View style={styles.dateContainer}>
-              <Ionicons name="calendar-outline" size={16} color="#6B7280" />
-              <Text style={styles.dateText}>
-                Effective Date: January 1, 2025
-              </Text>
-            </View>
-            <Text style={styles.headerSubtext}>
-              At NutriSight, we are committed to protecting your privacy and
-              ensuring your personal data is handled securely and transparently.
-              This policy explains how we collect, use, and safeguard your
-              information.
-            </Text>
+        {/* Trust Badges */}
+        <View style={styles.trustBadges}>
+          <View style={styles.badge}>
+            <Ionicons name="shield-checkmark" size={20} color="#10B981" />
+            <Text style={styles.badgeText}>Encrypted</Text>
           </View>
-
-          {/* Trust Badges */}
-          <View style={styles.trustBadges}>
-            <View style={styles.badge}>
-              <Ionicons name="shield-checkmark" size={20} color="#10B981" />
-              <Text style={styles.badgeText}>Encrypted</Text>
-            </View>
-            <View style={styles.badge}>
-              <Ionicons name="lock-closed" size={20} color="#3B82F6" />
-              <Text style={styles.badgeText}>Secure</Text>
-            </View>
-            <View style={styles.badge}>
-              <Ionicons name="eye-off" size={20} color="#8B5CF6" />
-              <Text style={styles.badgeText}>Private</Text>
-            </View>
+          <View style={styles.badge}>
+            <Ionicons name="lock-closed" size={20} color="#3B82F6" />
+            <Text style={styles.badgeText}>Secure</Text>
           </View>
-
-          {/* Privacy Sections */}
-          <View style={styles.sectionsContainer}>
-            {PRIVACY_SECTIONS.map((section) => (
-              <PrivacySection
-                key={section.id}
-                section={section}
-                isExpanded={expandedId === section.id}
-                onToggle={() => handleToggle(section.id)}
-              />
-            ))}
+          <View style={styles.badge}>
+            <Ionicons name="eye-off" size={20} color="#8B5CF6" />
+            <Text style={styles.badgeText}>Private</Text>
           </View>
+        </View>
 
-          {/* Footer Info */}
-          <View style={styles.footerInfo}>
-            <Ionicons
-              name="information-circle-outline"
-              size={20}
-              color="#9CA3AF"
+        {/* Privacy Sections */}
+        <View style={styles.sectionsContainer}>
+          {PRIVACY_SECTIONS.map((section) => (
+            <PrivacySection
+              key={section.id}
+              section={section}
+              isExpanded={expandedId === section.id}
+              onToggle={() => handleToggle(section.id)}
             />
-            <Text style={styles.footerText}>
-              We take your privacy seriously and comply with GDPR, CCPA, and
-              other data protection regulations.
-            </Text>
+          ))}
+        </View>
+
+        {/* Footer Info */}
+        <View style={styles.footerCard}>
+          <View style={styles.footerHeader}>
+            <View style={styles.footerIconCircle}>
+              <Ionicons name="shield-checkmark" size={24} color="#10B981" />
+            </View>
+            <Text style={styles.footerTitle}>Your Data, Your Rights</Text>
           </View>
-        </ScrollView>
-      </LinearGradient>
+          <Text style={styles.footerDescription}>
+            We are committed to protecting your privacy and ensuring
+            transparency in how we handle your personal information.
+          </Text>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -333,9 +324,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
-  },
-  gradient: {
-    flex: 1,
   },
   header: {
     flexDirection: "row",
@@ -538,19 +526,62 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsSemiBold",
     color: "white",
   },
-  footerInfo: {
+  footerCard: {
+    backgroundColor: "#F0FDF4",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: "#BBF7D0",
+    shadowColor: "#10B981",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  footerHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#F9FAFB",
-    padding: 16,
-    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 12,
     gap: 12,
   },
-  footerText: {
-    flex: 1,
+  footerIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#DCFCE7",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  footerTitle: {
+    fontSize: 18,
+    fontFamily: "PoppinsSemiBold",
+    color: "#166534",
+  },
+  footerDescription: {
+    fontSize: 14,
+    fontFamily: "Poppins",
+    color: "#15803D",
+    lineHeight: 22,
+  },
+  footerDivider: {
+    height: 1,
+    backgroundColor: "#BBF7D0",
+    marginBottom: 16,
+  },
+  footerPoints: {
+    gap: 12,
+  },
+  footerPoint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  footerPointText: {
     fontSize: 13,
     fontFamily: "Poppins",
-    color: "#6B7280",
+    color: "#15803D",
     lineHeight: 20,
+    textAlign: "center",
   },
 });

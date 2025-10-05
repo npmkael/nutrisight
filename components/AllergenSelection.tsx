@@ -40,7 +40,9 @@ function AllergensSelection({
       <TouchableOpacity
         key={allergen.id}
         className={`py-3 px-4 rounded-lg border mb-2 ${
-          isSelected ? "bg-black border-black" : "bg-white border-gray-300"
+          isSelected
+            ? "bg-[#2D3644] border-[#2D3644]"
+            : "bg-white border-gray-300"
         }`}
         onPress={() => toggleAllergen(allergen.id)}
       >
@@ -57,16 +59,7 @@ function AllergensSelection({
 
   return (
     <SafeAreaView className="flex-1 bg-white">
-      <View className="flex-1 px-4 pt-4">
-        {/* Header */}
-        <Text className="text-3xl font-PoppinsSemiBold text-black mb-4">
-          Allergies
-        </Text>
-
-        <Text className="font-Poppins text-md text-gray-600 mb-6">
-          Do you have any food allergies or intolerances?
-        </Text>
-
+      <View className="flex-1">
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
           {/* Common Allergens Section */}
           <View className="mb-6">

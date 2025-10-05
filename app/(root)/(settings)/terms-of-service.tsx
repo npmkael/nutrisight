@@ -1,6 +1,5 @@
 import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { memo, useState } from "react";
 import {
@@ -120,83 +119,84 @@ function TermsOfService() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <LinearGradient
-        colors={["rgba(236, 190, 88, 0.08)", "rgba(54, 102, 157, 0.08)"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.gradient}
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={20} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.title}>Terms of Service</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        {/* Header */}
-        <View style={styles.header}>
+        {/* Header Card */}
+        <View style={styles.headerCard}>
+          <View style={styles.iconCircle}>
+            <Ionicons name="document-text" size={32} color={colors.primary} />
+          </View>
+          <Text style={styles.headerTitle}>NutriSight Terms of Service</Text>
+          <View style={styles.dateContainer}>
+            <Ionicons name="calendar-outline" size={16} color="#6B7280" />
+            <Text style={styles.dateText}>Last Updated: October 5, 2025</Text>
+          </View>
+          <Text style={styles.headerSubtext}>
+            Please read these terms carefully before using NutriSight. By using
+            our app, you agree to these terms and conditions.
+          </Text>
+        </View>
+        {/* Terms Sections */}
+        <View style={styles.sectionsContainer}>
+          {TERMS_SECTIONS.map((section) => (
+            <TermsSection
+              key={section.id}
+              section={section}
+              isExpanded={expandedId === section.id}
+              onToggle={() => handleToggle(section.id)}
+            />
+          ))}
+        </View>
+        {/* Acknowledgment Button */}
+        <View style={styles.buttonContainer}>
           <TouchableOpacity
-            style={styles.backButton}
+            style={styles.acknowledgeButton}
             onPress={() => router.back()}
+            activeOpacity={0.8}
           >
-            <Ionicons name="arrow-back" size={20} color="black" />
+            <Ionicons name="checkmark-circle" size={20} color="white" />
+            <Text style={styles.acknowledgeButtonText}>I Understand</Text>
           </TouchableOpacity>
-          <Text style={styles.title}>Terms of Service</Text>
-          <View style={styles.headerSpacer} />
         </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Header Card */}
-          <View style={styles.headerCard}>
-            <View style={styles.iconCircle}>
-              <Ionicons name="document-text" size={32} color={colors.primary} />
+        {/* Footer Info */}
+        <View style={styles.footerCard}>
+          <View style={styles.footerHeader}>
+            <View style={styles.footerIconCircle}>
+              <Ionicons name="shield-checkmark" size={24} color="#3B82F6" />
             </View>
-            <Text style={styles.headerTitle}>NutriSight Terms of Service</Text>
-            <View style={styles.dateContainer}>
-              <Ionicons name="calendar-outline" size={16} color="#6B7280" />
-              <Text style={styles.dateText}>Last Updated: October 5, 2025</Text>
+            <Text style={styles.footerTitle}>Legal Agreement</Text>
+          </View>
+          <Text style={styles.footerDescription}>
+            These terms govern your use of NutriSight and constitute a legally
+            binding agreement between you and NutriSight Inc.
+          </Text>
+          <View style={styles.footerDivider} />
+          <View style={styles.footerPoints}>
+            <View style={styles.footerPoint}>
+              <Ionicons name="checkmark-circle" size={18} color="#10B981" />
+              <Text style={styles.footerPointText}>
+                By using the app, you accept these terms
+              </Text>
             </View>
-            <Text style={styles.headerSubtext}>
-              Please read these terms carefully before using NutriSight. By
-              using our app, you agree to these terms and conditions.
-            </Text>
           </View>
-
-          {/* Terms Sections */}
-          <View style={styles.sectionsContainer}>
-            {TERMS_SECTIONS.map((section) => (
-              <TermsSection
-                key={section.id}
-                section={section}
-                isExpanded={expandedId === section.id}
-                onToggle={() => handleToggle(section.id)}
-              />
-            ))}
-          </View>
-
-          {/* Acknowledgment Button */}
-          <View style={styles.buttonContainer}>
-            <TouchableOpacity
-              style={styles.acknowledgeButton}
-              onPress={() => router.back()}
-              activeOpacity={0.8}
-            >
-              <Ionicons name="checkmark-circle" size={20} color="white" />
-              <Text style={styles.acknowledgeButtonText}>I Understand</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* Footer Info */}
-          <View style={styles.footerInfo}>
-            <Ionicons
-              name="information-circle-outline"
-              size={20}
-              color="#9CA3AF"
-            />
-            <Text style={styles.footerText}>
-              These terms govern your use of NutriSight and constitute a legal
-              agreement between you and NutriSight.
-            </Text>
-          </View>
-        </ScrollView>
-      </LinearGradient>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -253,9 +253,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
-  },
-  gradient: {
-    flex: 1,
   },
   header: {
     flexDirection: "row",
@@ -424,19 +421,63 @@ const styles = StyleSheet.create({
     fontFamily: "PoppinsSemiBold",
     color: "white",
   },
-  footerInfo: {
+  footerCard: {
+    backgroundColor: "#EFF6FF",
+    borderRadius: 16,
+    padding: 20,
+    marginBottom: 30,
+    borderWidth: 1,
+    borderColor: "#BFDBFE",
+    shadowColor: "#3B82F6",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 2,
+  },
+  footerHeader: {
     flexDirection: "row",
-    alignItems: "flex-start",
-    backgroundColor: "#F9FAFB",
-    padding: 16,
-    borderRadius: 12,
+    alignItems: "center",
+    marginBottom: 12,
     gap: 12,
   },
-  footerText: {
+  footerIconCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: "#DBEAFE",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  footerTitle: {
+    fontSize: 18,
+    fontFamily: "PoppinsSemiBold",
+    color: "#1E40AF",
+  },
+  footerDescription: {
+    fontSize: 14,
+    fontFamily: "Poppins",
+    color: "#1E3A8A",
+    lineHeight: 22,
+    marginBottom: 16,
+  },
+  footerDivider: {
+    height: 1,
+    backgroundColor: "#BFDBFE",
+    marginBottom: 16,
+  },
+  footerPoints: {
+    gap: 12,
+  },
+  footerPoint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  footerPointText: {
     flex: 1,
     fontSize: 13,
     fontFamily: "Poppins",
-    color: "#6B7280",
+    color: "#1E3A8A",
     lineHeight: 20,
   },
 });

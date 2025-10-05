@@ -89,7 +89,7 @@ function AllergensEdit() {
           onPress={handleSave}
           disabled={!isValid || isLoading}
           className={`p-4 rounded-lg items-center ${
-            isValid ? "bg-black" : "bg-gray-300"
+            isValid ? "bg-[#2D3644]" : "bg-gray-300"
           }`}
         >
           <Text

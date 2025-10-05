@@ -1,6 +1,5 @@
 import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
-import { LinearGradient } from "expo-linear-gradient";
 import { useRouter } from "expo-router";
 import React, { memo, useState } from "react";
 import {
@@ -150,116 +149,128 @@ function UserGuide() {
 
   return (
     <SafeAreaView style={styles.container} edges={["top"]}>
-      <LinearGradient
-        colors={["rgba(236, 190, 88, 0.08)", "rgba(54, 102, 157, 0.08)"]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.gradient}
+      {/* Header */}
+      <View style={styles.header}>
+        <TouchableOpacity
+          style={styles.backButton}
+          onPress={() => router.back()}
+        >
+          <Ionicons name="arrow-back" size={20} color="black" />
+        </TouchableOpacity>
+        <Text style={styles.title}>User Guide</Text>
+        <View style={styles.headerSpacer} />
+      </View>
+
+      <ScrollView
+        style={styles.scrollView}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.scrollContent}
       >
-        {/* Header */}
-        <View style={styles.header}>
-          <TouchableOpacity
-            style={styles.backButton}
-            onPress={() => router.back()}
-          >
-            <Ionicons name="arrow-back" size={20} color="black" />
-          </TouchableOpacity>
-          <Text style={styles.title}>User Guide</Text>
-          <View style={styles.headerSpacer} />
+        {/* Introduction */}
+        <View style={styles.introContainer}>
+          <View style={styles.iconCircle}>
+            <Ionicons name="book-outline" size={32} color={colors.primary} />
+          </View>
+          <Text style={styles.introTitle}>Welcome to NutriSight 👋</Text>
+          <Text style={styles.introText}>
+            Your comprehensive guide to tracking nutrition, achieving health
+            goals, and living a balanced lifestyle. Explore the sections below
+            to learn how to use all features effectively.
+          </Text>
         </View>
 
-        <ScrollView
-          style={styles.scrollView}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-        >
-          {/* Introduction */}
-          <View style={styles.introContainer}>
-            <View style={styles.iconCircle}>
-              <Ionicons name="book-outline" size={32} color={colors.primary} />
+        {/* Search Bar */}
+        <View style={styles.searchContainer}>
+          <Ionicons
+            name="search-outline"
+            size={20}
+            color="#9CA3AF"
+            style={styles.searchIcon}
+          />
+          <TextInput
+            style={styles.searchInput}
+            placeholder="Search guide topics..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#9CA3AF"
+          />
+          {searchQuery.length > 0 && (
+            <TouchableOpacity
+              onPress={() => setSearchQuery("")}
+              style={styles.clearButton}
+            >
+              <Ionicons name="close-circle" size={20} color="#9CA3AF" />
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {/* Guide Sections */}
+        <View style={styles.sectionsContainer}>
+          {filteredSections.length > 0 ? (
+            filteredSections.map((section) => (
+              <GuideItem
+                key={section.id}
+                section={section}
+                isExpanded={expandedId === section.id}
+                onToggle={() => handleToggle(section.id)}
+              />
+            ))
+          ) : (
+            <View style={styles.noResultsContainer}>
+              <Ionicons name="search-outline" size={48} color="#D1D5DB" />
+              <Text style={styles.noResultsText}>No results found</Text>
+              <Text style={styles.noResultsSubtext}>
+                Try searching with different keywords
+              </Text>
             </View>
-            <Text style={styles.introTitle}>Welcome to NutriSight 👋</Text>
-            <Text style={styles.introText}>
-              Your comprehensive guide to tracking nutrition, achieving health
-              goals, and living a balanced lifestyle. Explore the sections below
-              to learn how to use all features effectively.
+          )}
+        </View>
+
+        {/* Help Section */}
+        <View style={styles.helpSection}>
+          <View style={styles.helpCard}>
+            <View style={styles.helpHeader}>
+              <View style={styles.helpIconCircle}>
+                <Ionicons name="help-circle" size={28} color="#F59E0B" />
+              </View>
+              <Text style={styles.helpTitle}>Need More Help?</Text>
+            </View>
+            <Text style={styles.helpText}>
+              Can't find what you're looking for? Our support team is here to
+              assist you with any questions about using NutriSight.
             </Text>
-          </View>
-
-          {/* Search Bar */}
-          <View style={styles.searchContainer}>
-            <Ionicons
-              name="search-outline"
-              size={20}
-              color="#9CA3AF"
-              style={styles.searchIcon}
-            />
-            <TextInput
-              style={styles.searchInput}
-              placeholder="Search guide topics..."
-              value={searchQuery}
-              onChangeText={setSearchQuery}
-              placeholderTextColor="#9CA3AF"
-            />
-            {searchQuery.length > 0 && (
-              <TouchableOpacity
-                onPress={() => setSearchQuery("")}
-                style={styles.clearButton}
-              >
-                <Ionicons name="close-circle" size={20} color="#9CA3AF" />
-              </TouchableOpacity>
-            )}
-          </View>
-
-          {/* Guide Sections */}
-          <View style={styles.sectionsContainer}>
-            {filteredSections.length > 0 ? (
-              filteredSections.map((section) => (
-                <GuideItem
-                  key={section.id}
-                  section={section}
-                  isExpanded={expandedId === section.id}
-                  onToggle={() => handleToggle(section.id)}
-                />
-              ))
-            ) : (
-              <View style={styles.noResultsContainer}>
-                <Ionicons name="search-outline" size={48} color="#D1D5DB" />
-                <Text style={styles.noResultsText}>No results found</Text>
-                <Text style={styles.noResultsSubtext}>
-                  Try searching with different keywords
+            <View style={styles.helpDivider} />
+            <View style={styles.helpPoints}>
+              <View style={styles.helpPoint}>
+                <Ionicons name="mail" size={18} color="#3B82F6" />
+                <Text style={styles.helpPointText}>support@nutrisight.com</Text>
+              </View>
+              <View style={styles.helpPoint}>
+                <Ionicons name="time" size={18} color="#10B981" />
+                <Text style={styles.helpPointText}>
+                  Response within 24 hours
                 </Text>
               </View>
-            )}
-          </View>
-
-          {/* Help Button */}
-          <View style={styles.helpSection}>
-            <View style={styles.helpCard}>
-              <Ionicons
-                name="help-circle-outline"
-                size={40}
-                color={colors.primary}
-              />
-              <Text style={styles.helpTitle}>Need More Help?</Text>
-              <Text style={styles.helpText}>
-                Can't find what you're looking for? Our support team is here to
-                assist you.
-              </Text>
-              <TouchableOpacity
-                style={styles.helpButton}
-                onPress={() => {
-                  // Navigate to support or open email
-                  router.back();
-                }}
-              >
-                <Text style={styles.helpButtonText}>Contact Support</Text>
-                <Ionicons name="arrow-forward" size={16} color="white" />
-              </TouchableOpacity>
+              <View style={styles.helpPoint}>
+                <Ionicons name="chatbubbles" size={18} color="#8B5CF6" />
+                <Text style={styles.helpPointText}>
+                  Live chat available 9AM-5PM EST
+                </Text>
+              </View>
             </View>
+            <TouchableOpacity
+              style={styles.helpButton}
+              onPress={() => {
+                // Navigate to support or open email
+                router.back();
+              }}
+            >
+              <Ionicons name="mail" size={16} color="white" />
+              <Text style={styles.helpButtonText}>Contact Support</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </LinearGradient>
+        </View>
+      </ScrollView>
     </SafeAreaView>
   );
 }
@@ -321,9 +332,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#f8f9fa",
-  },
-  gradient: {
-    flex: 1,
   },
   header: {
     flexDirection: "row",
@@ -523,39 +531,79 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   helpCard: {
-    backgroundColor: "white",
+    backgroundColor: "#FFFBEB",
     borderRadius: 16,
     padding: 24,
-    alignItems: "center",
-    shadowColor: "#000",
+    borderWidth: 1,
+    borderColor: "#FDE68A",
+    shadowColor: "#F59E0B",
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 2,
+  },
+  helpHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 12,
+    gap: 12,
+  },
+  helpIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: "#FEF3C7",
+    alignItems: "center",
+    justifyContent: "center",
   },
   helpTitle: {
     fontSize: 20,
     fontFamily: "PoppinsSemiBold",
-    color: colors.primary,
-    marginTop: 16,
-    marginBottom: 8,
+    color: "#92400E",
+    flex: 1,
   },
   helpText: {
     fontSize: 14,
     fontFamily: "Poppins",
-    color: "#6B7280",
-    textAlign: "center",
-    marginBottom: 20,
+    color: "#78350F",
     lineHeight: 22,
+    marginBottom: 16,
+  },
+  helpDivider: {
+    height: 1,
+    backgroundColor: "#FDE68A",
+    marginBottom: 16,
+  },
+  helpPoints: {
+    gap: 12,
+    marginBottom: 20,
+  },
+  helpPoint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  helpPointText: {
+    flex: 1,
+    fontSize: 13,
+    fontFamily: "Poppins",
+    color: "#78350F",
+    lineHeight: 20,
   },
   helpButton: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "center",
     backgroundColor: colors.primary,
     paddingHorizontal: 24,
-    paddingVertical: 12,
-    borderRadius: 10,
+    paddingVertical: 14,
+    borderRadius: 12,
     gap: 8,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
   },
   helpButtonText: {
     fontSize: 15,
