@@ -1,6 +1,7 @@
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
 import { useAccountUpdate } from "@/hooks/useAccountUpdate";
+import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
@@ -95,26 +96,22 @@ function WeightEdit() {
   );
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-[#FAFAFA]">
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
+        style={styles.container}
         behavior={Platform.OS === "ios" ? "padding" : undefined}
       >
-        {/* Header */}
+        {/* Header with Back Button */}
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={back}>
-            <Ionicons name="arrow-back" size={18} color="black" />
+            <Ionicons name="arrow-back" size={20} color="black" />
           </TouchableOpacity>
-          <Text
-            style={styles.titleText}
-            className="font-PoppinsSemiBold text-2xl"
-          >
-            Edit Weight
-          </Text>
+          <Text style={styles.title}>Weight Tracking</Text>
+          <View style={styles.headerSpacer} />
         </View>
 
         {/* Content */}
-        <View className="flex-1 px-4 pt-8">
+        <View className="flex-1">
           <Text className="text-3xl font-PoppinsSemiBold text-black mb-4">
             Update your weight
           </Text>
@@ -180,22 +177,38 @@ function WeightEdit() {
 export default memo(WeightEdit);
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
+    paddingHorizontal: 15,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-    position: "relative",
+    justifyContent: "space-between",
+    marginBottom: 40,
+  },
+  title: {
+    fontSize: 24,
+    fontFamily: "PoppinsSemiBold",
+    color: colors.primary,
+    textAlign: "center",
+    flex: 1,
+    position: "absolute",
+    left: 0,
+    right: 0,
   },
   backButton: {
-    width: 35,
-    height: 35,
+    width: 40,
+    height: 40,
     borderRadius: 20,
-    backgroundColor: "#EAEAEA",
     alignItems: "center",
     justifyContent: "center",
-    marginRight: 16,
+    backgroundColor: "#F4F4F4",
+    zIndex: 1,
+  },
+  headerSpacer: {
+    width: 40,
   },
   titleText: {
     position: "absolute",

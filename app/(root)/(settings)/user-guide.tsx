@@ -240,24 +240,6 @@ function UserGuide() {
               assist you with any questions about using NutriSight.
             </Text>
             <View style={styles.helpDivider} />
-            <View style={styles.helpPoints}>
-              <View style={styles.helpPoint}>
-                <Ionicons name="mail" size={18} color="#3B82F6" />
-                <Text style={styles.helpPointText}>support@nutrisight.com</Text>
-              </View>
-              <View style={styles.helpPoint}>
-                <Ionicons name="time" size={18} color="#10B981" />
-                <Text style={styles.helpPointText}>
-                  Response within 24 hours
-                </Text>
-              </View>
-              <View style={styles.helpPoint}>
-                <Ionicons name="chatbubbles" size={18} color="#8B5CF6" />
-                <Text style={styles.helpPointText}>
-                  Live chat available 9AM-5PM EST
-                </Text>
-              </View>
-            </View>
             <TouchableOpacity
               style={styles.helpButton}
               onPress={() => {

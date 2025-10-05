@@ -373,7 +373,7 @@ export default memo(ChangePassword);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#FAFAFA",
   },
   scrollContainer: {
     flex: 1,
@@ -503,10 +503,12 @@ const styles = StyleSheet.create({
     textAlign: "right",
   },
   requirementsContainer: {
-    backgroundColor: "white",
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 16,
     marginBottom: 30,
+    borderWidth: 1,
+    borderColor: "#E5E7EB",
   },
   requirementsTitle: {
     fontSize: 16,

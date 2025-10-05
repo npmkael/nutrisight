@@ -1,830 +1,375 @@
-import CustomButton from "@/components/CustomButton";
-import { icons } from "@/constants";
-import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
+import { EmptySearchState } from "@/components/EmptySearchState";
+import { FoodSearchResultItem } from "@/components/FoodSearchResultItem";
+import { SearchBar } from "@/components/SearchBar";
+import { SearchResultShimmer } from "@/components/SearchResultShimmer";
+import { BACKEND_URL, useAuth } from "@/context/AuthContext";
 import { capitalizeFirstLetter } from "@/utils/helpers";
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
-import AntDesign from "@expo/vector-icons/AntDesign";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { memo, useCallback, useState } from "react";
+import { memo, useCallback, useEffect, useState } from "react";
 import {
-  Alert,
-  Image,
-  ScrollView,
+  FlatList,
+  Keyboard,
+  KeyboardAvoidingView,
+  Platform,
   Text,
-  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
-import { GestureHandlerRootView } from "react-native-gesture-handler";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown } from "react-native-reanimated";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { ScanResultType } from "./main-camera";
 
-const BREAKFAST_START = 6 * 60; // 360 (06:00)
-const BREAKFAST_END = 10 * 60; // 600 (10:00)
-
-const LUNCH_START = 12 * 60; // 720 (12:00)
-const LUNCH_END = 14 * 60; // 840 (14:00)
-
-const DINNER_START = 18 * 60; // 1080 (18:00)
-const DINNER_END = 21 * 60; // 1260 (21:00)
+// Food search result type
+interface FoodSearchResult {
+  foodName: string;
+  name?: string;
+  brand?: string;
+  servingSize?: string;
+  calories?: number;
+  carbs?: number;
+  protein?: number;
+  fats?: number;
+  nutritionData?: any;
+  source?: string;
+}
 
 function ManualFoodEntry() {
-  const { setUser } = useAuth();
-  const [loading, setLoading] = useState(false);
-  const [quantity, setQuantity] = useState(1);
+  const { user } = useAuth();
 
-  // Form state
-  const [foodName, setFoodName] = useState("");
-  const [calories, setCalories] = useState("");
-  const [carbs, setCarbs] = useState("");
-  const [protein, setProtein] = useState("");
-  const [fats, setFats] = useState("");
-  const [servingSize, setServingSize] = useState("");
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<FoodSearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  // Error states for validation
-  const [errors, setErrors] = useState({
-    foodName: "",
-    calories: "",
-    carbs: "",
-    protein: "",
-    fats: "",
-    servingSize: "",
-  });
+  // Modal state
+  const [showManualEntry, setShowManualEntry] = useState(false);
 
-  // Focus states for inputs
-  const [focusedInput, setFocusedInput] = useState("");
+  // Debounce timeout
+  const [debounceTimeout, setDebounceTimeout] = useState<ReturnType<
+    typeof setTimeout
+  > | null>(null);
 
   const handleBack = useCallback(() => {
     router.back();
   }, []);
 
-  const getMealTime = useCallback(() => {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const currentTime = hours * 60 + minutes;
-
-    if (currentTime >= BREAKFAST_START && currentTime <= BREAKFAST_END) {
-      return "breakfast";
-    } else if (currentTime >= LUNCH_START && currentTime <= LUNCH_END) {
-      return "lunch";
-    } else if (currentTime >= DINNER_START && currentTime <= DINNER_END) {
-      return "dinner";
-    } else {
-      return "snacks";
-    }
-  }, []);
-
-  const getMealTimeDisplayName = useCallback(() => {
-    const mealTime = getMealTime();
-    return mealTime.charAt(0).toUpperCase() + mealTime.slice(1);
-  }, []);
-
-  // Validation functions
-  const validateField = useCallback((field: string, value: string) => {
-    let error = "";
-
-    switch (field) {
-      case "foodName":
-        if (!value.trim()) {
-          error = "Food name is required";
-        } else if (value.trim().length < 2) {
-          error = "Food name must be at least 2 characters";
-        }
-        break;
-      case "calories":
-        if (!value.trim()) {
-          error = "Calories are required";
-        } else if (isNaN(Number(value)) || Number(value) < 0) {
-          error = "Please enter a valid number";
-        } else if (Number(value) > 10000) {
-          error = "Calories seem unusually high";
-        }
-        break;
-      case "carbs":
-      case "protein":
-      case "fats":
-        if (value.trim() && (isNaN(Number(value)) || Number(value) < 0)) {
-          error = "Please enter a valid number";
-        } else if (Number(value) > 1000) {
-          error = "Value seems unusually high";
-        }
-        break;
-    }
-
-    setErrors((prev) => ({ ...prev, [field]: error }));
-    return error === "";
-  }, []);
-
-  const validateForm = useCallback(() => {
-    const isValidName = validateField("foodName", foodName);
-    const isValidCalories = validateField("calories", calories);
-    const isValidCarbs = validateField("carbs", carbs);
-    const isValidProtein = validateField("protein", protein);
-    const isValidFats = validateField("fats", fats);
-
-    return (
-      isValidName &&
-      isValidCalories &&
-      isValidCarbs &&
-      isValidProtein &&
-      isValidFats
-    );
-  }, [foodName, calories, carbs, protein, fats]);
-
-  const handleDecreaseQuantity = useCallback(() => {
-    setQuantity((prevQ) => {
-      const newQ = prevQ > 1 ? prevQ - 1 : 1;
-      setCalories((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num) || prevQ === 1) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      setCarbs((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num) || prevQ === 1) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      setProtein((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num) || prevQ === 1) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      setFats((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num) || prevQ === 1) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      return newQ;
-    });
-  }, []);
-
-  const handleIncreaseQuantity = useCallback(() => {
-    setQuantity((prevQ) => {
-      const newQ = prevQ + 1;
-      setCalories((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num)) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      setCarbs((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num)) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      setProtein((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num)) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      setFats((prev) => {
-        const num = parseFloat(prev);
-        if (isNaN(num)) return prev;
-        return ((num / prevQ) * newQ).toFixed(2);
-      });
-      return newQ;
-    });
-  }, []);
-
-  const handleSave = useCallback(async () => {
-    if (!validateForm()) {
-      Alert.alert("Validation Error", "Please fix the errors before saving.");
+  // Search for food in database/API
+  const searchFood = useCallback(async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
+      setHasSearched(false);
       return;
     }
 
-    setLoading(true);
+    setIsSearching(true);
+    setHasSearched(true);
 
     try {
-      const mealTime = getMealTime();
-
-      // Create nutrition data in the same format as scan results
-      const nutritionData = [
-        {
-          title: "Other Nutrients",
-          items: [
-            {
-              name: "Energy",
-              value: parseFloat(calories) || 0,
-              unit: "kcal",
-            },
-          ],
-        },
-        {
-          title: "Macronutrients",
-          items: [
-            {
-              name: "Total Carbohydrate",
-              value: parseFloat(carbs) || 0,
-              unit: "g",
-            },
-            {
-              name: "Protein",
-              value: parseFloat(protein) || 0,
-              unit: "g",
-            },
-            {
-              name: "Total Fat",
-              value: parseFloat(fats) || 0,
-              unit: "g",
-            },
-          ],
-        },
-      ];
-
-      // Create nutrition data object for the API
-      const allNutritionItems = nutritionData.flatMap(
-        (category) => category.items
-      );
-
-      const now = new Date();
-      const date = now.toISOString();
-
-      // Create meal record payload
-      const mealRecordPayload: ScanResultType & { quantity: number } = {
-        foodName,
-        servingSize,
-        ingredients: [],
-        triggeredAllergens: [],
-        nutritionData: [
-          {
-            title: "Macronutrients",
-            items: [
-              {
-                name: "carbohydrates",
-                value: carbs ? parseFloat(carbs) : 0,
-                unit: "g",
-              },
-              {
-                name: "protein",
-                value: protein ? parseFloat(protein) : 0,
-                unit: "g",
-              },
-              {
-                name: "fats",
-                value: fats ? parseFloat(fats) : 0,
-                unit: "g",
-              },
-            ],
-          },
-          {
-            title: "Micronutrients",
-            items: [],
-          },
-          {
-            title: "Other Nutrients",
-            items: [
-              {
-                name: "energy",
-                value: calories ? parseFloat(calories) : 0,
-                unit: "kcal",
-              },
-            ],
-          },
-        ],
-        source: "user",
-        quantity,
-        id: date, // use date as unique id
-      };
-
-      // Create diet history object following the correct interface
-      const meal = mealTime === "snacks" ? "other" : mealTime;
-      const dietHistory: DietHistory = {
-        date: new Date().toISOString(),
-        breakfast: meal === "breakfast" ? [mealRecordPayload] : [],
-        lunch: meal === "lunch" ? [mealRecordPayload] : [],
-        dinner: meal === "dinner" ? [mealRecordPayload] : [],
-        otherMealTime: meal === "other" ? [mealRecordPayload] : [],
-      };
-
-      const res = await fetch(`${BACKEND_URL}/account/update-diet-history`, {
-        method: "PUT",
+      const res = await fetch(`${BACKEND_URL}/camera/get-food-data`, {
+        method: "POST",
         headers: {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          dietHistoryPayload: dietHistory,
+          foodName: query,
         }),
-        credentials: "include",
-      });
-      if (!res.ok) {
-        const errorData = await res.json();
-        console.log("Error saving results:", errorData);
-        alert("Error saving results. Please try again.");
-        return;
-      }
-      const data = await res.json();
-      setUser((prevUser) => {
-        if (!prevUser) return prevUser;
-        return {
-          ...prevUser,
-          dietHistory: data.dietHistory, // <-- replace, not append
-        };
       });
 
-      const result: ScanResultType = {
-        foodName: capitalizeFirstLetter(foodName),
-        id: Date.now(),
-        servingSize,
-        nutritionData,
-        source: "user input",
-        triggeredAllergens: [],
-        ingredients: [],
+      if (!res.ok) {
+        throw new Error("Failed to fetch food data");
+      }
+
+      const data = await res.json();
+      console.log("Search result:", data);
+
+      // Extract nutrition data
+      const nutritionData = data.data?.nutritionData || [];
+      const allItems = nutritionData.flatMap((cat: any) => cat.items);
+
+      // Extract calories
+      const calorieItem = allItems.find(
+        (item: any) =>
+          item.name?.toLowerCase().includes("energy") ||
+          item.name?.toLowerCase().includes("calorie")
+      );
+
+      // Extract carbs
+      const carbsItem = allItems.find((item: any) =>
+        item.name?.toLowerCase().includes("carbohydrate")
+      );
+
+      // Extract protein
+      const proteinItem = allItems.find((item: any) =>
+        item.name?.toLowerCase().includes("protein")
+      );
+
+      // Extract fats
+      const fatsItem = allItems.find(
+        (item: any) =>
+          item.name?.toLowerCase().includes("fat") ||
+          item.name?.toLowerCase().includes("lipid")
+      );
+
+      const result: FoodSearchResult = {
+        foodName: data.data?.foodName || data.data?.name || query,
+        name: data.data?.name || data.data?.foodName,
+        brand: data.data?.brand,
+        servingSize: data.data?.servingSize,
+        calories: calorieItem?.value,
+        carbs: carbsItem?.value,
+        protein: proteinItem?.value,
+        fats: fatsItem?.value,
+        nutritionData: data.data,
+        source: data.data?.source,
       };
 
-      // save result to cache
-      // check first if its greater than 10
-      const stored = await AsyncStorage.getItem(meal);
-      const recentResults = stored ? (JSON.parse(stored) as any[]) : [];
-      // keep max 10 entries
-      while (recentResults.length >= 10) recentResults.shift();
-      recentResults.push(result);
-      await AsyncStorage.setItem(meal, JSON.stringify(recentResults));
-
-      const newStored = await AsyncStorage.getItem(meal);
-      console.log("Saved to AsyncStorage:", newStored);
-
-      Alert.alert("Success!", "Food entry saved successfully!", [
-        {
-          text: "OK",
-          onPress: () => router.replace("/(root)/(tabs)/home"),
-        },
-      ]);
+      setSearchResults([result]);
     } catch (error) {
-      console.log("Error saving food entry:", error);
-      Alert.alert(
-        "Error",
-        "Failed to save food entry. Please check your connection and try again.",
-        [{ text: "OK" }]
-      );
+      console.log("Error searching food:", error);
+      setSearchResults([]);
     } finally {
-      setLoading(false);
+      setIsSearching(false);
     }
-  }, [foodName, calories, carbs, protein, fats]);
+  }, []);
+
+  // Debounced search
+  useEffect(() => {
+    if (debounceTimeout) {
+      clearTimeout(debounceTimeout);
+    }
+
+    if (searchQuery.trim()) {
+      const timeout = setTimeout(() => {
+        searchFood(searchQuery);
+      }, 500); // 500ms debounce
+
+      setDebounceTimeout(timeout);
+    } else {
+      setSearchResults([]);
+      setHasSearched(false);
+      setIsSearching(false);
+    }
+
+    return () => {
+      if (debounceTimeout) {
+        clearTimeout(debounceTimeout);
+      }
+    };
+  }, [searchQuery]);
+
+  // Handle search result selection
+  const handleSelectFood = useCallback(async (food: FoodSearchResult) => {
+    Keyboard.dismiss();
+
+    // Navigate to results screen with the food data
+    router.push({
+      pathname: "/results",
+      params: {
+        scanResult: JSON.stringify(food.nutritionData),
+        name: food.foodName || food.name,
+        image: "", // No image for searched items
+      },
+    });
+  }, []);
+
+  // Handle manual entry submission
+  const handleManualEntrySubmit = useCallback(
+    (data: {
+      foodName: string;
+      servingSize: string;
+      calories: string;
+      carbs: string;
+      protein: string;
+      fats: string;
+    }) => {
+      // Create nutrition data in the format expected by results screen
+      const nutritionData: ScanResultType = {
+        foodName: capitalizeFirstLetter(data.foodName),
+        servingSize: data.servingSize,
+        ingredients: [],
+        triggeredAllergens: [],
+        nutritionData: [
+          {
+            title: "Other Nutrients",
+            items: [
+              {
+                name: "Energy",
+                value: parseFloat(data.calories) || 0,
+                unit: "kcal",
+              },
+            ],
+          },
+          {
+            title: "Macronutrients",
+            items: [
+              {
+                name: "Total Carbohydrate",
+                value: parseFloat(data.carbs) || 0,
+                unit: "g",
+              },
+              {
+                name: "Protein",
+                value: parseFloat(data.protein) || 0,
+                unit: "g",
+              },
+              {
+                name: "Total Fat",
+                value: parseFloat(data.fats) || 0,
+                unit: "g",
+              },
+            ],
+          },
+        ],
+        source: "user input",
+      };
+
+      setShowManualEntry(false);
+
+      // Navigate to results screen
+      router.push({
+        pathname: "/results",
+        params: {
+          scanResult: JSON.stringify(nutritionData),
+          name: data.foodName,
+          image: "", // No image for manual entries
+        },
+      });
+    },
+    []
+  );
+
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setHasSearched(false);
+  }, []);
 
   return (
-    <GestureHandlerRootView className="flex-1">
-      <View className="flex-1 bg-white">
-        {/* Enhanced Header */}
+    <SafeAreaView className="flex-1 bg-gray-50" edges={["top"]}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === "ios" ? "padding" : "height"}
+        className="flex-1"
+      >
+        {/* Header */}
         <Animated.View
           entering={FadeIn.duration(400)}
-          className="flex-row items-center justify-between px-6 py-4"
+          className="bg-white px-6 py-4"
         >
-          <TouchableOpacity
-            onPress={() => router.back()}
-            className="w-10 h-10 items-center justify-center rounded-full bg-gray-50"
-          >
-            <Ionicons name="arrow-back" size={20} color="#374151" />
-          </TouchableOpacity>
+          <View className="flex-row items-center justify-between">
+            <TouchableOpacity
+              onPress={handleBack}
+              className="w-10 h-10 items-center justify-center rounded-full bg-gray-50"
+            >
+              <Ionicons name="arrow-back" size={20} color="#374151" />
+            </TouchableOpacity>
 
-          <Text className="text-xl font-PoppinsSemiBold text-gray-900">
-            Add Food Entry
-          </Text>
+            <Text className="text-xl font-PoppinsSemiBold text-gray-900">
+              Add Food
+            </Text>
 
-          <View className="w-10 h-10" />
+            <View className="w-10 h-10" />
+          </View>
         </Animated.View>
 
+        {/* Search Bar */}
+        <Animated.View
+          entering={FadeInDown.duration(500).delay(200)}
+          className="px-6 py-4 mb-4 bg-white"
+        >
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onClear={handleClearSearch}
+            placeholder="Search for food..."
+            loading={isSearching}
+            autoFocus={false}
+          />
+        </Animated.View>
+
+        {/* Content */}
         <View className="flex-1">
-          {/* Date/Time and Quantity */}
-          <View className="flex-row items-center justify-between p-6">
-            {/* Date Section */}
-            <View className="bg-gray-50 rounded-2xl p-4 flex-1 mr-4">
-              <View className="flex-row items-center mb-2">
-                <MaterialCommunityIcons
-                  name="calendar-today"
-                  size={20}
-                  color="#6B7280"
+          {isSearching ? (
+            // Loading state with shimmer
+            <SearchResultShimmer count={5} />
+          ) : searchResults.length > 0 ? (
+            // Search Results
+            <FlatList
+              data={searchResults}
+              keyExtractor={(item, index) => `${item.foodName}-${index}`}
+              renderItem={({ item, index }) => (
+                <FoodSearchResultItem
+                  foodName={item.foodName || item.name || ""}
+                  servingSize={item.servingSize}
+                  calories={item.calories}
+                  carbs={item.carbs}
+                  protein={item.protein}
+                  fats={item.fats}
+                  brand={item.brand}
+                  onPress={() => handleSelectFood(item)}
+                  index={index}
                 />
-                <Text className="text-sm text-gray-600 font-PoppinsMedium ml-2">
-                  Today
-                </Text>
-              </View>
-              <Text className="text-lg text-gray-900 font-PoppinsBold">
-                {new Date().toLocaleDateString("en-US", {
-                  month: "short",
-                  day: "numeric",
-                  year: "numeric",
-                })}
-              </Text>
-            </View>
-
-            {/* Quantity Section */}
-            <View className="bg-gray-50 rounded-2xl p-4">
-              <Text className="text-sm text-gray-600 font-PoppinsMedium mb-3 text-center">
-                Quantity
-              </Text>
-              <View className="flex-row items-center justify-center gap-4">
-                <TouchableOpacity
-                  className={`w-12 h-12 rounded-full items-center justify-center ${
-                    quantity <= 1 ? "bg-gray-200" : ""
-                  }`}
-                  onPress={handleDecreaseQuantity}
-                  disabled={quantity <= 1}
-                  style={{
-                    elevation: quantity > 1 ? 2 : 0,
-                    backgroundColor: quantity > 1 ? "#2D3644" : undefined,
-                  }}
-                >
-                  <AntDesign
-                    name="minus"
-                    size={18}
-                    color={quantity <= 1 ? "#9CA3AF" : "white"}
-                  />
-                </TouchableOpacity>
-                <View className="w-16 items-center">
-                  <Text className="text-2xl text-gray-900 font-PoppinsBold">
-                    {quantity}
-                  </Text>
-                  <Text className="text-xs text-gray-500 font-Poppins">
-                    {quantity === 1 ? "serving" : "servings"}
-                  </Text>
-                </View>
-                <TouchableOpacity
-                  className="w-12 h-12 rounded-full items-center justify-center"
-                  onPress={handleIncreaseQuantity}
-                  style={{ elevation: 2, backgroundColor: "#2D3644" }}
-                >
-                  <AntDesign name="plus" size={18} color="white" />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-
-          {/* Form */}
-          <ScrollView
-            className="flex-1 px-6"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingTop: 20, paddingBottom: 20 }}
-          >
-            {/* Food Name Input */}
-            <View className="mb-6">
-              <Text className="text-gray-700 font-PoppinsMedium mb-3">
-                Food Name *
-              </Text>
-              <View className="relative">
-                <TextInput
-                  className={`bg-white rounded-2xl px-6 py-4 font-Poppins text-gray-900 ${
-                    focusedInput === "foodName"
-                      ? "border-2 border-blue-500"
-                      : errors.foodName
-                        ? "border-2 border-red-500"
-                        : "border border-gray-200"
-                  }`}
-                  placeholder="Enter food name (e.g., Grilled Chicken Breast)"
-                  placeholderTextColor="#9CA3AF"
-                  value={foodName}
-                  onChangeText={(text) => {
-                    setFoodName(text);
-                    if (errors.foodName) validateField("foodName", text);
-                  }}
-                  onFocus={() => setFocusedInput("foodName")}
-                  onBlur={() => {
-                    setFocusedInput("");
-                    validateField("foodName", foodName);
-                  }}
-                  style={{ fontSize: 16 }}
-                  accessible={true}
-                  accessibilityLabel="Food name input"
-                  accessibilityHint="Enter the name of the food you want to add to your diet"
-                />
-                {errors.foodName ? (
-                  <View className="flex-row items-center mt-2">
-                    <MaterialCommunityIcons
-                      name="alert-circle"
-                      size={16}
-                      color="#EF4444"
-                    />
-                    <Text className="text-red-500 text-sm font-Poppins ml-1">
-                      {errors.foodName}
-                    </Text>
-                  </View>
-                ) : null}
-              </View>
-            </View>
-
-            {/* Serving Size Input */}
-            <View className="mb-6">
-              <Text className="text-gray-700 font-PoppinsMedium mb-3">
-                Serving Size
-              </Text>
-              <View className="relative">
-                <TextInput
-                  className={`bg-white rounded-2xl px-6 py-4 font-Poppins text-gray-900 ${
-                    focusedInput === "servingSize"
-                      ? "border-2 border-blue-500"
-                      : "border border-gray-200"
-                  }`}
-                  placeholder="e.g., 100g, 1 cup, 1 piece"
-                  placeholderTextColor="#9CA3AF"
-                  value={servingSize}
-                  onChangeText={setServingSize}
-                  onFocus={() => setFocusedInput("servingSize")}
-                  onBlur={() => setFocusedInput("")}
-                  style={{ fontSize: 16 }}
-                  accessible={true}
-                  accessibilityLabel="Serving size input"
-                  accessibilityHint="Optional: Enter the serving size for this food item"
-                />
-              </View>
-            </View>
-
-            {/* Calories Card */}
-            <View
-              className={`bg-white rounded-3xl px-6 py-6 mb-6 ${
-                focusedInput === "calories"
-                  ? "border-2 border-blue-500 shadow-lg"
-                  : errors.calories
-                    ? "border-2 border-red-500"
-                    : "border border-gray-100 shadow-sm"
-              }`}
-              style={{ elevation: focusedInput === "calories" ? 8 : 2 }}
+              )}
+              contentContainerStyle={{
+                paddingHorizontal: 24,
+                paddingTop: 12,
+                paddingBottom: 24,
+              }}
+              showsVerticalScrollIndicator={false}
+            />
+          ) : hasSearched ? (
+            // Empty state
+            <EmptySearchState />
+          ) : (
+            // Initial state - show helpful suggestions
+            <Animated.View
+              entering={FadeIn.duration(500).delay(300)}
+              className="flex-1 px-6"
             >
-              <View className="flex-row items-center">
-                <View className="bg-orange-100 rounded-2xl p-4">
-                  <Image
-                    source={require("@/assets/icons/calories.png")}
-                    style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
-                  />
-                </View>
-                <View className="ml-4 flex-1">
-                  <Text className="text-gray-600 font-PoppinsMedium mb-1">
-                    Total Calories *
-                  </Text>
-                  <View className="flex-row items-baseline">
-                    <TextInput
-                      className="font-PoppinsBold text-gray-900"
-                      placeholder="0"
-                      placeholderTextColor="#D1D5DB"
-                      value={calories}
-                      onChangeText={(text) => {
-                        setCalories(text);
-                        if (errors.calories) validateField("calories", text);
-                      }}
-                      onFocus={() => setFocusedInput("calories")}
-                      onBlur={() => {
-                        setFocusedInput("");
-                        validateField("calories", calories);
-                      }}
-                      keyboardType="numeric"
-                      style={{ fontSize: 32, flex: 1 }}
-                    />
-                    <Text className="text-gray-500 font-PoppinsMedium text-lg ml-2">
-                      kcal
-                    </Text>
+              <View className="bg-white rounded-3xl p-6 mb-6">
+                <View className="items-center mb-6">
+                  <View className="bg-emerald-100 rounded-full p-4 mb-4">
+                    <Ionicons name="search" size={32} color="#10b981" />
                   </View>
-                </View>
-              </View>
-              {errors.calories ? (
-                <View className="flex-row items-center mt-3 pt-3 border-t border-red-100">
-                  <MaterialCommunityIcons
-                    name="alert-circle"
-                    size={16}
-                    color="#EF4444"
-                  />
-                  <Text className="text-red-500 text-sm font-Poppins ml-1">
-                    {errors.calories}
+                  <Text className="text-xl font-PoppinsSemiBold text-gray-900 mb-2 text-center">
+                    Search for Food
+                  </Text>
+                  <Text className="text-gray-600 font-Poppins text-center">
+                    Search our extensive database of foods to quickly add to
+                    your diary
                   </Text>
                 </View>
-              ) : null}
-            </View>
 
-            {/* Carbs Card */}
-            <View
-              className={`bg-white rounded-3xl px-6 py-6 mb-6 ${
-                focusedInput === "carbs"
-                  ? "border-2 border-green-500 shadow-lg"
-                  : errors.carbs
-                    ? "border-2 border-red-500"
-                    : "border border-gray-100 shadow-sm"
-              }`}
-              style={{ elevation: focusedInput === "carbs" ? 8 : 2 }}
-            >
-              <View className="flex-row items-center">
-                <View className="bg-green-100 rounded-2xl p-4">
-                  <Image
-                    source={require("@/assets/icons/carbs.png")}
-                    style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
-                  />
-                </View>
-                <View className="ml-4 flex-1">
-                  <Text className="text-gray-600 font-PoppinsMedium mb-1">
-                    Carbohydrates
+                <View className="space-y-3">
+                  <Text className="text-gray-700 font-PoppinsMedium mb-2">
+                    Quick searches:
                   </Text>
-                  <View className="flex-row items-baseline">
-                    <TextInput
-                      className="font-PoppinsBold text-gray-900"
-                      placeholder="0"
-                      placeholderTextColor="#D1D5DB"
-                      value={carbs}
-                      onChangeText={(text) => {
-                        setCarbs(text);
-                        if (errors.carbs) validateField("carbs", text);
-                      }}
-                      onFocus={() => setFocusedInput("carbs")}
-                      onBlur={() => {
-                        setFocusedInput("");
-                        validateField("carbs", carbs);
-                      }}
-                      keyboardType="numeric"
-                      style={{ fontSize: 24, flex: 1 }}
-                    />
-                    <Text
-                      className="font-PoppinsBold text-gray-500 ml-2"
-                      style={{ fontSize: 20 }}
-                    >
-                      g
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              {errors.carbs ? (
-                <View className="flex-row items-center mt-3 pt-3 border-t border-red-100">
-                  <MaterialCommunityIcons
-                    name="alert-circle"
-                    size={16}
-                    color="#EF4444"
-                  />
-                  <Text className="text-red-500 text-sm font-Poppins ml-1">
-                    {errors.carbs}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-
-            {/* Protein Card */}
-            <View
-              className={`bg-white rounded-3xl px-6 py-6 mb-6 ${
-                focusedInput === "protein"
-                  ? "border-2 border-purple-500 shadow-lg"
-                  : errors.protein
-                    ? "border-2 border-red-500"
-                    : "border border-gray-100 shadow-sm"
-              }`}
-              style={{ elevation: focusedInput === "protein" ? 8 : 2 }}
-            >
-              <View className="flex-row items-center">
-                <View className="bg-purple-100 rounded-2xl p-4">
-                  <Image
-                    source={icons.protein}
-                    style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
-                  />
-                </View>
-                <View className="ml-4 flex-1">
-                  <Text className="text-gray-600 font-PoppinsMedium mb-1">
-                    Protein
-                  </Text>
-                  <View className="flex-row items-baseline">
-                    <TextInput
-                      className="font-PoppinsBold text-gray-900"
-                      placeholder="0"
-                      placeholderTextColor="#D1D5DB"
-                      value={protein}
-                      onChangeText={(text) => {
-                        setProtein(text);
-                        if (errors.protein) validateField("protein", text);
-                      }}
-                      onFocus={() => setFocusedInput("protein")}
-                      onBlur={() => {
-                        setFocusedInput("");
-                        validateField("protein", protein);
-                      }}
-                      keyboardType="numeric"
-                      style={{ fontSize: 24, flex: 1 }}
-                    />
-                    <Text
-                      className="font-PoppinsBold text-gray-500 ml-2"
-                      style={{ fontSize: 20 }}
-                    >
-                      g
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              {errors.protein ? (
-                <View className="flex-row items-center mt-3 pt-3 border-t border-red-100">
-                  <MaterialCommunityIcons
-                    name="alert-circle"
-                    size={16}
-                    color="#EF4444"
-                  />
-                  <Text className="text-red-500 text-sm font-Poppins ml-1">
-                    {errors.protein}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-
-            {/* Fats Card */}
-            <View
-              className={`bg-white rounded-3xl px-6 py-6 mb-6 ${
-                focusedInput === "fats"
-                  ? "border-2 border-yellow-500 shadow-lg"
-                  : errors.fats
-                    ? "border-2 border-red-500"
-                    : "border border-gray-100 shadow-sm"
-              }`}
-              style={{ elevation: focusedInput === "fats" ? 8 : 2 }}
-            >
-              <View className="flex-row items-center">
-                <View className="bg-yellow-100 rounded-2xl p-4">
-                  <Image
-                    source={icons.fats}
-                    style={{ width: 32, height: 32 }}
-                    resizeMode="contain"
-                  />
-                </View>
-                <View className="ml-4 flex-1">
-                  <Text className="text-gray-600 font-PoppinsMedium mb-1">
-                    Total Fat
-                  </Text>
-                  <View className="flex-row items-baseline">
-                    <TextInput
-                      className="font-PoppinsBold text-gray-900"
-                      placeholder="0"
-                      placeholderTextColor="#D1D5DB"
-                      value={fats}
-                      onChangeText={(text) => {
-                        setFats(text);
-                        if (errors.fats) validateField("fats", text);
-                      }}
-                      onFocus={() => setFocusedInput("fats")}
-                      onBlur={() => {
-                        setFocusedInput("");
-                        validateField("fats", fats);
-                      }}
-                      keyboardType="numeric"
-                      style={{ fontSize: 24, flex: 1 }}
-                    />
-                    <Text
-                      className="font-PoppinsBold text-gray-500 ml-2"
-                      style={{ fontSize: 20 }}
-                    >
-                      g
-                    </Text>
-                  </View>
-                </View>
-              </View>
-              {errors.fats ? (
-                <View className="flex-row items-center mt-3 pt-3 border-t border-red-100">
-                  <MaterialCommunityIcons
-                    name="alert-circle"
-                    size={16}
-                    color="#EF4444"
-                  />
-                  <Text className="text-red-500 text-sm font-Poppins ml-1">
-                    {errors.fats}
-                  </Text>
-                </View>
-              ) : null}
-            </View>
-
-            {/* Save Button */}
-            <View className="pt-6 pb-8">
-              <CustomButton
-                title={loading ? "Saving..." : "Save Food Entry"}
-                onPress={handleSave}
-                disabled={loading}
-                className="shadow-lg"
-                style={{
-                  backgroundColor: loading ? "#9CA3AF" : "#2D3644",
-                  elevation: loading ? 0 : 4,
-                  minHeight: 56,
-                }}
-                accessible={true}
-                accessibilityLabel={
-                  loading
-                    ? "Saving food entry, please wait"
-                    : "Save food entry to your diet history"
-                }
-                accessibilityHint="Double tap to save the food entry with the nutrition information you entered"
-                accessibilityRole="button"
-                IconLeft={
-                  loading
-                    ? undefined
-                    : () => (
-                        <MaterialCommunityIcons
-                          name="content-save"
-                          size={20}
-                          color="white"
-                          style={{ marginRight: 8 }}
+                  {["Apple", "Chicken breast", "White rice", "Banana"].map(
+                    (suggestion, idx) => (
+                      <TouchableOpacity
+                        key={idx}
+                        onPress={() => setSearchQuery(suggestion)}
+                        className="bg-gray-50 rounded-xl p-4 flex-row items-center justify-between mb-2"
+                      >
+                        <Text className="text-gray-700 font-Poppins">
+                          {suggestion}
+                        </Text>
+                        <Ionicons
+                          name="arrow-forward"
+                          size={18}
+                          color="#9CA3AF"
                         />
-                      )
-                }
-              />
-
-              {/* Helper text */}
-              <Text className="text-center text-gray-500 font-Poppins text-sm mt-4 px-4">
-                This will be added to your{" "}
-                {getMealTimeDisplayName().toLowerCase()} for today
-              </Text>
-            </View>
-          </ScrollView>
+                      </TouchableOpacity>
+                    )
+                  )}
+                </View>
+              </View>
+            </Animated.View>
+          )}
         </View>
-      </View>
-    </GestureHandlerRootView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 

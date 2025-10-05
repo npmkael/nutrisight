@@ -199,7 +199,7 @@ function Settings() {
               icon={<Ionicons name="scale-outline" size={20} color="#6B7280" />}
               title="Weight Tracking"
               subtitle="Manage weight goals and history"
-              onPress={() => router.push("/(root)/log-weight")}
+              onPress={() => router.push("/(root)/(settings)/weight")}
             />
 
             <SettingsItem

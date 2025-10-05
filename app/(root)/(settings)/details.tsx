@@ -168,7 +168,7 @@ function Details() {
 
   return (
     <KeyboardAvoidingView
-      style={{ flex: 1, backgroundColor: "#f8f9fa" }}
+      style={{ flex: 1, backgroundColor: "#FAFAFA" }}
       behavior={Platform.OS === "ios" ? "padding" : undefined}
     >
       <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
@@ -403,6 +403,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#F4F4F4",
     zIndex: 1,
   },
   headerSpacer: {
