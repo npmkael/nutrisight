@@ -53,7 +53,7 @@ function Settings() {
   };
 
   const handleUserGuide = () => {
-    Alert.alert("User Guide", "User guide coming soon!", [{ text: "OK" }]);
+    router.push("/(root)/(settings)/user-guide");
   };
 
   const handleSendFeedback = () => {
@@ -75,33 +75,15 @@ function Settings() {
   };
 
   const handleTermsOfService = () => {
-    Alert.alert("Terms of Service", "Terms of Service coming soon!", [
-      { text: "OK" },
-    ]);
-
-    // Linking.openURL("https://nutrisight.com/terms").catch(() => {
-    //   Alert.alert("Terms of Service", "Terms of Service coming soon!");
-    // });
+    router.push("/(root)/(settings)/terms-of-service");
   };
 
   const handlePrivacyPolicy = () => {
-    Alert.alert("Privacy Policy", "Privacy Policy coming soon!", [
-      { text: "OK" },
-    ]);
-
-    // Linking.openURL("https://nutrisight.com/privacy").catch(() => {
-    //   Alert.alert("Privacy Policy", "Privacy Policy coming soon!");
-    // });
+    router.push("/(root)/(settings)/privacy-policy");
   };
 
   const handleAbout = () => {
-    Alert.alert("About", "About coming soon!", [{ text: "OK" }]);
-
-    // Alert.alert(
-    //   "About NutriSight",
-    //   "NutriSight v1.0.0\n\nYour personalized nutrition companion. Track your food, analyze nutrition, and achieve your health goals.\n\nDeveloped with ❤️ for better health.",
-    //   [{ text: "OK" }]
-    // );
+    router.push("/(root)/(settings)/about");
   };
 
   const handleContactUs = () => {
@@ -156,7 +138,7 @@ function Settings() {
                     source={
                       user?.profileLink
                         ? { uri: user.profileLink }
-                        : require("../../../assets/images/sample-profile.jpg")
+                        : require("../../../assets/images/default-profile.jpg")
                     }
                     className="w-16 h-16 rounded-full"
                   />
@@ -194,15 +176,6 @@ function Settings() {
               title="Change Password"
               subtitle="Update your account password"
               onPress={() => handleChangePassword()}
-            />
-
-            <SettingsItem
-              icon={
-                <Ionicons name="shield-outline" size={20} color="#6B7280" />
-              }
-              title="Privacy Settings"
-              subtitle="Control your privacy options"
-              onPress={() => handlePrivacySettings()}
               showDivider={false}
             />
           </Container>
