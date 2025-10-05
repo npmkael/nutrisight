@@ -14,6 +14,7 @@ import {
   getMacroValue,
   removeDuplicateTriggeredAllergens,
 } from "@/utils/helpers";
+import { cancelMealNotificationForDate } from "@/utils/notif";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import FontAwesome from "@expo/vector-icons/FontAwesome";
@@ -265,6 +266,14 @@ function Results() {
           dietHistory: data.dietHistory, // <-- replace, not append
         };
       });
+
+      if (meal === "breakfast") {
+        await cancelMealNotificationForDate("breakfast", new Date());
+      } else if (meal === "lunch") {
+        await cancelMealNotificationForDate("lunch", new Date());
+      } else if (meal === "dinner") {
+        await cancelMealNotificationForDate("dinner", new Date());
+      }
 
       alert("Successfully saved results.");
       router.replace("/(root)/(tabs)/home");

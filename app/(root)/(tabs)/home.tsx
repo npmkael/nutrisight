@@ -10,6 +10,7 @@ import {
   getPartOfDay,
   setPrecisionIfNotInteger,
 } from "@/utils/helpers";
+import { ensureRollingScheduledReminders } from "@/utils/notif";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
@@ -89,6 +90,39 @@ function Home() {
       da.getMonth() === db.getMonth() &&
       da.getDate() === db.getDate()
     );
+  }, []);
+
+  useEffect(() => {
+    // create/maintain at least 3 and at most 7 days scheduled for each meal
+    (async () => {
+      await ensureRollingScheduledReminders(
+        "breakfast",
+        8,
+        0,
+        3,
+        7,
+        "Breakfast time",
+        "You haven't logged breakfast yet."
+      );
+      await ensureRollingScheduledReminders(
+        "lunch",
+        12,
+        0,
+        3,
+        7,
+        "Lunch time",
+        "You haven't logged lunch yet."
+      );
+      await ensureRollingScheduledReminders(
+        "dinner",
+        20,
+        0,
+        3,
+        7,
+        "Dinner time",
+        "You haven't logged dinner yet."
+      );
+    })();
   }, []);
 
   useEffect(() => {
