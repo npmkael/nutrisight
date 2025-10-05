@@ -10,6 +10,7 @@ import {
   CameraView,
   useCameraPermissions,
 } from "expo-camera";
+import * as ImagePicker from "expo-image-picker";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from "react-native";
@@ -159,6 +160,50 @@ function App() {
     setLoading(false);
   }, [foodScan, handleRetakePhoto]);
 
+  const handlePickFromGallery = useCallback(async () => {
+    try {
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== "granted") {
+        Alert.alert(
+          "Permission required",
+          "We need permission to access your photos to pick an image."
+        );
+        return;
+      }
+
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        base64: true,
+        quality: 0.7,
+      });
+
+      // handle cancel
+      if (result.canceled || !result.assets || result.assets.length === 0)
+        return;
+      const asset = result.assets[0];
+      const uri = asset.uri;
+      const base64 = asset.base64 ?? null;
+
+      // pause camera preview and set photo
+      cameraRef.current?.pausePreview();
+      setLoading(true);
+      setPhoto({ uri, base64 } as any);
+
+      // Prefer asset.base64 if available, otherwise crop from uri
+      const imageBase64 =
+        base64 ?? (await cropCenterTo256Base64({ uri } as any));
+
+      await foodScan(imageBase64, handleRetakePhoto);
+    } catch (e) {
+      console.warn("Gallery pick failed", e);
+      Alert.alert("Error", "Failed to pick/process image.");
+      handleRetakePhoto();
+    } finally {
+      setLoading(false);
+    }
+  }, [foodScan, handleRetakePhoto]);
+
   // Camera permissions are still loading.
   if (!permission) return <View />;
 
@@ -258,16 +303,23 @@ function App() {
 
       {/* Circular Camera Button */}
       <View style={styles.cameraButtonContainer} className="flex-row">
-        <TouchableOpacity style={styles.flashButton} onPress={() => {}}>
-          <Ionicons name="flash-outline" size={24} color="white" />
-        </TouchableOpacity>
         {!loading && scanMode !== "barcode" && (
-          <TouchableOpacity
-            style={styles.cameraButton}
-            onPress={handleTakePhoto}
-          >
-            <View style={styles.cameraButtonInner} />
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              style={styles.flashButton}
+              onPress={handlePickFromGallery}
+              accessibilityLabel="Pick image from gallery"
+            >
+              <Ionicons name="images-outline" size={24} color="white" />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cameraButton}
+              onPress={handleTakePhoto}
+            >
+              <View style={styles.cameraButtonInner} />
+            </TouchableOpacity>
+          </>
         )}
         <TouchableOpacity
           style={styles.closeButton}
