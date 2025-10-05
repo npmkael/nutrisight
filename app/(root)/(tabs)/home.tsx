@@ -10,7 +10,10 @@ import {
   getPartOfDay,
   setPrecisionIfNotInteger,
 } from "@/utils/helpers";
-import { ensureRollingScheduledReminders } from "@/utils/notif";
+import {
+  cancelMealNotificationForDate,
+  ensureRollingScheduledReminders,
+} from "@/utils/notif";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
@@ -95,6 +98,9 @@ function Home() {
   useEffect(() => {
     // create/maintain at least 3 and at most 7 days scheduled for each meal
     (async () => {
+      if (!user) return;
+      const today = new Date();
+
       await ensureRollingScheduledReminders(
         "breakfast",
         8,
@@ -122,8 +128,29 @@ function Home() {
         "Dinner time",
         "You haven't logged dinner yet."
       );
+
+      const todaysEntry = user.dietHistory?.find((h) =>
+        isSameLocalDate(h.date, today)
+      );
+      if (todaysEntry) {
+        if (
+          Array.isArray(todaysEntry.breakfast) &&
+          todaysEntry.breakfast.length > 0
+        ) {
+          await cancelMealNotificationForDate("breakfast", today);
+        }
+        if (Array.isArray(todaysEntry.lunch) && todaysEntry.lunch.length > 0) {
+          await cancelMealNotificationForDate("lunch", today);
+        }
+        if (
+          Array.isArray(todaysEntry.dinner) &&
+          todaysEntry.dinner.length > 0
+        ) {
+          await cancelMealNotificationForDate("dinner", today);
+        }
+      }
     })();
-  }, []);
+  }, [user]);
 
   useEffect(() => {
     if (user) {
