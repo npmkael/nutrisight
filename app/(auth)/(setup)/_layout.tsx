@@ -12,7 +12,11 @@ import React, {
   useState,
 } from "react";
 import { Text, TouchableOpacity, View } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  SharedValue,
+  useSharedValue,
+} from "react-native-reanimated";
 import { SafeAreaView } from "react-native-safe-area-context";
 
 const totalSteps = 7;
@@ -43,6 +47,9 @@ type OnboardingContextType = {
   activityLevel: string;
   setActivityLevel: (a: string) => void;
   isStepValid: () => boolean;
+  setUnit: React.Dispatch<React.SetStateAction<"ft/kg" | "cm/lb">>;
+  unit: "ft/kg" | "cm/lb";
+  isOn: SharedValue<boolean>;
 };
 
 const OnboardingContext = createContext<OnboardingContextType | undefined>(
@@ -74,6 +81,10 @@ function SetupLayout() {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [onboardingComplete, setOnboardingComplete] = useState(false);
+
+  const [unit, setUnit] = useState<"ft/kg" | "cm/lb">("ft/kg");
+
+  const isOn = useSharedValue(false);
 
   // Validation function for each step
   const isStepValid = useCallback(() => {
@@ -182,6 +193,9 @@ function SetupLayout() {
       activityLevel,
       setActivityLevel,
       isStepValid,
+      unit,
+      setUnit,
+      isOn,
     }),
     [
       name,
@@ -197,6 +211,9 @@ function SetupLayout() {
       targetWeight,
       activityLevel,
       isStepValid,
+      unit,
+      setUnit,
+      isOn,
     ]
   );
 

@@ -53,7 +53,7 @@ const TERMS_SECTIONS: TermSection[] = [
     subsections: [
       {
         subtitle: "Not Medical Advice",
-        text: "The nutritional information and recommendations provided by the App should not be considered medical advice. Always consult with a qualified healthcare provider before making dietary changes.",
+        text: "The nutritional information and recommendations provided by the App should not be considered medical advice. Always consult with a registered healthcare provider before making dietary changes.",
       },
       {
         subtitle: "Accuracy Limitations",
@@ -87,7 +87,7 @@ const TERMS_SECTIONS: TermSection[] = [
     id: "7",
     title: "7. Limitation of Liability",
     content:
-      "To the fullest extent permitted by law, NutriSight and its affiliates shall not be liable for any indirect, incidental, special, consequential, or punitive damages, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of the App.",
+      "To the fullest extent permitted by law, NutriSight and its affiliates shall not be liable for any indirect, incidental, special, consequential, or any loss of profits or revenues, whether incurred directly or indirectly, or any loss of data, use, goodwill, or other intangible losses resulting from your use of the App.",
   },
   {
     id: "8",
@@ -100,12 +100,6 @@ const TERMS_SECTIONS: TermSection[] = [
     title: "9. Changes to Terms",
     content:
       "We may update these Terms of Service from time to time. We will notify you of any material changes by posting the new terms in the App or via email. Your continued use after changes are posted constitutes acceptance of the modified terms.",
-  },
-  {
-    id: "10",
-    title: "10. Contact Information",
-    content:
-      "If you have any questions about these Terms of Service, please contact us at: support@nutrisight.com",
   },
 ];
 

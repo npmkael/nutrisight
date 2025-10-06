@@ -22,9 +22,15 @@ interface BMIClassificationProps {
   bmi: number;
   name?: string;
   onLogWeight: () => void;
+  profileImageUrl?: string;
 }
 
-function BMIClassification({ bmi, name, onLogWeight }: BMIClassificationProps) {
+function BMIClassification({
+  bmi,
+  name,
+  onLogWeight,
+  profileImageUrl,
+}: BMIClassificationProps) {
   const category = useMemo(() => getClassification(bmi), [bmi]);
 
   // Calculate marker position based on actual BMI category distributions
@@ -102,8 +108,8 @@ function BMIClassification({ bmi, name, onLogWeight }: BMIClassificationProps) {
             {/* */}
             <Image
               source={
-                true
-                  ? require("@/assets/images/sample-profile.jpg")
+                profileImageUrl
+                  ? { uri: profileImageUrl }
                   : require("@/assets/images/default-profile.jpg")
               }
               style={{

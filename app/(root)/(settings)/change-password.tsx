@@ -2,6 +2,7 @@ import { useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { Eye, EyeOff } from "lucide-react-native";
 import React, { memo, useCallback, useState } from "react";
 import {
   Alert,
@@ -193,11 +194,11 @@ function ChangePassword() {
                 style={styles.eyeButton}
                 onPress={() => setShowCurrentPassword(!showCurrentPassword)}
               >
-                <Ionicons
-                  name={showCurrentPassword ? "eye-off" : "eye"}
-                  size={20}
-                  color="#9CA3AF"
-                />
+                {showCurrentPassword ? (
+                  <Eye size={20} color="#9CA3AF" />
+                ) : (
+                  <EyeOff size={20} color="#9CA3AF" />
+                )}
               </TouchableOpacity>
             </View>
             {errors.currentPassword && (
@@ -226,11 +227,11 @@ function ChangePassword() {
                 style={styles.eyeButton}
                 onPress={() => setShowNewPassword(!showNewPassword)}
               >
-                <Ionicons
-                  name={showNewPassword ? "eye-off" : "eye"}
-                  size={20}
-                  color="#9CA3AF"
-                />
+                {showNewPassword ? (
+                  <Eye size={20} color="#9CA3AF" />
+                ) : (
+                  <EyeOff size={20} color="#9CA3AF" />
+                )}
               </TouchableOpacity>
             </View>
 
@@ -290,11 +291,11 @@ function ChangePassword() {
                 style={styles.eyeButton}
                 onPress={() => setShowConfirmPassword(!showConfirmPassword)}
               >
-                <Ionicons
-                  name={showConfirmPassword ? "eye-off" : "eye"}
-                  size={20}
-                  color="#9CA3AF"
-                />
+                {showConfirmPassword ? (
+                  <Eye size={20} color="#9CA3AF" />
+                ) : (
+                  <EyeOff size={20} color="#9CA3AF" />
+                )}
               </TouchableOpacity>
             </View>
             {errors.confirmPassword && (

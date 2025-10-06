@@ -65,15 +65,6 @@ function AllergensEdit() {
 
       {/* Content */}
       <View className="flex-1 px-4 pt-4">
-        <Text className="text-3xl font-PoppinsSemiBold text-black mb-4">
-          Update your allergies
-        </Text>
-
-        <Text className="font-Poppins text-md text-gray-500 mb-6">
-          Select all foods you're allergic or intolerant to. This helps us to
-          avoid recommending foods that you're allergic to.
-        </Text>
-
         {/* Allergens Selection Component */}
         <View className="flex-1">
           <AllergensSelection

@@ -244,7 +244,7 @@ function ManualFoodEntry() {
               onPress={handleBack}
               className="w-10 h-10 items-center justify-center rounded-full bg-gray-50"
             >
-              <Ionicons name="arrow-back" size={20} color="#af4545ff" />
+              <Ionicons name="arrow-back" size={20} color="#000" />
             </TouchableOpacity>
 
             <Text className="text-xl font-PoppinsSemiBold text-gray-900">

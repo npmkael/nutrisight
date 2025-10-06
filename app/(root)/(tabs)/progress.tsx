@@ -4,6 +4,7 @@ import InfoTooltip from "@/components/InfoTooltip";
 import TargetWeightChart from "@/components/target-weight-chart";
 import Typo from "@/components/Typo";
 import { useAuth } from "@/context/AuthContext";
+import { setPrecisionIfNotInteger } from "@/utils/helpers";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
 import { memo, useCallback } from "react";
@@ -60,7 +61,7 @@ function Progress() {
               source={
                 user.profileLink
                   ? { uri: user.profileLink }
-                  : require("@/assets/images/sample-profile.jpg")
+                  : require("@/assets/images/default-profile.jpg")
               }
               resizeMethod="scale"
               resizeMode="contain"
@@ -86,7 +87,7 @@ function Progress() {
                     Current BMI
                   </Typo>
                   <Typo size={16} className="font-PoppinsSemiBold">
-                    {user.bmi ? user.bmi.toFixed(2) : "N/A"}
+                    {user.bmi ? setPrecisionIfNotInteger(user.bmi) : "N/A"}
                   </Typo>
                 </View>
                 <View className="flex-col items-center">
@@ -103,9 +104,10 @@ function Progress() {
 
           {/* BMI Classification Card */}
           <BMIClassification
-            bmi={user.bmi ? Number(user.bmi.toFixed(2)) : 0}
+            bmi={user.bmi ? setPrecisionIfNotInteger(user.bmi) : 0}
             onLogWeight={redirectToLogWeight}
             name={user.firstName}
+            profileImageUrl={user.profileLink}
           />
 
           <View className="flex-row justify-between items-center mt-6 mb-2 mx-4">

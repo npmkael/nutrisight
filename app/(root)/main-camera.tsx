@@ -1,4 +1,4 @@
-import Loading from "@/components/Loading";
+import LoadingScreen from "@/components/loading-screen";
 import { useAuth } from "@/context/AuthContext";
 import { useBarcodeScan } from "@/hooks/useBarcodeScan";
 import { useFoodScan } from "@/hooks/useFoodScan";
@@ -332,11 +332,7 @@ function App() {
       </View>
 
       {/* Add loading overlay */}
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <Loading />
-        </View>
-      )}
+      {loading && <LoadingScreen message="Scanning..." />}
     </View>
   );
 }

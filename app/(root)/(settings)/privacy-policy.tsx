@@ -45,7 +45,6 @@ const PRIVACY_SECTIONS: PrivacySection[] = [
       "Provide personalized nutrition tracking and recommendations",
       "Analyze food images using AI to identify nutritional content",
       "Generate health insights and progress reports",
-      "Send important notifications about your goals and achievements",
       "Improve our AI models and app functionality",
       "Respond to your support requests and communications",
       "Detect and prevent fraud, abuse, and security incidents",
@@ -163,18 +162,6 @@ const PRIVACY_SECTIONS: PrivacySection[] = [
     icon: "refresh-outline",
     content:
       "We may update this Privacy Policy from time to time. We will notify you of significant changes via email or in-app notification. Your continued use after changes constitutes acceptance.",
-  },
-  {
-    id: "12",
-    title: "Contact Us",
-    icon: "mail-outline",
-    content:
-      "If you have questions, concerns, or requests regarding this Privacy Policy or your personal data, please contact us:",
-    details: [
-      "Email: privacy@nutrisight.com",
-      "Support: support@nutrisight.com",
-      "Address: NutriSight Inc., 123 Health Street, Wellness City, CA 90210",
-    ],
   },
 ];
 

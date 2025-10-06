@@ -15,12 +15,9 @@ import Animated, {
   FadeIn,
   FadeInDown,
   FadeOutDown,
-  useSharedValue,
 } from "react-native-reanimated";
 import TextInputField from "../../../components/TextInputField";
 import { useOnboarding } from "./_layout";
-
-type Unit = "ft/kg" | "cm/lb";
 
 function HeightAndWeight() {
   const {
@@ -32,48 +29,21 @@ function HeightAndWeight() {
     setHeightUnit,
     setWeight,
     setWeightUnit,
+    unit,
+    setUnit,
+    isOn,
   } = useOnboarding();
-
-  const [unit, setUnit] = useState<Unit>("ft/kg");
   const [recommendation, setRecommendation] = useState<{
     desiredWeight: number;
     recommendation: string;
     desiredWeightInLessThan10Percent: number;
     desiredWeightInMoreThan10Percent: number;
   } | null>(null);
-  const [converting, setConverting] = useState(false);
-  const isOn = useSharedValue(false);
+
+  console.log("3.tsx rendered");
+  console.log(heightFeet, heightInches, weight);
 
   useEffect(() => {
-    // When switching to "cm/lb" we want height in cm and weight in lb.
-    // When switching to "ft/kg" we want height in ft+in and weight in kg.
-    setConverting(true);
-    if (unit === "cm/lb") {
-      setHeightUnit("cm");
-      setWeightUnit("lb");
-      // convert current ft/in -> cm
-      const cm = ftToCM(heightFeet || "0", heightInches || "0");
-      setHeightFeet(cm > 0 ? cm.toString() : "");
-      setHeightInches("");
-      // convert current kg -> lb
-      const lb = kgToLb(weight || "0");
-      setWeight(lb > 0 ? lb.toString() : "");
-    } else {
-      setHeightUnit("ft/in");
-      setWeightUnit("kg");
-      // convert current cm -> ft/in
-      const { ft, inch } = cmToFt(heightFeet || "0");
-      setHeightFeet(ft > 0 ? ft.toString() : "");
-      setHeightInches(inch > 0 ? inch.toString() : "");
-      // convert current lb -> kg
-      const kg = lbToKg(weight || "0");
-      setWeight(kg > 0 ? kg.toString() : "");
-    }
-    setTimeout(() => setConverting(false), 0);
-  }, [unit]);
-
-  useEffect(() => {
-    if (converting) return;
     if (!heightFeet || !weight) {
       setRecommendation(null);
       return;
@@ -112,11 +82,33 @@ function HeightAndWeight() {
         desiredWeightInMoreThan10Percent,
       });
     }
-  }, [heightFeet, heightInches, weight, unit, converting]);
+  }, [heightFeet, heightInches, weight, unit]);
 
   const handlePress = () => {
-    setConverting(true);
     isOn.value = !isOn.value;
+
+    if (unit === "ft/kg") {
+      setHeightUnit("cm");
+      setWeightUnit("lb");
+      // convert current ft/in -> cm
+      const cm = ftToCM(heightFeet || "0", heightInches || "0");
+      setHeightFeet(cm > 0 ? cm.toString() : "");
+      setHeightInches("");
+      // convert current kg -> lb
+      const lb = kgToLb(weight || "0");
+      setWeight(lb > 0 ? lb.toString() : "");
+    } else {
+      setHeightUnit("ft/in");
+      setWeightUnit("kg");
+      // convert current cm -> ft/in
+      const { ft, inch } = cmToFt(heightFeet || "0");
+      setHeightFeet(ft > 0 ? ft.toString() : "");
+      setHeightInches(inch > 0 ? inch.toString() : "");
+      // convert current lb -> kg
+      const kg = lbToKg(weight || "0");
+      setWeight(kg > 0 ? kg.toString() : "");
+    }
+
     setUnit(isOn.value ? "ft/kg" : "cm/lb");
   };
 
@@ -192,12 +184,6 @@ function HeightAndWeight() {
           >
             {/* Card Content */}
             <View className="">
-              <Text className="text-xl font-PoppinsSemiBold text-black mb-2">
-                Recommended Weight Range
-              </Text>
-              <Text className="text-sm font-Poppins text-gray-600 mb-4 leading-5">
-                Based on your height, here's your suggested range.
-              </Text>
               <View className="bg-green-50 rounded-xl p-4 border border-green-200">
                 <Text className="text-2xl font-PoppinsBold text-green-700 text-center">
                   {recommendation?.recommendation === "underweight"

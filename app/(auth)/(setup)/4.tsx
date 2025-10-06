@@ -7,6 +7,7 @@ import { useOnboarding } from "./_layout";
 
 function AllergensSelection() {
   const { selectedAllergens, setSelectedAllergens } = useOnboarding();
+  console.log("4.tsx rendered");
 
   const toggleAllergen = (allergenId: string) => {
     setSelectedAllergens((prev: string[]) => {
@@ -60,6 +61,18 @@ function AllergensSelection() {
         </Text>
 
         <ScrollView className="flex-1" showsVerticalScrollIndicator={false}>
+          {/* No Allergies Section */}
+          <View className="mb-6">
+            <Text className="font-PoppinsSemiBold text-lg text-black mb-3">
+              No allergies or intolerances
+            </Text>
+            <View className="flex-row flex-wrap gap-2">
+              {otherAllergens
+                .filter((allergen) => allergen.id === "none")
+                .map(renderAllergenButton)}
+            </View>
+          </View>
+
           {/* Common Allergens Section */}
           <View className="mb-6">
             <Text className="font-PoppinsSemiBold text-lg text-black mb-3">
@@ -76,7 +89,9 @@ function AllergensSelection() {
               Other allergens & intolerances
             </Text>
             <View className="flex-row flex-wrap gap-2">
-              {otherAllergens.map(renderAllergenButton)}
+              {otherAllergens
+                .filter((allergen) => allergen.id !== "none")
+                .map(renderAllergenButton)}
             </View>
           </View>
         </ScrollView>

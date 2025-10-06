@@ -29,10 +29,16 @@ const Welcome = () => {
         />
 
         <View className="justify-center items-center">
-          <Text className="text-3xl font-PoppinsSemiBold mb-2">
+          <Text
+            className="text-3xl mb-2"
+            style={{ fontFamily: "GeistSemiBold" }}
+          >
             Welcome to NutriSight
           </Text>
-          <Text className="text-gray-400 font-Poppins text-center">
+          <Text
+            className="text-gray-400 text-center"
+            style={{ fontFamily: "GeistRegular" }}
+          >
             Let's get started into your account.
           </Text>
         </View>
@@ -94,18 +100,18 @@ const styles = StyleSheet.create({
     color: "#fff",
     textAlign: "center",
     fontSize: 14,
-    fontFamily: "PoppinsSemiBold",
+    fontFamily: "GeistSemiBold",
   },
   signInButtonText: {
     color: "#000",
     textAlign: "center",
     fontSize: 14,
-    fontFamily: "PoppinsSemiBold",
+    fontFamily: "GeistSemiBold",
   },
   termsText: {
     color: "#a0a0a0",
     textAlign: "center",
     fontSize: 12,
-    fontFamily: "Poppins",
+    fontFamily: "GeistRegular",
   },
 });

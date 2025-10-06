@@ -13,6 +13,7 @@ import {
   capitalizeFirstLetter,
   getMacroValue,
   removeDuplicateTriggeredAllergens,
+  setPrecisionIfNotInteger,
 } from "@/utils/helpers";
 import { cancelMealNotificationForDate } from "@/utils/notif";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
@@ -173,14 +174,6 @@ function Results() {
     const allNutritionItems = result?.nutritionData.flatMap(
       (category) => category.items
     );
-
-    // get calorie with "energy" or "calorie" as keyword
-    // return the value
-    const calorieValue = allNutritionItems?.find(
-      (item) =>
-        (item.name as string).toLowerCase().includes("energy") ||
-        (item.name as string).toLowerCase().includes("calorie")
-    )?.value;
 
     // 6:00am - 10:00am breakfast
     // 12:00pm - 2:00pm lunch
@@ -580,7 +573,7 @@ function Results() {
                             {capitalizeFirstLetter(item.name as string)}
                           </Text>
                           <Text className="text-black font-PoppinsSemiBold bg-[#F4F4F4] px-3 py-1 rounded-full text-sm">
-                            {item.value.toFixed(2)}
+                            {setPrecisionIfNotInteger(item.value)}
                             {item.unit}
                           </Text>
                         </View>

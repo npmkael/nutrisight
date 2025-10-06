@@ -2,6 +2,7 @@ import weight from "@/app/(root)/(settings)/weight";
 import {
   cmToFt,
   getRecommendedWeightRangeFeetAndInches,
+  kgToLb,
   lbToKg,
 } from "@/lib/helpers";
 import { Ionicons } from "@expo/vector-icons";
@@ -22,6 +23,8 @@ function SetTargetWeight() {
     heightFeet,
     heightInches,
   } = useOnboarding();
+
+  console.log(weightUnit);
 
   // Calculate recommended healthy weight based on height
   const recommendedWeightRange = useMemo(() => {
@@ -116,9 +119,28 @@ function SetTargetWeight() {
           currentWeightNum >
           recommendedWeightRange.desiredWeightInMoreThan10Percent
         ) {
-          return `Based on your height and current weight, we recommend aiming for ${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg - ${recommendedWeightRange.desiredWeightInLessThan10Percent}kg. This is a healthy weight range that supports your weight loss goal.`;
+          const left =
+            weightUnit === "kg"
+              ? `${recommendedWeightRange.desiredWeightInLessThan10Percent}kg`
+              : `${Math.round(
+                  kgToLb(
+                    recommendedWeightRange.desiredWeightInLessThan10Percent.toString()
+                  )
+                )}lb`;
+          const right =
+            weightUnit === "kg"
+              ? `${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg`
+              : `${Math.round(
+                  kgToLb(
+                    recommendedWeightRange.desiredWeightInMoreThan10Percent.toString()
+                  )
+                )}lb`;
+
+          return `Based on your height and current weight, we recommend aiming for ${left} - ${right}. This is a healthy weight range that supports your weight loss goal.`;
         } else {
-          return `Your current weight is already in a healthy range. Consider setting a target that's 5-10% lower than your current weight (${Math.round(currentWeightNum * 0.9)}-${Math.round(currentWeightNum * 0.95)} kg) for gradual, sustainable weight loss.`;
+          return `Your current weight is already in a healthy range. Consider setting a target that's 5-10% lower than your current weight (${Math.round(
+            currentWeightNum * 0.9
+          )}-${Math.round(currentWeightNum * 0.95)} kg) for gradual, sustainable weight loss.`;
         }
 
       case "gain":
@@ -126,9 +148,30 @@ function SetTargetWeight() {
           currentWeightNum <
           recommendedWeightRange.desiredWeightInLessThan10Percent
         ) {
-          return `Based on your height, we recommend targeting ${recommendedWeightRange.desiredWeightInLessThan10Percent}kg - ${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg. This healthy weight supports your weight gain goal and overall wellness.`;
+          const left =
+            weightUnit === "kg"
+              ? `${recommendedWeightRange.desiredWeightInLessThan10Percent}kg`
+              : `${Math.round(
+                  kgToLb(
+                    recommendedWeightRange.desiredWeightInLessThan10Percent.toString()
+                  )
+                )}lb`;
+
+          const right =
+            weightUnit === "kg"
+              ? `${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg`
+              : `${Math.round(
+                  kgToLb(
+                    recommendedWeightRange.desiredWeightInMoreThan10Percent.toString()
+                  )
+                )}lb`;
+
+          return `Based on your height, we recommend targeting ${left} - ${right}. This healthy weight supports your weight gain goal and overall wellness.`;
         } else {
-          return `Consider setting a target that's 5-10% higher than your current weight (${Math.round(currentWeightNum * 1.05)}-${Math.round(currentWeightNum * 1.1)}kg) for gradual, healthy weight gain.`;
+          const low = Math.round(currentWeightNum * 1.05);
+          const high = Math.round(currentWeightNum * 1.1);
+          const unitSuffix = weightUnit === "kg" ? "kg" : "lb";
+          return `Consider setting a target that's 5-10% higher than your current weight (${low}-${high}${unitSuffix}) for gradual, healthy weight gain.`;
         }
 
       case "maintain":
@@ -190,7 +233,7 @@ function SetTargetWeight() {
               <Text className="font-PoppinsSemiBold text-black">
                 {weightUnit === "kg"
                   ? `${currentWeight}kg`
-                  : `${Math.round(lbToKg(currentWeight))}lb`}
+                  : `${currentWeight}lb`}
               </Text>
             </Text>
           </View>

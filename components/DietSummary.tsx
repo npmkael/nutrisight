@@ -4,7 +4,10 @@ import InfoTooltip from "./InfoTooltip";
 import Typo from "./Typo";
 
 import { UserType } from "@/context/AuthContext";
-import { getCaloriesFromMealEntry } from "@/utils/helpers";
+import {
+  getCaloriesFromMealEntry,
+  setPrecisionIfNotInteger,
+} from "@/utils/helpers";
 import { PieChart } from "react-native-gifted-charts";
 
 export default function DietSummary({
@@ -128,24 +131,56 @@ export default function DietSummary({
   };
 
   // Normalize items to include color and ensure numeric value
-  const nutrientSummary: {
-    name: string;
-    value: number;
-    color: string;
-    unit?: string;
-  }[] = rawNutrientSummary
+  // Helper to sum all keys that include a keyword
+  const sumByKeyword = (obj: Record<string, number>, keyword: string) =>
+    Object.entries(obj)
+      .filter(([key]) => key.toLowerCase().includes(keyword))
+      .reduce((sum, [, value]) => sum + Number(value || 0), 0);
+
+  // Build a totals object keyed by normalized lower-case name to aggregate duplicates
+  const totalsByName: Record<
+    string,
+    { name: string; value: number; unit: string }
+  > = {};
+
+  rawNutrientSummary
     .map((n: any) => {
       const name = String(n.name || n.label || "").trim();
       const key = name.toLowerCase();
       const value = Number(n.value ?? n.amount ?? 0);
-      const color = NUTRIENT_COLOR_MAP[key] ?? "#0369A1"; // default color
-      return { name, value, color, unit: n.unit };
+      const unit = n.unit;
+      return { name, key, value, unit };
     })
-    .filter((n) => !n.name.includes(":"));
+    .filter((n) => n.name && !n.name.includes(":"))
+    .forEach((n) => {
+      if (!totalsByName[n.key]) {
+        totalsByName[n.key] = { name: n.name, value: 0, unit: n.unit };
+      }
+      totalsByName[n.key].value += n.value;
+      if (!totalsByName[n.key].unit && n.unit)
+        totalsByName[n.key].unit = n.unit;
+    });
 
-  // Define macronutrient names (case-insensitive check)
+  // Build a de-duplicated nutrient summary array
+  const nutrientSummary: {
+    name: string;
+    value: number;
+    color: string;
+    unit: string;
+  }[] = Object.entries(totalsByName).map(([key, v]) => {
+    {
+      console.log("Nutrient:", v);
+      return {
+        name: v.name,
+        value: v.value,
+        color: NUTRIENT_COLOR_MAP[key] ?? "#0369A1",
+        unit: v.unit,
+      };
+    }
+  });
+
+  // Now ensure macronutrients are summed by keyword (covers slight name variations)
   const macronutrientNames = [
-    "calories",
     "protein",
     "carbs",
     "carbohydrate",
@@ -155,6 +190,13 @@ export default function DietSummary({
     "total fat",
     "total carbohydrate",
   ];
+
+  // Create a simple map of name->value for keyword summing
+  const simpleTotalsMap: Record<string, number> = {};
+  nutrientSummary.forEach((n) => {
+    simpleTotalsMap[n.name.toLowerCase()] =
+      (simpleTotalsMap[n.name.toLowerCase()] || 0) + Number(n.value || 0);
+  });
 
   // Separate macronutrients and micronutrients
   const macronutrients = nutrientSummary.filter((n) =>
@@ -175,7 +217,7 @@ export default function DietSummary({
     name: string;
     value: number;
     color: string;
-    unit?: string;
+    unit: string;
   }[][] = [];
   for (let i = 0; i < macronutrients.length; i += 3) {
     macronutrients2d.push(macronutrients.slice(i, i + 3));
@@ -271,7 +313,8 @@ export default function DietSummary({
                       <View className="w-full h-[1px] bg-gray-200" />
 
                       <Text className=" text-sm font-semibold">
-                        {data.value.toFixed(2)}% ({data.calories} cal)
+                        {setPrecisionIfNotInteger(data.value)}% ({data.calories}{" "}
+                        cal)
                       </Text>
                     </View>
                   </View>
@@ -300,14 +343,14 @@ export default function DietSummary({
               </>
             )}
 
-            {/* Micronutrients Section */}
+            {/* Other Nutrients Section */}
             {micronutrients.length > 0 && (
               <>
                 <Text
                   className=" mb-2 mt-4 text-md"
                   style={{ fontFamily: "GeistSemiBold" }}
                 >
-                  Micronutrients
+                  Other Nutrients
                 </Text>
                 {micronutrients.map((data, idx) => (
                   <NutrientListItem
@@ -366,10 +409,16 @@ const NutrientListItem = ({
       </View>
       <Text className="flex-row items-end">
         <Text className="text-base" style={{ fontFamily: "GeistSemiBold" }}>
-          {value.toFixed(1)}
+          {setPrecisionIfNotInteger(value)}
         </Text>
         <Text className="text-sm  ml-1" style={{ fontFamily: "GeistMedium" }}>
-          {unit || "g"}
+          {unit ||
+            `${
+              name.toLowerCase() === "calorie" ||
+              name.toLowerCase() === "energy"
+                ? " kcal"
+                : " g"
+            }`}
         </Text>
       </Text>
     </View>

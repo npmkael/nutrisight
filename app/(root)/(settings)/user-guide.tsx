@@ -84,10 +84,8 @@ const GUIDE_SECTIONS: GuideSection[] = [
       "Get comprehensive insights into your nutritional intake and progress over time.",
     steps: [
       "Navigate to the Progress tab",
-      "View daily, weekly, and monthly summaries",
+      "View daily summaries",
       "Check your weight tracking chart",
-      "Analyze macro distribution patterns",
-      "Export reports for sharing with healthcare providers",
     ],
   },
   {
@@ -123,10 +121,9 @@ const GUIDE_SECTIONS: GuideSection[] = [
     icon: "create-outline",
     content: "Can't scan? No problem! Manually enter food items with ease.",
     steps: [
-      "Tap 'Manual Entry' from the add meal screen",
-      "Search for food items in our database",
+      "Tap 'Add Food' from the home screen",
+      "Search for food items in our database or from a external API",
       "Enter quantity and serving size",
-      "Add custom foods if needed",
       "Save to your daily log",
     ],
   },

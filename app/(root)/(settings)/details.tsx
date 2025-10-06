@@ -7,6 +7,7 @@ import * as ImagePicker from "expo-image-picker";
 import { useRouter } from "expo-router";
 import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Animated,
   Image,
   KeyboardAvoidingView,
@@ -60,16 +61,20 @@ function Details() {
 
   useEffect(() => {
     if (uploadingImage) {
-      // Start rotation animation for loading spinner
+      // Start smooth rotation animation for loading spinner
       const rotateAnimation = Animated.loop(
         Animated.timing(loadingRotation, {
           toValue: 1,
-          duration: 1000,
+          duration: 800,
           useNativeDriver: true,
-        })
+        }),
+        { iterations: -1 }
       );
       rotateAnimation.start();
       return () => rotateAnimation.stop();
+    } else {
+      // Reset rotation when not uploading
+      loadingRotation.setValue(0);
     }
   }, [uploadingImage, loadingRotation]);
 
@@ -129,7 +134,10 @@ function Details() {
       setUploadingImage(true);
       // reuse uploadProfilePicture from useAuth (it posts form field "profilePicture")
       await uploadProfilePicture(selectedImage);
-      alert("Profile picture updated successfully!");
+      Alert.alert(
+        "Upload Successful",
+        "Your profile picture has been updated."
+      );
     } catch (err) {
       console.error("Upload profile picture error:", err);
       alert("Failed to upload profile picture.");
@@ -196,7 +204,7 @@ function Details() {
                   source={
                     selectedImage
                       ? { uri: selectedImage }
-                      : require("@/assets/images/sample-profile.jpg")
+                      : require("@/assets/images/default-profile.jpg")
                   }
                   style={styles.profileImage}
                 />
@@ -207,6 +215,30 @@ function Details() {
                   <Ionicons name="camera" size={20} color="white" />
                   <Text style={styles.overlayText}>Change Photo</Text>
                 </Animated.View>
+
+                {/* Uploading spinner overlay */}
+                {uploadingImage && (
+                  <Animated.View
+                    pointerEvents="none"
+                    style={styles.uploadingOverlay}
+                  >
+                    <Animated.View
+                      style={[
+                        styles.loadingSpinner,
+                        {
+                          transform: [
+                            {
+                              rotate: loadingRotation.interpolate({
+                                inputRange: [0, 1],
+                                outputRange: ["0deg", "360deg"],
+                              }),
+                            },
+                          ],
+                        },
+                      ]}
+                    />
+                  </Animated.View>
+                )}
               </View>
             </TouchableOpacity>
 
@@ -238,7 +270,11 @@ function Details() {
                 <TouchableOpacity
                   onPress={uploadProfileImage}
                   disabled={uploadingImage}
-                  style={[styles.actionButton, styles.saveButton]}
+                  style={[
+                    styles.actionButton,
+                    styles.saveButton,
+                    uploadingImage && styles.saveButtonLoading,
+                  ]}
                 >
                   {uploadingImage ? (
                     <>
@@ -257,11 +293,17 @@ function Details() {
                           },
                         ]}
                       />
-                      <Text style={styles.saveButtonText}>Uploading...</Text>
+                      <Text style={[styles.saveButtonText, styles.loadingText]}>
+                        Uploading...
+                      </Text>
                     </>
                   ) : (
                     <>
-                      <Ionicons name="checkmark" size={16} color="white" />
+                      <Ionicons
+                        name="cloud-upload-outline"
+                        size={16}
+                        color="white"
+                      />
                       <Text style={styles.saveButtonText}>Save Photo</Text>
                     </>
                   )}
@@ -353,18 +395,41 @@ function Details() {
               alignItems: "center",
               marginTop: 10,
               marginBottom: 30,
+              opacity: isLoading ? 0.8 : 1,
+              transform: [{ scale: isLoading ? 0.98 : 1 }],
+              flexDirection: "row",
+              justifyContent: "center",
+              gap: 8,
             }}
             onPress={handleSubmit}
             disabled={isLoading}
           >
+            {isLoading && (
+              <Animated.View
+                style={[
+                  styles.loadingSpinner,
+                  {
+                    transform: [
+                      {
+                        rotate: loadingRotation.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ["0deg", "360deg"],
+                        }),
+                      },
+                    ],
+                  },
+                ]}
+              />
+            )}
             <Text
               style={{
                 color: "white",
                 fontSize: 16,
                 fontFamily: "PoppinsSemiBold",
+                opacity: isLoading ? 0.9 : 1,
               }}
             >
-              {isLoading ? "Saving..." : "Save Changes"}
+              {isLoading ? "Saving Changes..." : "Save Changes"}
             </Text>
           </TouchableOpacity>
         </View>
@@ -533,8 +598,16 @@ const styles = StyleSheet.create({
     height: 16,
     borderRadius: 8,
     borderWidth: 2,
-    borderColor: "white",
-    borderTopColor: "transparent",
+    borderColor: "rgba(45, 54, 68, 0.3)",
+    borderTopColor: colors.primary,
+    borderRightColor: colors.primary,
+  },
+  saveButtonLoading: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
+  },
+  loadingText: {
+    opacity: 0.9,
   },
   formContainer: {
     flex: 1,
@@ -624,5 +697,16 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: "#111827",
     fontFamily: "Poppins",
+  },
+  uploadingOverlay: {
+    position: "absolute",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(255,255,255,0.7)",
   },
 });

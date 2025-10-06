@@ -1,4 +1,4 @@
-import Loading from "@/components/Loading";
+import LoadingScreen from "@/components/loading-screen";
 import PredictionCard from "@/components/PredictionCard";
 import { BACKEND_URL } from "@/context/AuthContext";
 import { replaceUnderscoreWithSpace } from "@/utils/helpers";
@@ -64,6 +64,8 @@ function Predictions() {
         console.log("Error fetching food data:", error);
         alert("An error occurred. Please try again.");
       } finally {
+        // set delay to show loading screen for at least 1 second
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setLoading(false);
       }
     },
@@ -71,7 +73,7 @@ function Predictions() {
   );
 
   if (loading) {
-    return <Loading />;
+    return <LoadingScreen message="Fetching data..." />;
   }
 
   return (
