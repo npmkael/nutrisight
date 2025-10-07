@@ -19,6 +19,18 @@ import Animated, {
 import TextInputField from "../../../components/TextInputField";
 import { useOnboarding } from "./_layout";
 
+// Validation constants
+const MIN_HEIGHT_FT = 4;
+const MIN_HEIGHT_IN = 0;
+const MAX_HEIGHT_FT = 7;
+const MAX_HEIGHT_IN = 5;
+const MIN_HEIGHT_CM = 122; // 4'0"
+const MAX_HEIGHT_CM = 226; // 7'5"
+const MIN_WEIGHT_KG = 20;
+const MAX_WEIGHT_KG = 200;
+const MIN_WEIGHT_LB = 44; // ~20 kg
+const MAX_WEIGHT_LB = 440; // ~200 kg
+
 function HeightAndWeight() {
   const {
     heightFeet,
@@ -39,15 +51,73 @@ function HeightAndWeight() {
     desiredWeightInLessThan10Percent: number;
     desiredWeightInMoreThan10Percent: number;
   } | null>(null);
+  const [validationError, setValidationError] = useState<string>("");
 
   console.log("3.tsx rendered");
-  console.log(heightFeet, heightInches, weight);
+  console.log(heightFeet, heightInches, weight, unit,);
 
-  useEffect(() => {
+  // Validation function
+  const validateInputs = () => {
     if (!heightFeet || !weight) {
-      setRecommendation(null);
+      setValidationError("");
       return;
     }
+
+    const errors: string[] = [];
+
+    if (unit === "ft/kg") {
+      const ft = Number(heightFeet);
+      const inch = Number(heightInches) || 0;
+      const wt = Number(weight);
+
+      // Height validation
+      const totalInches = ft * 12 + inch;
+      const minInches = MIN_HEIGHT_FT * 12 + MIN_HEIGHT_IN;
+      const maxInches = MAX_HEIGHT_FT * 12 + MAX_HEIGHT_IN;
+
+      if (totalInches < minInches) {
+        errors.push(`Please enter an accurate height`);
+      } else if (totalInches > maxInches) {
+        errors.push(`Please enter an accurate height`);
+      }
+
+      // Weight validation
+      if (wt < MIN_WEIGHT_KG) {
+        errors.push(`Please enter an accurate weight`);
+      } else if (wt > MAX_WEIGHT_KG) {
+        errors.push(`Please enter an accurate weight`);
+      }
+    } else {
+      const cm = Number(heightFeet);
+      const lb = Number(weight);
+
+      // Height validation
+      if (cm < MIN_HEIGHT_CM) {
+        errors.push(`Height must be at least ${MIN_HEIGHT_CM} cm`);
+      } else if (cm > MAX_HEIGHT_CM) {
+        errors.push(`Height must not exceed ${MAX_HEIGHT_CM} cm`);
+      }
+
+      // Weight validation
+      if (lb < MIN_WEIGHT_LB) {
+        errors.push(`Weight must be at least ${MIN_WEIGHT_LB} lb`);
+      } else if (lb > MAX_WEIGHT_LB) {
+        errors.push(`Weight must not exceed ${MAX_WEIGHT_LB} lb`);
+      }
+    }
+
+    setValidationError(errors.join("\n"));
+  };
+
+  useEffect(() => {
+    validateInputs();
+    setRecommendation(null);
+    if(validationError.length > 0) return;
+
+    if (heightFeet === "" || weight === "" || validationError) {
+      return;
+    }
+
 
     if (unit === "ft/kg") {
       const {
@@ -82,7 +152,7 @@ function HeightAndWeight() {
         desiredWeightInMoreThan10Percent,
       });
     }
-  }, [heightFeet, heightInches, weight, unit]);
+  }, [heightFeet, heightInches, weight, unit, validationError]);
 
   const handlePress = () => {
     isOn.value = !isOn.value;
@@ -175,8 +245,21 @@ function HeightAndWeight() {
           </View>
         </View>
 
+        {/* Validation Error */}
+        {validationError && (
+          <Animated.View
+            entering={FadeInDown.duration(300)}
+            exiting={FadeOutDown.duration(200)}
+            className="mt-4 bg-red-50 rounded-xl p-4 border border-red-200"
+          >
+            <Text className="text-red-700 font-PoppinsMedium text-center">
+              {validationError}
+            </Text>
+          </Animated.View>
+        )}
+
         {/* Recommendation Card */}
-        {recommendation && recommendation.recommendation !== "" && (
+        {recommendation && recommendation.recommendation !== "" && !validationError && (
           <Animated.View
             entering={FadeInDown.duration(500).springify()}
             exiting={FadeOutDown.duration(300)}

@@ -1,9 +1,10 @@
-import { useAuth } from "@/context/AuthContext";
+import LoadingScreen from "@/components/loading-screen";
+import { BACKEND_URL, useAuth } from "@/context/AuthContext";
 import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { Eye, EyeOff } from "lucide-react-native";
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import {
   Alert,
   KeyboardAvoidingView,
@@ -32,6 +33,37 @@ function ChangePassword() {
     newPassword?: string;
     confirmPassword?: string;
   }>({});
+  const [dontHavePassword, setDontHavePassword] = useState("");
+
+  useEffect(() => {
+    async function checkPassword() {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`${BACKEND_URL}/auth/has-password`, {
+          credentials: "include",
+        });
+        const data = await res.json();
+        if(!data.havePassword) {
+          setDontHavePassword("ok");
+          return;
+        }
+        setDontHavePassword("");
+      } catch (error) {
+        setDontHavePassword("");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+    checkPassword();
+  }, [])
+
+  useEffect(() => {
+    if(dontHavePassword) {
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    }
+  }, [dontHavePassword])
 
   const back = useCallback(() => {
     router.back();
@@ -40,9 +72,11 @@ function ChangePassword() {
   const validateForm = useCallback(() => {
     const newErrors: typeof errors = {};
 
-    // Validate current password
-    if (!currentPassword.trim()) {
-      newErrors.currentPassword = "Current password is required";
+    // Validate current password only if user has an existing password
+    if (dontHavePassword !== "ok") {
+      if (!currentPassword.trim()) {
+        newErrors.currentPassword = "Current password is required";
+      }
     }
 
     // Validate new password
@@ -62,32 +96,37 @@ function ChangePassword() {
       newErrors.confirmPassword = "Passwords do not match";
     }
 
-    // Check if new password is same as current
-    if (currentPassword === newPassword) {
+    // Check if new password is same as current (only if user has existing password)
+    if (dontHavePassword !== "ok" && currentPassword === newPassword) {
       newErrors.newPassword =
         "New password must be different from current password";
     }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
-  }, [currentPassword, newPassword, confirmPassword]);
+  }, [currentPassword, newPassword, confirmPassword, dontHavePassword]);
 
   const handleSubmit = useCallback(async () => {
-    if (!validateForm()) {
-      return;
-    }
-
     setIsLoading(true);
 
     try {
-      // TODO: Replace with actual API call
-      // await changePassword({
-      //   currentPassword,
-      //   newPassword,
-      // });
+      if (!validateForm()) {
+        return;
+      }
 
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      const res = await fetch(`${BACKEND_URL}/auth/change-password`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ currentPassword, newPassword, dontHavePassword }),
+        credentials: "include",
+      });
+      const data = await res.json();
+      if(!res.ok) {
+        Alert.alert("Error", data.message || "Failed to change password. Please check your current password and try again.");
+        return;
+      }
 
       Alert.alert("Success", "Your password has been changed successfully!", [
         {
@@ -153,6 +192,10 @@ function ChangePassword() {
 
   const passwordStrength = getPasswordStrength(newPassword);
 
+  if(isLoading) {
+    return <LoadingScreen message="Loading..." />
+  }
+
   return (
     <KeyboardAvoidingView
       style={styles.container}
@@ -174,7 +217,7 @@ function ChangePassword() {
         {/* Form Fields */}
         <View style={styles.formContainer}>
           {/* Current Password */}
-          <View style={styles.fieldContainer}>
+          {dontHavePassword !== "ok" && <View style={styles.fieldContainer}>
             <Text style={styles.fieldLabel}>Current Password</Text>
             <View style={styles.passwordInputContainer}>
               <TextInput
@@ -204,7 +247,7 @@ function ChangePassword() {
             {errors.currentPassword && (
               <Text style={styles.errorText}>{errors.currentPassword}</Text>
             )}
-          </View>
+          </View>}
 
           {/* New Password */}
           <View style={styles.fieldContainer}>

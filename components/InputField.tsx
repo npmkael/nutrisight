@@ -2,15 +2,11 @@ import { InputFieldProps } from "@/types/type";
 import { Eye, EyeOff } from "lucide-react-native";
 import { memo, useState } from "react";
 import {
-  Image,
-  Keyboard,
-  KeyboardAvoidingView,
-  Platform,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  TouchableWithoutFeedback,
-  View,
+    Image,
+    Text,
+    TextInput,
+    TouchableOpacity,
+    View,
 } from "react-native";
 
 const InputField = ({
@@ -22,21 +18,27 @@ const InputField = ({
   inputStyle,
   iconStyle,
   className,
+  error,
+  isValid,
+  showValidation = false,
   ...props
 }: InputFieldProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
+  // Determine border color based on validation state
+  const getBorderColor = () => {
+    if (!showValidation) return "border-neutral-100";
+    if (error) return "border-red-500";
+    return "border-neutral-100";
+  };
+
   return (
-    <KeyboardAvoidingView
-      behavior={Platform.OS === "ios" ? "padding" : "height"}
-    >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View className="my-2 w-full">
+    <View className="my-2 w-full">
           <Text className={`text-lg font-PoppinsSemiBold mb-3 ${labelStyle}`}>
             {label}
           </Text>
           <View
-            className={`flex flex-row justify-start items-center relative bg-neutral-100 rounded-lg border border-neutral-100 focus:border-primary-500 ${containerStyle}`}
+            className={`flex flex-row justify-start items-center relative bg-neutral-100 rounded-lg border-2 ${getBorderColor()} ${containerStyle}`}
           >
             {icon && (
               <Image source={icon} className={`w-6 h-6 ml-4 ${iconStyle}`} />
@@ -60,9 +62,15 @@ const InputField = ({
               </TouchableOpacity>
             )}
           </View>
-        </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+          {/* Always reserve space for error message to prevent layout shift */}
+          <View className="h-5 mt-1 ml-1">
+            {error && showValidation && (
+              <Text className="text-red-500 text-sm font-Poppins">
+                {error}
+              </Text>
+            )}
+          </View>
+    </View>
   );
 };
 

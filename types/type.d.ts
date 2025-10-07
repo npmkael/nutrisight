@@ -19,6 +19,9 @@ declare interface InputFieldProps extends TextInputProps {
   inputStyle?: string;
   iconStyle?: string;
   className?: string;
+  error?: string;
+  isValid?: boolean;
+  showValidation?: boolean;
 }
 
 declare type TypoProps = {

@@ -74,13 +74,13 @@ function Home() {
 
   useEffect(() => {
     if (user && user.dailyRecommendation?.calories) {
-      // Calculate percentages
+      // Calculate remaining calories
       const totalLoggedCalories =
         breakfastCalories + lunchCalories + dinnerCalories + otherCalories;
 
-      setTargetCalories(
-        user.dailyRecommendation.calories - totalLoggedCalories
-      );
+      const remaining = user.dailyRecommendation.calories - totalLoggedCalories;
+      // Don't show negative values, show 0 if exceeded
+      setTargetCalories(Math.max(0, remaining));
     }
   }, [user, breakfastCalories, lunchCalories, dinnerCalories, otherCalories]);
 
@@ -370,25 +370,27 @@ function Home() {
           <View className="items-center flex-row justify-center">
             <View>
               <CustomCircularProgress
-                calorieGoal={Math.round(targetCalories)}
-                progress={
-                  (breakfastCalories +
+                consumedCalories={
+                  breakfastCalories +
+                  lunchCalories +
+                  dinnerCalories +
+                  otherCalories
+                }
+                targetCalories={user.dailyRecommendation?.calories || 0}
+                progress={Math.min(
+                  100,
+                  ((breakfastCalories +
                     lunchCalories +
                     dinnerCalories +
-                    otherCalories >
-                  targetCalories
-                    ? targetCalories
-                    : (breakfastCalories +
-                        lunchCalories +
-                        dinnerCalories +
-                        otherCalories) /
-                      targetCalories) * 100
-                }
+                    otherCalories) /
+                    (user.dailyRecommendation?.calories || 1)) *
+                    100
+                )}
               />
             </View>
           </View>
 
-          <View className="flex-col mt-6">
+          <View className="flex-col mt-12">
             <View>
               <Text className="text-white text-xs font-Poppins text-center mb-4">
                 Nutritional Content Summary
@@ -566,7 +568,7 @@ function Home() {
             caloriesConsumed={setPrecisionIfNotInteger(
               calorieSum(dietHistory?.otherMealTime || [])
             )}
-            disabled={false}
+            disabled={!isToday}
             date={selectedDate.toISOString()}
           />
         </View>

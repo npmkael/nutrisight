@@ -1,7 +1,7 @@
-import { formatDateToMMDDYYYY } from "@/utils/helpers";
+import { formatDateToMMDDYYYY, getAgeFromDOB } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import DateTimePicker from "@react-native-community/datetimepicker";
-import React, { memo, useCallback, useState } from "react";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 import { useOnboarding } from "./_layout";
@@ -9,6 +9,41 @@ import { useOnboarding } from "./_layout";
 function GenderAndAge() {
   const { gender, setGender, birthDate, setBirthDate } = useOnboarding();
   const [showPicker, setShowPicker] = useState(false);
+  const [age, setAge] = useState<number | null>(null);
+  const [ageError, setAgeError] = useState<string>("");
+  const [showSuccess, setShowSuccess] = useState(false);
+
+  // Calculate age whenever birthDate changes
+  useEffect(() => {
+    if (birthDate) {
+      const calculatedAge = getAgeFromDOB(birthDate);
+      setAge(calculatedAge);
+
+      // Validate age range
+      if (calculatedAge < 15) {
+        setAgeError("You must be at least 15 years old to use this app.");
+        setShowSuccess(false);
+      } else if (calculatedAge > 65) {
+        setAgeError("You must be 65 years old or younger to use this app.");
+        setShowSuccess(false);
+      } else {
+        setAgeError("");
+        setShowSuccess(true);
+        
+        // // Show success alert
+        // Alert.alert(
+        //   "Valid Birth Date",
+        //   `Age ${calculatedAge} confirmed. You're all set!`,
+        //   [{ text: "OK", style: "default" }]
+        // );
+
+        // // Hide success message after 3 seconds
+        // setTimeout(() => {
+        //   setShowSuccess(false);
+        // }, 3000);
+      }
+    }
+  }, [birthDate]);
 
   // Helper to handle date selection
   const handleDateChange = useCallback((_event: any, selectedDate?: Date) => {
@@ -98,20 +133,49 @@ function GenderAndAge() {
             Date of Birth
           </Text>
           <TouchableOpacity
-            style={styles.dateInputContainer}
+            style={[
+              styles.dateInputContainer,
+              ageError && styles.dateInputError,
+              showSuccess && styles.dateInputSuccess,
+            ]}
             onPress={() => setShowPicker(true)}
           >
-            <Text style={styles.dateText}>
-              {formatDateToMMDDYYYY(birthDate)}
-            </Text>
+            <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+              <Text style={styles.dateText}>
+                {formatDateToMMDDYYYY(birthDate)}
+              </Text>
+              {age !== null && (
+                <Text style={styles.ageText}>({age} years old)</Text>
+              )}
+            </View>
             <Ionicons name="calendar-outline" size={20} color="#9CA3AF" />
           </TouchableOpacity>
+          
+          {/* Error Message */}
+          {ageError && (
+            <View style={styles.errorContainer}>
+              <Ionicons name="alert-circle" size={16} color="#EF4444" />
+              <Text style={styles.errorText}>{ageError}</Text>
+            </View>
+          )}
+
+          {/* Success Message */}
+          {showSuccess && !ageError && (
+            <View style={styles.successContainer}>
+              <Ionicons name="checkmark-circle" size={16} color="#10B981" />
+              <Text style={styles.successText}>
+                Valid age! You can proceed.
+              </Text>
+            </View>
+          )}
+
           {showPicker && (
             <DateTimePicker
               value={birthDate ? new Date(birthDate) : new Date()}
               mode="date"
               display="default"
               onChange={handleDateChange}
+              minimumDate={new Date(new Date().getFullYear() - 65, 0, 1)}
               maximumDate={new Date()}
             />
           )}
@@ -145,10 +209,47 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     backgroundColor: "white",
   },
+  dateInputError: {
+    borderColor: "#EF4444",
+    borderWidth: 2,
+  },
+  dateInputSuccess: {
+    borderColor: "#10B981",
+    borderWidth: 2,
+  },
   dateText: {
     fontSize: 16,
     color: "#111827",
     fontFamily: "Poppins",
+  },
+  ageText: {
+    fontSize: 14,
+    color: "#6B7280",
+    fontFamily: "Poppins",
+  },
+  errorContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    gap: 6,
+  },
+  errorText: {
+    fontSize: 14,
+    color: "#EF4444",
+    fontFamily: "Poppins",
+    flex: 1,
+  },
+  successContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 8,
+    gap: 6,
+  },
+  successText: {
+    fontSize: 14,
+    color: "#10B981",
+    fontFamily: "Poppins",
+    flex: 1,
   },
 
   /* added styles */

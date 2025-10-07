@@ -5,12 +5,17 @@ import {
   kgToLb,
   lbToKg,
 } from "@/lib/helpers";
-import { Ionicons } from "@expo/vector-icons";
-import React, { memo, useEffect, useMemo } from "react";
+import React, { memo, useEffect, useMemo, useState } from "react";
 import { Text, View } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, { FadeIn, FadeInDown, FadeOutDown } from "react-native-reanimated";
 import TextInputField from "../../../components/TextInputField";
 import { useOnboarding } from "./_layout";
+
+// Validation constants
+const MIN_WEIGHT_KG = 20;
+const MAX_WEIGHT_KG = 200;
+const MIN_WEIGHT_LB = 44; // ~20 kg
+const MAX_WEIGHT_LB = 440; // ~200 kg
 
 function SetTargetWeight() {
   const {
@@ -23,6 +28,8 @@ function SetTargetWeight() {
     heightFeet,
     heightInches,
   } = useOnboarding();
+
+  const [validationError, setValidationError] = useState<string>("");
 
   console.log(weightUnit);
 
@@ -58,6 +65,8 @@ function SetTargetWeight() {
       };
     }
   }, [heightFeet, heightInches, heightUnit]);
+
+  console.log(recommendedWeightRange)
 
   // Calculate suggested target weight based on goal
   const suggestedTargetWeight = useMemo(() => {
@@ -100,10 +109,43 @@ function SetTargetWeight() {
 
   // Auto-fill target weight with recommendation when screen loads
   useEffect(() => {
-    if (suggestedTargetWeight && !targetWeight) {
+    if (suggestedTargetWeight) {
       setTargetWeight(suggestedTargetWeight.toString());
     }
   }, [suggestedTargetWeight]);
+
+  // Validate target weight
+  useEffect(() => {
+    if (!targetWeight || targetWeight.trim() === "") {
+      setValidationError("");
+      return;
+    }
+
+    const targetWt = Number(targetWeight);
+    
+    if (isNaN(targetWt)) {
+      setValidationError("");
+      return;
+    }
+
+    const errors: string[] = [];
+
+    if (weightUnit === "kg") {
+      if (targetWt < MIN_WEIGHT_KG) {
+        errors.push("Please enter an accurate weight");
+      } else if (targetWt > MAX_WEIGHT_KG) {
+        errors.push("Please enter an accurate weight");
+      }
+    } else {
+      if (targetWt < MIN_WEIGHT_LB) {
+        errors.push("Please enter an accurate weight");
+      } else if (targetWt > MAX_WEIGHT_LB) {
+        errors.push("Please enter an accurate weight");
+      }
+    }
+
+    setValidationError(errors.join("\n"));
+  }, [targetWeight, weightUnit]);
 
   // Get goal-specific recommendation message
   const getRecommendationMessage = () => {
@@ -175,7 +217,25 @@ function SetTargetWeight() {
         }
 
       case "maintain":
-        return `Great choice! Maintaining your current weight of ${currentWeight}kg will help you establish healthy habits. Your recommended healthy weight is ${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg - ${recommendedWeightRange.desiredWeightInLessThan10Percent}kg.`;
+        const left = 
+          weightUnit === "kg"
+          ? `${recommendedWeightRange.desiredWeightInLessThan10Percent}kg`
+          : `${Math.round(
+              kgToLb(
+                recommendedWeightRange.desiredWeightInLessThan10Percent.toString()
+              )
+            )}lb`;
+
+          const right =
+            weightUnit === "kg"
+              ? `${recommendedWeightRange.desiredWeightInMoreThan10Percent}kg`
+              : `${Math.round(
+                  kgToLb(
+                    recommendedWeightRange.desiredWeightInMoreThan10Percent.toString()
+                  )
+                )}lb`;
+
+        return `Great choice! Maintaining your current weight of ${currentWeight}${weightUnit} will help you establish healthy habits. Your recommended healthy weight is ${left} - ${right}.`;
 
       default:
         return "Based on your profile, we'll help you track your progress toward your ideal weight.";
@@ -254,8 +314,21 @@ function SetTargetWeight() {
           </View>
         </View>
 
+        {/* Validation Error */}
+        {validationError && (
+          <Animated.View
+            entering={FadeInDown.duration(300)}
+            exiting={FadeOutDown.duration(200)}
+            className="mb-4 bg-red-50 rounded-xl p-4 border border-red-200"
+          >
+            <Text className="text-red-700 font-PoppinsMedium text-center">
+              {validationError}
+            </Text>
+          </Animated.View>
+        )}
+
         {/* Recommendation Info */}
-        <Animated.View
+        {/* <Animated.View
           entering={FadeIn.duration(600).delay(600)}
           className={`${goalStyle.bgColor} p-4 rounded-2xl mb-8`}
         >
@@ -276,7 +349,7 @@ function SetTargetWeight() {
           >
             {getRecommendationMessage()}
           </Text>
-        </Animated.View>
+        </Animated.View> */}
       </View>
     </Animated.View>
   );

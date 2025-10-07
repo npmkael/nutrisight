@@ -164,7 +164,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           console.log("No active session found.");
         }
       } catch (error) {
-        console.error("Error checking session:", error);
+        // console.error("Error checking session:", error);
       } finally {
         setCheckingSession(false);
         setLoading(false);
@@ -196,7 +196,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         router.replace("/(root)/(tabs)/home");
       } catch (error) {
         Alert.alert("Login failed", "Please check your credentials.");
-        console.error("Login error:", error);
+        // // console.error("Login error:", error);
         router.replace("/(auth)/sign-in");
         throw new Error("Login failed, please check your credentials.");
       } finally {
@@ -255,7 +255,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         throw new Error("Google Sign-In failed");
       }
     } catch (error) {
-      console.error("Google Sign-In error:", error);
+      // // console.error("Google Sign-In error:", error);
       if (
         isErrorWithCode(error) &&
         error.code === statusCodes.SIGN_IN_CANCELLED
@@ -295,7 +295,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
 
         if (!response.ok) {
           const errorData = !response.ok ? await response.json() : null;
-          console.error("Registration failed:", errorData || response);
+          // // console.error("Registration failed:", errorData || response);
           if (response.status === 409) {
             throw new Error("Email is already registered.");
           }
@@ -305,7 +305,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const data = await response.json();
         return !!data?.userId;
       } catch (error) {
-        console.error("Registration error:", error);
+        // console.error("Registration error:", error);
         Alert.alert("Registration failed", "Please try again.");
         return false;
       } finally {
@@ -340,7 +340,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         setOnboardingEmail(data.email);
         router.replace("/(auth)/(setup)/1");
       } catch (error) {
-        console.error("OTP verification error:", error);
+        // console.error("OTP verification error:", error);
         router.replace("/(auth)/sign-up");
         throw new Error("OTP verification failed, please try again.");
       } finally {
@@ -369,7 +369,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       console.log("OTP resent successfully:", data);
       return true;
     } catch (error) {
-      console.error("Resend OTP error:", error);
+      // console.error("Resend OTP error:", error);
       return false;
     }
   }, []);
@@ -396,7 +396,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           !gender ||
           !birthDate ||
           !heightFeet ||
-          !heightInches ||
+          !heightInches && heightInches !== 0 ||
           !weight ||
           !weightGoal ||
           targetWeight === null ||
@@ -412,7 +412,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             !gender && "gender",
             !birthDate && "birthDate",
             !heightFeet && "heightFeet",
-            !heightInches && "heightInches",
+            (!heightInches && heightInches !== 0) && "heightInches",
             !weight && "weight",
             !weightGoal && "weightGoal",
             targetWeight === null && "targetWeight",
@@ -449,7 +449,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           }),
         });
         if (!res.ok) {
-          console.error("Onboarding submission failed:", res);
+          // console.error("Onboarding submission failed:", res);
           throw new Error("Onboarding submission failed, please try again.");
         }
 
@@ -460,7 +460,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         console.log("Onboarding submission successful:", data);
         return data;
       } catch (error) {
-        console.error("Onboarding submission error:", error);
+        // console.error("Onboarding submission error:", error);
         return null;
       } finally {
         setLoading(false);
@@ -492,7 +492,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setUser(data.user);
       router.replace("/(root)/(tabs)/home");
     } catch (error) {
-      console.error("Agreement submission error:", error);
+      // console.error("Agreement submission error:", error);
       throw new Error("Agreement submission failed, please try again.");
     } finally {
       setLoading(false);
@@ -516,7 +516,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
       setOnboardingEmail(null);
       router.replace("/(auth)/sign-in");
     } catch (error) {
-      console.error("Logout error:", error);
+      // console.error("Logout error:", error);
       router.replace("/(root)/(tabs)/home");
       throw new Error("Logout failed, please try again.");
     } finally {
@@ -547,7 +547,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         );
 
         if (!response.ok) {
-          console.error("Upload profile picture failed:", response);
+          // console.error("Upload profile picture failed:", response);
           throw new Error("Failed to upload profile picture");
         }
 
@@ -558,7 +558,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         );
         router.replace("/(root)/(tabs)/settings");
       } catch (error) {
-        console.error("Upload profile picture error:", error);
+        // console.error("Upload profile picture error:", error);
         throw error;
       } finally {
         setLoading(false);

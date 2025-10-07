@@ -3,19 +3,26 @@ import Svg, { Circle } from "react-native-svg";
 
 export const CustomCircularProgress = ({
   progress,
-  calorieGoal,
+  consumedCalories,
+  targetCalories,
 }: {
   progress?: number;
-  calorieGoal?: number;
+  consumedCalories?: number;
+  targetCalories?: number;
 }) => {
   const size = 140;
   const strokeWidth = 4;
   const radius = (size - strokeWidth) / 2;
   const circumference = radius * 2 * Math.PI;
 
-  // Calculate progress: assuming 70% progress for the goal
+  // Calculate progress: cap at 100%
+  const actualProgress = Math.min(100, progress || 0);
   const strokeDashoffset =
-    circumference - ((progress || 0) / 100) * circumference;
+    circumference - (actualProgress / 100) * circumference;
+
+  // Check if goal is exceeded
+  const isExceeded = (consumedCalories || 0) > (targetCalories || 0);
+  const strokeColor = isExceeded ? "#FF6B6B" : "white";
 
   return (
     <View className="items-center justify-center">
@@ -35,7 +42,7 @@ export const CustomCircularProgress = ({
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          stroke="white"
+          stroke={strokeColor}
           strokeWidth={strokeWidth}
           fill="transparent"
           strokeDasharray={circumference}
@@ -45,17 +52,17 @@ export const CustomCircularProgress = ({
         />
       </Svg>
 
-      {/* Center content */}
+      {/* Center content - Consumed Calories */}
       <View className="absolute items-center justify-center">
         <Text
-          className=" text-white"
+          className="text-white"
           style={{
             fontSize: 36,
             fontFamily: "PoppinsBold",
             lineHeight: 36,
           }}
         >
-          {calorieGoal}
+          {Math.round(consumedCalories || 0)}
         </Text>
         <Text
           className="text-white"
@@ -64,7 +71,20 @@ export const CustomCircularProgress = ({
             fontFamily: "Poppins",
           }}
         >
-          Calorie Goal
+          Consumed
+        </Text>
+      </View>
+
+      {/* Target Calories - Outside below the circle */}
+      <View className="absolute top-[150px] items-center">
+        <Text
+          className="text-white"
+          style={{
+            fontSize: 14,
+            fontFamily: "Poppins",
+          }}
+        >
+          Goal: {Math.round(targetCalories || 0)} kcal
         </Text>
       </View>
     </View>

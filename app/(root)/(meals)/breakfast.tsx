@@ -1,7 +1,7 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import Loading from "@/components/Loading";
 import { BACKEND_URL, useAuth } from "@/context/AuthContext";
-import { capitalizeFirstLetter } from "@/utils/helpers";
+import { capitalizeFirstLetter, setPrecisionIfNotInteger } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
 import BottomSheet, {
@@ -348,7 +348,7 @@ export default function Breakfast() {
                       <View className="flex-row justify-between">
                         <View className="items-center flex-1">
                           <Text className="text-lg font-PoppinsBold text-primary">
-                            {sumByKeyword(item.nutritionData, "protein")}g
+                            {setPrecisionIfNotInteger(sumByKeyword(item.nutritionData, "protein"))}g
                           </Text>
                           <View className="flex-row items-center gap-1">
                             <Text className="text-xs font-PoppinsMedium text-gray-600">
@@ -359,7 +359,7 @@ export default function Breakfast() {
 
                         <View className="items-center flex-1">
                           <Text className="text-lg font-PoppinsBold text-primary">
-                            {sumByKeyword(item.nutritionData, "carb")}g
+                            {setPrecisionIfNotInteger(sumByKeyword(item.nutritionData, "carb"))}g
                           </Text>
                           <View className="flex-row items-center gap-1">
                             <Text className="text-xs font-PoppinsMedium text-gray-600">
@@ -370,7 +370,7 @@ export default function Breakfast() {
 
                         <View className="items-center flex-1">
                           <Text className="text-lg font-PoppinsBold text-primary">
-                            {sumByKeyword(item.nutritionData, "fat")}g
+                            {setPrecisionIfNotInteger(sumByKeyword(item.nutritionData, "fat"))}g
                           </Text>
                           <View className="flex-row items-center gap-1">
                             <Text className="text-xs font-PoppinsMedium text-gray-600">

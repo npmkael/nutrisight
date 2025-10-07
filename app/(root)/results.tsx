@@ -587,17 +587,25 @@ function Results() {
             {/* Common Ingredients */}
             <View className="flex-col bg-white rounded-2xl pt-4 shadow border border-gray-100 mb-4">
               <View className="flex-col mx-4 mb-4">
-                <Text
-                  className="font-Poppins"
-                  style={{
-                    lineHeight: 10,
-                  }}
-                >
-                  Common
-                </Text>
-                <Text className="font-PoppinsSemiBold text-3xl">
-                  Ingredients
-                </Text>
+                {result.barcode ? 
+                  <Text className="font-PoppinsSemiBold text-3xl">
+                    Ingredients
+                  </Text>
+                  : 
+                  <>
+                    <Text
+                      className="font-Poppins"
+                      style={{
+                        lineHeight: 10,
+                      }}
+                    >
+                      Common
+                    </Text>
+                    <Text className="font-PoppinsSemiBold text-3xl">
+                      Ingredients
+                    </Text>
+                  </>
+                }
               </View>
               <View className="flex-col mx-4 mb-4 gap-2">
                 {result.ingredients.length > 0
@@ -616,6 +624,7 @@ function Results() {
                               ? triggers.map((t) => t.allergen)
                               : undefined
                           }
+                          barcode={result.barcode}
                           onDelete={() =>
                             setResult((p) => ({
                               ...p!,

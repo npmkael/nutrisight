@@ -1,5 +1,5 @@
 import { LoggedWeight, useAuth } from "@/context/AuthContext";
-import { cmToFeetAndInches, lbsToKg } from "@/utils/helpers";
+import { cmToFeetAndInches, getAgeFromDOB, lbsToKg } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, Slot } from "expo-router";
@@ -69,10 +69,10 @@ function SetupLayout() {
   const [name, setName] = useState("");
   const [gender, setGender] = useState("");
   const [birthDate, setBirthDate] = useState(new Date());
-  const [heightUnit, setHeightUnit] = useState("cm");
+  const [heightUnit, setHeightUnit] = useState("ft/in");
   const [heightFeet, setHeightFeet] = useState("");
   const [heightInches, setHeightInches] = useState("");
-  const [weightUnit, setWeightUnit] = useState("lb");
+  const [weightUnit, setWeightUnit] = useState("kg");
   const [weight, setWeight] = useState("");
   const [selectedAllergens, setSelectedAllergens] = useState<string[]>([]);
   const [weightGoal, setWeightGoal] = useState("");
@@ -93,31 +93,66 @@ function SetupLayout() {
         // Step 1: Name input
         return name.trim().length > 0;
       case 2:
-        // Step 2: Gender and birth date
-        return gender.length > 0;
+        // Step 2: Gender and birth date with age validation (15-65 years)
+        if (gender.length === 0) return false;
+        const age = getAgeFromDOB(birthDate);
+        return age >= 15 && age <= 65;
       case 3:
-        // Step 3: Height and weight
+        // Step 3: Height and weight with min/max validation
         if (heightUnit === "ft/in") {
-          return (
-            heightFeet.trim().length > 0 &&
-            heightInches.trim().length > 0 &&
-            weight.trim().length > 0 &&
-            !isNaN(Number(heightFeet)) &&
-            !isNaN(Number(heightInches)) &&
-            !isNaN(Number(weight)) &&
-            Number(heightFeet) > 0 &&
-            Number(heightInches) >= 0 &&
-            Number(weight) > 0
-          );
+          const ft = Number(heightFeet);
+          const inch = Number(heightInches) || 0;
+          const wt = Number(weight);
+          
+          if (
+            !heightFeet.trim() ||
+            !weight.trim() ||
+            isNaN(ft) ||
+            isNaN(inch) ||
+            isNaN(wt)
+          ) {
+            return false;
+          }
+
+          // Height validation: 4'0" to 7'5"
+          const totalInches = ft * 12 + inch;
+          const minInches = 4 * 12 + 0; // 4'0"
+          const maxInches = 7 * 12 + 5; // 7'5"
+          
+          if (totalInches < minInches || totalInches > maxInches) {
+            return false;
+          }
+
+          // Weight validation: 20-200 kg
+          if (wt < 20 || wt > 200) {
+            return false;
+          }
+
+          return true;
         } else {
-          return (
-            heightFeet.trim().length > 0 &&
-            weight.trim().length > 0 &&
-            !isNaN(Number(heightFeet)) &&
-            !isNaN(Number(weight)) &&
-            Number(heightFeet) > 0 &&
-            Number(weight) > 0
-          );
+          const cm = Number(heightFeet);
+          const lb = Number(weight);
+          
+          if (
+            !heightFeet.trim() ||
+            !weight.trim() ||
+            isNaN(cm) ||
+            isNaN(lb)
+          ) {
+            return false;
+          }
+
+          // Height validation: 122-226 cm (4'0" to 7'5")
+          if (cm < 122 || cm > 226) {
+            return false;
+          }
+
+          // Weight validation: 44-440 lb (20-200 kg)
+          if (lb < 44 || lb > 440) {
+            return false;
+          }
+
+          return true;
         }
       case 4:
         // Step 4: Allergens (at least one selection required, "none" is valid)
@@ -130,7 +165,7 @@ function SetupLayout() {
         // Step 6: Activity level selection
         return weightGoal.length > 0;
       case 7:
-        // Step 7: Target weight with validation based on goal
+        // Step 7: Target weight with validation based on goal and min/max constraints
         if (
           !targetWeight.trim() ||
           isNaN(Number(targetWeight)) ||
@@ -141,6 +176,18 @@ function SetupLayout() {
         const currentWeightNum = Number(weight);
         const targetWeightNum = Number(targetWeight);
 
+        // Min/max weight validation: 20-200 kg or 44-440 lb
+        if (weightUnit === "kg") {
+          if (targetWeightNum < 20 || targetWeightNum > 200) {
+            return false;
+          }
+        } else {
+          if (targetWeightNum < 44 || targetWeightNum > 440) {
+            return false;
+          }
+        }
+
+        // Goal-based validation
         if (weightGoal === "lose") {
           return targetWeightNum < currentWeightNum;
         } else if (weightGoal === "gain") {
@@ -156,14 +203,17 @@ function SetupLayout() {
     currentStep,
     name,
     gender,
+    birthDate,
     heightUnit,
     heightFeet,
     heightInches,
     weight,
+    weightUnit,
     selectedAllergens,
     weightGoal,
     targetWeight,
     activityLevel,
+    unit,
   ]);
 
   const value = useMemo(
@@ -267,7 +317,7 @@ function SetupLayout() {
         if (heightUnit !== "ft/in") {
           const { feet, inches } = cmToFeetAndInches(Number(heightFeet));
           finalFeet = feet;
-          finalInch = inches;
+          finalInch = inches || 0;
         }
 
         // Weight conversion

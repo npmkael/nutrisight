@@ -32,6 +32,7 @@ export type ScanResultType = {
     }[];
   }[];
   source?: string; // "usda" | "nutritionix" | "open food facts" | "gemini" | "mynetdiary"
+  barcode?: boolean
 };
 
 export type PredictionType = {
@@ -58,7 +59,10 @@ function App() {
   console.log("Meal Time maincamera:", mealTime);
 
   useEffect(() => {
-    if (barcodeData) setScanResult(barcodeData);
+    if (barcodeData) setScanResult({
+      ...barcodeData,
+      barcode: true,
+    });
   }, [barcodeData]); // The effect runs only when barcodeData changes
 
   useEffect(() => {

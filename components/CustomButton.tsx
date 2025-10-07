@@ -43,15 +43,16 @@ const CustomButton = ({
   IconRight,
   className,
   loading = false,
+  disabled = false,
   ...props
 }: ButtonProps) => {
   return (
     <TouchableOpacity
       onPress={onPress}
-      disabled={loading}
-      className={`flex-1 rounded-full p-4 flex-row justify-center items-center min-h-[45px] ${loading ? "opacity-70" : ""} ${getBgVariant(
-        bgVariant
-      )} ${className}`}
+      disabled={loading || disabled}
+      className={`flex-1 rounded-full p-4 flex-row justify-center items-center min-h-[45px] ${
+        loading || disabled ? "opacity-50" : ""
+      } ${getBgVariant(bgVariant)} ${className}`}
       {...props}
     >
       {loading ? (

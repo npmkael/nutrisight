@@ -6,9 +6,10 @@ interface IngredientProps {
   name: string;
   allergen?: string[];
   onDelete: () => void;
+  barcode?: boolean;
 }
 
-export const Ingredient = ({ name, allergen, onDelete }: IngredientProps) => {
+export const Ingredient = ({ name, allergen, onDelete, barcode }: IngredientProps) => {
   return (
     <View className="flex-row items-center justify-between rounded-xl border border-border p-4">
       <View className="flex-1">
@@ -38,9 +39,9 @@ export const Ingredient = ({ name, allergen, onDelete }: IngredientProps) => {
           </View>
         )}
       </View>
-      <TouchableOpacity onPress={onDelete}>
+      {!barcode && <TouchableOpacity onPress={onDelete}>
         <Ionicons name="trash-outline" size={16} color="#737373" />
-      </TouchableOpacity>
+      </TouchableOpacity>}
     </View>
   );
 };
