@@ -82,10 +82,6 @@ function Settings() {
     router.push("/(root)/(settings)/privacy-policy");
   };
 
-  const handleAbout = () => {
-    router.push("/(root)/(settings)/about");
-  };
-
   const handleContactUs = () => {
     Alert.alert("Contact Us", "Contact Us coming soon!", [{ text: "OK" }]);
 
@@ -130,7 +126,7 @@ function Settings() {
           <Container className="px-4 py-4 mb-6">
             <TouchableOpacity
               className="flex-row items-center justify-between gap-2"
-              onPress={() => router.push("/(root)/(settings)/details")}
+              disabled={true}
             >
               <View className="flex-row items-center gap-4">
                 <View>
@@ -152,7 +148,6 @@ function Settings() {
                   </Text>
                 </View>
               </View>
-              <Ionicons name="chevron-forward" size={14} color="grey" />
             </TouchableOpacity>
           </Container>
 
@@ -195,12 +190,12 @@ function Settings() {
               onPress={() => router.push("/(root)/(settings)/dietary-goals")}
             />
 
-            <SettingsItem
+            {/* <SettingsItem
               icon={<Ionicons name="scale-outline" size={20} color="#6B7280" />}
               title="Weight Tracking"
               subtitle="Manage weight goals and history"
               onPress={() => router.push("/(root)/(settings)/weight")}
-            />
+            /> */}
 
             <SettingsItem
               icon={
@@ -282,15 +277,16 @@ function Settings() {
               title="Privacy Policy"
               subtitle="Learn about data protection"
               onPress={() => handlePrivacyPolicy()}
+              showDivider={false}
             />
 
-            <SettingsItem
+            {/* <SettingsItem
               icon={<Ionicons name="mail-outline" size={20} color="#6B7280" />}
               title="Contact Us"
               subtitle="Get in touch with our team"
               onPress={() => handleContactUs()}
               showDivider={false}
-            />
+            /> */}
           </Container>
 
           {/* Logout Section */}

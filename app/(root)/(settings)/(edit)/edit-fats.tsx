@@ -1,6 +1,7 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -9,7 +10,8 @@ import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditFats() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
   const [fats, setFats] = useState(
     user?.dailyRecommendation?.fat.toString() || "70"
   );
@@ -53,6 +55,12 @@ function EditFats() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (response) {
+      setUser(response.data);
+    }
+  }, [response]);
+
   const handleIncrement = useCallback(() => {
     const newValue = parseInt(fats) + 10;
     setFats(newValue.toString());
@@ -86,11 +94,23 @@ function EditFats() {
     }
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async() => {
     // Save the fats value
-    console.log("Saving fats:", fats);
-    router.back();
-  }, [fats]);
+    const payload: any = {
+      dailyRecommendation: {
+        calories: user?.dailyRecommendation?.calories || 0,
+        protein: user?.dailyRecommendation?.protein || 0,
+        carbs: user?.dailyRecommendation?.carbs || 0,
+        fat: parseInt(fats),
+      }
+    }
+    await updateAccount(payload);
+    if (!error) {
+      alert("Fats updated successfully!");
+      router.back();
+    }
+    router.replace("/(root)/(tabs)/settings")
+  }, [fats, updateAccount, setUser, router, error]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>

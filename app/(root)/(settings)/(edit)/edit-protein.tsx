@@ -1,6 +1,7 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -9,7 +10,8 @@ import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditProtein() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
   const [protein, setProtein] = useState(
     user?.dailyRecommendation?.protein.toString() || "120"
   );
@@ -56,6 +58,12 @@ function EditProtein() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (response) {
+      setUser(response.data);
+    }
+  }, [response]);
+
   const handleProteinChange = (value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
@@ -72,10 +80,22 @@ function EditProtein() {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     // Save the protein value
-    console.log("Saving protein:", protein);
-    router.back();
+    const payload: any = {
+      dailyRecommendation: {
+        calories: user?.dailyRecommendation?.calories || 0,
+        protein: parseInt(protein),
+        carbs: user?.dailyRecommendation?.carbs || 0,
+        fat: user?.dailyRecommendation?.fat || 0,
+      }
+    }
+    await updateAccount(payload);
+    if (!error) {
+      alert("Protein updated successfully!");
+      router.back();
+    }
+    router.replace("/(root)/(tabs)/settings")
   };
 
   return (

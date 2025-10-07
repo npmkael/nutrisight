@@ -1,6 +1,7 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import React, { memo, useCallback, useEffect, useState } from "react";
@@ -8,12 +9,13 @@ import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditCalories() {
-  const { user } = useAuth();
+  const { user , setUser} = useAuth();
   const [calories, setCalories] = useState(
     user?.dailyRecommendation?.calories.toString() || "2000"
   );
   const [progress, setProgress] = useState(100); // Based on some target calculation
   const [rec, setRec] = useState(0);
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
 
   useEffect(() => {
     if (user) {
@@ -39,6 +41,12 @@ function EditCalories() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (response) {
+      setUser(response.data);
+    }
+  }, [response]);
+
   const handleIncrement = useCallback(() => {
     const newValue = parseInt(calories) + 50;
     setCalories(newValue.toString());
@@ -63,11 +71,23 @@ function EditCalories() {
     }
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async() => {
     // Save the calorie value
-    console.log("Saving calories:", calories);
-    router.back();
-  }, [calories]);
+    const payload: any = {
+      dailyRecommendation: {
+        calories: parseInt(calories),
+        protein: user?.dailyRecommendation?.protein || 0,
+        carbs: user?.dailyRecommendation?.carbs || 0,
+        fat: user?.dailyRecommendation?.fat || 0,
+      }
+    }
+    await updateAccount(payload);
+    if (!error) {
+      alert("Calories updated successfully!");
+      router.back();
+    }
+    router.replace("/(root)/(tabs)/settings")
+  }, [calories, updateAccount, setUser, router, error]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>

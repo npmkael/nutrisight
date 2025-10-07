@@ -1,6 +1,7 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import TextInputField from "@/components/TextInputField";
 import { useAuth } from "@/context/AuthContext";
+import { useAccountUpdate } from "@/hooks/useAccountUpdate";
 import { getProgress } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
@@ -9,7 +10,8 @@ import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditCarbs() {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
+  const { updateAccount, isLoading, error, response } = useAccountUpdate();
   const [carbs, setCarbs] = useState(
     user?.dailyRecommendation?.carbs.toString() || "100"
   );
@@ -56,6 +58,12 @@ function EditCarbs() {
     }
   }, [user]);
 
+  useEffect(() => {
+    if (response) {
+      setUser(response.data);
+    }
+  }, [response]);
+
   const handleCarbsChange = useCallback((value: string) => {
     // Only allow numbers
     const numericValue = value.replace(/[^0-9]/g, "");
@@ -72,11 +80,23 @@ function EditCarbs() {
     }
   }, []);
 
-  const handleSave = useCallback(() => {
+  const handleSave = useCallback(async() => {
     // Save the carbs value
-    console.log("Saving carbs:", carbs);
-    router.back();
-  }, [carbs]);
+    const payload: any = {
+      dailyRecommendation: {
+        calories: user?.dailyRecommendation?.calories || 0,
+        protein: user?.dailyRecommendation?.protein || 0,
+        carbs: parseInt(carbs),
+        fat: user?.dailyRecommendation?.fat || 0,
+      }
+    }
+    await updateAccount(payload);
+    if (!error) {
+      alert("Carbs updated successfully!");
+      router.back();
+    }
+    router.replace("/(root)/(tabs)/settings")
+  }, [carbs, updateAccount, setUser, router, error]);
 
   return (
     <SafeAreaView style={{ flex: 1, backgroundColor: "#fff" }}>
