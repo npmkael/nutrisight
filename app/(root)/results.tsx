@@ -1,3 +1,5 @@
+import AllergenSafeBadge from "@/components/AllergenSafeBadge";
+import AllergenWarningBanner from "@/components/AllergenWarningBanner";
 import CaloriesBottomSheet from "@/components/CaloriesBottomSheet";
 import CarbsBottomSheet from "@/components/CarbsBottomSheet";
 import CustomButton from "@/components/CustomButton";
@@ -18,7 +20,6 @@ import {
 import { cancelMealNotificationForDate } from "@/utils/notif";
 import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
-import FontAwesome from "@expo/vector-icons/FontAwesome";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
@@ -391,6 +392,29 @@ function Results() {
           >
             {/* Source Badge */}
             {result.source && <ResultSourceBadge source={result.source} />}
+
+            {/* Allergen Warning Banner - Most Prominent Position */}
+            {result.triggeredAllergens.length > 0 ? (
+              <AllergenWarningBanner
+                triggeredAllergens={result.triggeredAllergens}
+                severity={
+                  result.triggeredAllergens.length >= 3
+                    ? "critical"
+                    : "moderate"
+                }
+                onViewAlternatives={() => {
+                  // TODO: Implement view alternatives functionality
+                  console.log("View alternatives");
+                }}
+                onReportIncorrect={() => {
+                  // TODO: Implement report incorrect functionality
+                  console.log("Report incorrect");
+                }}
+              />
+            ) : user?.allergens && user.allergens.length > 0 ? (
+              <AllergenSafeBadge variant="prominent" />
+            ) : null}
+
             {/* Food Name */}
             <Typo
               size={28}
@@ -587,11 +611,11 @@ function Results() {
             {/* Common Ingredients */}
             <View className="flex-col bg-white rounded-2xl pt-4 shadow border border-gray-100 mb-4">
               <View className="flex-col mx-4 mb-4">
-                {result.barcode ? 
+                {result.barcode ? (
                   <Text className="font-PoppinsSemiBold text-3xl">
                     Ingredients
                   </Text>
-                  : 
+                ) : (
                   <>
                     <Text
                       className="font-Poppins"
@@ -605,7 +629,7 @@ function Results() {
                       Ingredients
                     </Text>
                   </>
-                }
+                )}
               </View>
               <View className="flex-col mx-4 mb-4 gap-2">
                 {result.ingredients.length > 0
@@ -658,44 +682,7 @@ function Results() {
               </View> */}
             </View>
 
-            {/* Allergens */}
-            {result.triggeredAllergens.length > 0 && (
-              <View className="rounded-2xl p-4 shadow border border-[#FFA4A4] bg-[#FFEEEE] mb-6">
-                <View className="flex-row gap-4">
-                  <FontAwesome
-                    name="warning"
-                    size={18}
-                    color="red"
-                    className="mt-1"
-                  />
-
-                  <View className="flex-col gap-1 flex-1 min-w-0">
-                    <Text className="font-PoppinsBold text-2xl mb-2">
-                      Possible Allergen Trigger:
-                    </Text>
-                    <View className="flex-row flex-wrap gap-1 mb-2">
-                      {uniqueAllergens.map((a, idx) => (
-                        <View
-                          key={idx}
-                          className="bg-[#FFA4A4] px-3 py-1 rounded-xl"
-                        >
-                          <Text className="font-Poppins text-black">
-                            {capitalizeFirstLetter(a)}
-                          </Text>
-                        </View>
-                      ))}
-                    </View>
-                    <Text
-                      className="font-Poppins"
-                      style={{ flexWrap: "wrap", width: "100%" }}
-                    >
-                      Please read all labels carefully and consult with a
-                      healthcare provider if you have any concerns.
-                    </Text>
-                  </View>
-                </View>
-              </View>
-            )}
+            {/* Old allergen section removed - now using prominent banner at top */}
           </ScrollView>
 
           <View className="flex-row gap-2 bg-white px-4 py-4 border-t border-t-gray-100">

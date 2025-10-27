@@ -8,6 +8,7 @@ function TextInputField({
   keyboardType = "numeric",
   editable = true,
   placeholderText = "",
+  hasError = false,
 }: {
   value: string;
   onChangeText: (text: string) => void;
@@ -15,13 +16,18 @@ function TextInputField({
   keyboardType?: "numeric" | "default";
   editable?: boolean;
   placeholderText?: string;
+  hasError?: boolean;
 }) {
   const [isFocused, setIsFocused] = useState(false);
 
   return (
     <TextInput
       className={`bg-[#FAFAFA] rounded-lg p-4 text-black font-Poppins flex-1 border  ${
-        isFocused ? "border-primary-500" : "border-border"
+        hasError
+          ? "border-red-500"
+          : isFocused
+            ? "border-primary-500"
+            : "border-border"
       }`}
       value={value}
       onChangeText={onChangeText}

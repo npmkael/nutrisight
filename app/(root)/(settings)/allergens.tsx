@@ -1,11 +1,14 @@
 import AllergensSelection from "@/components/AllergenSelection";
 import { useAuth } from "@/context/AuthContext";
 import { useAccountUpdate } from "@/hooks/useAccountUpdate";
+import { colors } from "@/lib/utils";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
+  Platform,
   SafeAreaView,
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -51,29 +54,26 @@ function AllergensEdit() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       {/* Header */}
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={back}>
-          <Ionicons name="arrow-back" size={18} color="black" />
-        </TouchableOpacity>
-        <Text
-          style={styles.titleText}
-          className="font-PoppinsSemiBold text-2xl"
-        >
-          Edit Allergens
-        </Text>
-      </View>
-
-      {/* Content */}
-      <View className="flex-1 px-4 pt-4">
-        {/* Allergens Selection Component */}
-        <View className="flex-1">
-          <AllergensSelection
-            selectedAllergens={selectedAllergens}
-            setSelectedAllergens={setSelectedAllergens}
-          />
+      <ScrollView style={styles.scrollContainer}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={back}>
+            <Ionicons name="arrow-back" size={20} color="black" />
+          </TouchableOpacity>
+          <Text style={styles.title}>Allergens</Text>
+          <View style={styles.headerSpacer} />
         </View>
-      </View>
 
+        {/* Content */}
+        <View className="flex-1">
+          {/* Allergens Selection Component */}
+          <View className="flex-1">
+            <AllergensSelection
+              selectedAllergens={selectedAllergens}
+              setSelectedAllergens={setSelectedAllergens}
+            />
+          </View>
+        </View>
+      </ScrollView>
       {/* Save Button */}
       <View className="p-4">
         <TouchableOpacity
@@ -107,27 +107,37 @@ function AllergensEdit() {
 export default memo(AllergensEdit);
 
 const styles = StyleSheet.create({
+  scrollContainer: {
+    flex: 1,
+    paddingTop: Platform.OS === "ios" ? 60 : 20,
+    paddingHorizontal: 20,
+  },
   header: {
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 20,
-    paddingBottom: 10,
-    position: "relative",
+    justifyContent: "space-between",
+    marginBottom: 30,
   },
-  backButton: {
-    width: 35,
-    height: 35,
-    borderRadius: 20,
-    backgroundColor: "#EAEAEA",
-    alignItems: "center",
-    justifyContent: "center",
-    marginRight: 16,
-  },
-  titleText: {
+  title: {
+    fontSize: 24,
+    fontFamily: "PoppinsSemiBold",
+    color: colors.primary,
+    textAlign: "center",
+    flex: 1,
     position: "absolute",
     left: 0,
     right: 0,
-    textAlign: "center",
+  },
+  backButton: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#F4F4F4",
+    zIndex: 1,
+  },
+  headerSpacer: {
+    width: 40,
   },
 });

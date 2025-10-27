@@ -78,7 +78,7 @@ function DailyActivitySelection() {
                     {level.title}
                   </Text>
                   <Text
-                    className={`text-xs font-Poppins text-center ${
+                    className={`text-md font-Poppins text-center ${
                       activityLevel === level.id
                         ? "text-gray-300"
                         : "text-gray-500"

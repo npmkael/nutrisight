@@ -51,73 +51,84 @@ function HeightAndWeight() {
     desiredWeightInLessThan10Percent: number;
     desiredWeightInMoreThan10Percent: number;
   } | null>(null);
-  const [validationError, setValidationError] = useState<string>("");
+  const [heightErrorMessage, setHeightErrorMessage] = useState<string>("");
+  const [weightErrorMessage, setWeightErrorMessage] = useState<string>("");
+  const [hasHeightError, setHasHeightError] = useState(false);
+  const [hasWeightError, setHasWeightError] = useState(false);
 
   console.log("3.tsx rendered");
-  console.log(heightFeet, heightInches, weight, unit,);
+  console.log(heightFeet, heightInches, weight, unit);
 
   // Validation function
   const validateInputs = () => {
-    if (!heightFeet || !weight) {
-      setValidationError("");
-      return;
-    }
+    let heightError = "";
+    let weightError = "";
 
-    const errors: string[] = [];
+    // Validate height if it has a value
+    if (heightFeet) {
+      if (unit === "ft/kg") {
+        const ft = Number(heightFeet);
+        const inch = Number(heightInches) || 0;
 
-    if (unit === "ft/kg") {
-      const ft = Number(heightFeet);
-      const inch = Number(heightInches) || 0;
-      const wt = Number(weight);
+        // Height validation
+        const totalInches = ft * 12 + inch;
+        const minInches = MIN_HEIGHT_FT * 12 + MIN_HEIGHT_IN;
+        const maxInches = MAX_HEIGHT_FT * 12 + MAX_HEIGHT_IN;
 
-      // Height validation
-      const totalInches = ft * 12 + inch;
-      const minInches = MIN_HEIGHT_FT * 12 + MIN_HEIGHT_IN;
-      const maxInches = MAX_HEIGHT_FT * 12 + MAX_HEIGHT_IN;
+        if (totalInches < minInches) {
+          heightError = `Please enter an accurate height.`;
+        } else if (totalInches > maxInches) {
+          heightError = `Please enter an accurate height.`;
+        }
+      } else {
+        const cm = Number(heightFeet);
 
-      if (totalInches < minInches) {
-        errors.push(`Please enter an accurate height`);
-      } else if (totalInches > maxInches) {
-        errors.push(`Please enter an accurate height`);
-      }
-
-      // Weight validation
-      if (wt < MIN_WEIGHT_KG) {
-        errors.push(`Please enter an accurate weight`);
-      } else if (wt > MAX_WEIGHT_KG) {
-        errors.push(`Please enter an accurate weight`);
-      }
-    } else {
-      const cm = Number(heightFeet);
-      const lb = Number(weight);
-
-      // Height validation
-      if (cm < MIN_HEIGHT_CM) {
-        errors.push(`Height must be at least ${MIN_HEIGHT_CM} cm`);
-      } else if (cm > MAX_HEIGHT_CM) {
-        errors.push(`Height must not exceed ${MAX_HEIGHT_CM} cm`);
-      }
-
-      // Weight validation
-      if (lb < MIN_WEIGHT_LB) {
-        errors.push(`Weight must be at least ${MIN_WEIGHT_LB} lb`);
-      } else if (lb > MAX_WEIGHT_LB) {
-        errors.push(`Weight must not exceed ${MAX_WEIGHT_LB} lb`);
+        // Height validation
+        if (cm < MIN_HEIGHT_CM) {
+          heightError = `Please enter an accurate height.`;
+        } else if (cm > MAX_HEIGHT_CM) {
+          heightError = `Please enter an accurate height.`;
+        }
       }
     }
 
-    setValidationError(errors.join("\n"));
+    // Validate weight if it has a value
+    if (weight) {
+      if (unit === "ft/kg") {
+        const wt = Number(weight);
+
+        // Weight validation
+        if (wt < MIN_WEIGHT_KG) {
+          weightError = `Please enter an accurate weight.`;
+        } else if (wt > MAX_WEIGHT_KG) {
+          weightError = `Please enter an accurate weight.`;
+        }
+      } else {
+        const lb = Number(weight);
+
+        // Weight validation
+        if (lb < MIN_WEIGHT_LB) {
+          weightError = `Please enter an accurate weight.`;
+        } else if (lb > MAX_WEIGHT_LB) {
+          weightError = `Please enter an accurate weight.`;
+        }
+      }
+    }
+
+    setHasHeightError(!!heightError);
+    setHasWeightError(!!weightError);
+    setHeightErrorMessage(heightError);
+    setWeightErrorMessage(weightError);
   };
 
   useEffect(() => {
     validateInputs();
     setRecommendation(null);
-    if(validationError.length > 0) return;
+    if (heightErrorMessage || weightErrorMessage) return;
 
-    if (heightFeet === "" || weight === "" || validationError) {
+    if (heightFeet === "" || weight === "") {
       return;
     }
-
 
     if (unit === "ft/kg") {
       const {
@@ -152,7 +163,14 @@ function HeightAndWeight() {
         desiredWeightInMoreThan10Percent,
       });
     }
-  }, [heightFeet, heightInches, weight, unit, validationError]);
+  }, [
+    heightFeet,
+    heightInches,
+    weight,
+    unit,
+    heightErrorMessage,
+    weightErrorMessage,
+  ]);
 
   const handlePress = () => {
     isOn.value = !isOn.value;
@@ -202,7 +220,7 @@ function HeightAndWeight() {
         {/* Height Section */}
         <View className="mt-4 mb-3">
           <Text className="font-Poppins text-md text-foreground mb-1">
-            Height
+            Height ({unit === "ft/kg" ? "ft/in" : "cm"})
           </Text>
           <View className="flex-row items-center gap-2">
             {unit === "ft/kg" ? (
@@ -211,13 +229,17 @@ function HeightAndWeight() {
                   value={heightFeet}
                   onChangeText={setHeightFeet}
                   maxLength={1}
+                  keyboardType="numeric"
                   placeholderText="ft"
+                  hasError={hasHeightError}
                 />
                 <TextInputField
                   value={heightInches}
                   onChangeText={setHeightInches}
                   maxLength={2}
+                  keyboardType="numeric"
                   placeholderText="in"
+                  hasError={hasHeightError}
                 />
               </>
             ) : (
@@ -225,58 +247,70 @@ function HeightAndWeight() {
                 value={heightFeet}
                 onChangeText={setHeightFeet}
                 maxLength={3}
+                keyboardType="numeric"
                 placeholderText="cm"
+                hasError={hasHeightError}
               />
             )}
           </View>
+          {heightErrorMessage && (
+            <Text className="text-red-600 font-Poppins text-sm mt-1">
+              {heightErrorMessage}
+            </Text>
+          )}
         </View>
 
         {/* Weight Section */}
         <View className="mt-4">
           <Text className="font-Poppins text-md text-foreground mb-1">
-            Weight
+            Weight ({unit === "ft/kg" ? "kg" : "lb"})
           </Text>
           <View className="flex-row items-center gap-2">
             <TextInputField
               value={weight}
               onChangeText={setWeight}
+              maxLength={3}
+              keyboardType="numeric"
               placeholderText={unit === "ft/kg" ? "kg" : "lb"}
+              hasError={hasWeightError}
             />
           </View>
+          {weightErrorMessage && (
+            <Text className="text-red-600 font-Poppins text-sm mt-1">
+              {weightErrorMessage}
+            </Text>
+          )}
         </View>
 
-        {/* Validation Error */}
-        {validationError && (
-          <Animated.View
-            entering={FadeInDown.duration(300)}
-            exiting={FadeOutDown.duration(200)}
-            className="mt-4 bg-red-50 rounded-xl p-4 border border-red-200"
-          >
-            <Text className="text-red-700 font-PoppinsMedium text-center">
-              {validationError}
-            </Text>
-          </Animated.View>
-        )}
+        {/* Information Card */}
+        {/* <InfoCard
+          title="Acceptable Ranges"
+          content={`Height: ${unit === "ft/kg" ? `${MIN_HEIGHT_FT}'${MIN_HEIGHT_IN}" - ${MAX_HEIGHT_FT}'${MAX_HEIGHT_IN}"` : `${MIN_HEIGHT_CM} - ${MAX_HEIGHT_CM} cm`}\nWeight: ${unit === "ft/kg" ? `${MIN_WEIGHT_KG} - ${MAX_WEIGHT_KG} kg` : `${MIN_WEIGHT_LB} - ${MAX_WEIGHT_LB} lb`}`}
+          className="mt-4"
+        /> */}
 
         {/* Recommendation Card */}
-        {recommendation && recommendation.recommendation !== "" && !validationError && (
-          <Animated.View
-            entering={FadeInDown.duration(500).springify()}
-            exiting={FadeOutDown.duration(300)}
-            className="mt-6 bg-white rounded-2xl p-5 border border-border"
-          >
-            {/* Card Content */}
-            <View className="">
-              <View className="bg-green-50 rounded-xl p-4 border border-green-200">
-                <Text className="text-2xl font-PoppinsBold text-green-700 text-center">
-                  {recommendation?.recommendation === "underweight"
-                    ? `Your weight is below the recommended range \n(${unit === "ft/kg" ? recommendation.desiredWeightInLessThan10Percent + " kg - " + recommendation.desiredWeightInMoreThan10Percent + " kg" : kgToLb(recommendation?.desiredWeightInLessThan10Percent.toString() || "0") + " lb - " + kgToLb(recommendation?.desiredWeightInMoreThan10Percent.toString() || "0") + " lb"}).`
-                    : `Your weight is above the recommended range \n(${unit === "ft/kg" ? recommendation?.desiredWeightInLessThan10Percent + " kg - " + recommendation?.desiredWeightInMoreThan10Percent + " kg" : kgToLb(recommendation?.desiredWeightInLessThan10Percent.toString() || "0") + " lb - " + kgToLb(recommendation?.desiredWeightInMoreThan10Percent.toString() || "0") + " lb"}).`}
-                </Text>
+        {recommendation &&
+          recommendation.recommendation !== "" &&
+          !heightErrorMessage &&
+          !weightErrorMessage && (
+            <Animated.View
+              entering={FadeInDown.duration(500).springify()}
+              exiting={FadeOutDown.duration(300)}
+              className="mt-6 bg-white rounded-2xl p-5 border border-border"
+            >
+              {/* Card Content */}
+              <View className="">
+                <View className="bg-green-50 rounded-xl p-4 border border-green-200">
+                  <Text className="text-2xl font-PoppinsBold text-green-700 text-center">
+                    {recommendation?.recommendation === "underweight"
+                      ? `Your weight is below the recommended range \n(${unit === "ft/kg" ? recommendation.desiredWeightInLessThan10Percent + " kg - " + recommendation.desiredWeightInMoreThan10Percent + " kg" : kgToLb(recommendation?.desiredWeightInLessThan10Percent.toString() || "0") + " lb - " + kgToLb(recommendation?.desiredWeightInMoreThan10Percent.toString() || "0") + " lb"}).`
+                      : `Your weight is above the recommended range \n(${unit === "ft/kg" ? recommendation?.desiredWeightInLessThan10Percent + " kg - " + recommendation?.desiredWeightInMoreThan10Percent + " kg" : kgToLb(recommendation?.desiredWeightInLessThan10Percent.toString() || "0") + " lb - " + kgToLb(recommendation?.desiredWeightInMoreThan10Percent.toString() || "0") + " lb"}).`}
+                  </Text>
+                </View>
               </View>
-            </View>
-          </Animated.View>
-        )}
+            </Animated.View>
+          )}
       </View>
     </Animated.View>
   );

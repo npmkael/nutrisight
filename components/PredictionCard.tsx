@@ -32,16 +32,6 @@ export default function PredictionCard({
             <Text style={styles.predictionLabel}>
               {capitalizeFirstLetter(predictionLabel)}
             </Text>
-            <View style={styles.barContainer}>
-              <View
-                className="h-full bg-black"
-                style={{ width: `${predictionValue}%` }}
-              />
-            </View>
-          </View>
-          <View className="ml-2 items-center w-28">
-            <Text style={styles.predictionValue}>{predictionValue}%</Text>
-            <Text style={styles.predictionConfidence}>confidence</Text>
           </View>
         </View>
       </TouchableOpacity>

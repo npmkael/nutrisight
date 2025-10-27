@@ -3,14 +3,48 @@ import DietSummary from "@/components/DietSummary";
 import InfoTooltip from "@/components/InfoTooltip";
 import TargetWeightChart from "@/components/target-weight-chart";
 import Typo from "@/components/Typo";
-import { useAuth } from "@/context/AuthContext";
+import { LoggedWeight, useAuth } from "@/context/AuthContext";
 import { setPrecisionIfNotInteger } from "@/utils/helpers";
 import { LinearGradient } from "expo-linear-gradient";
 import { router } from "expo-router";
-import { memo, useCallback } from "react";
+import { memo, useCallback, useMemo } from "react";
 import { Image, ScrollView, View } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import Loading from "../../../components/Loading";
+
+// Generate dummy data for demonstration (30 days of weight tracking)
+const generateDummyWeightData = (): LoggedWeight[] => {
+  const dummyData: LoggedWeight[] = [];
+  const today = new Date();
+  const startWeight = 85.0; // Starting at 85kg
+  const targetWeight = 75.0; // Target is 75kg
+
+  // Generate data for the past 30 days with realistic weight loss progression
+  for (let i = 30; i >= 0; i--) {
+    const date = new Date(today);
+    date.setDate(date.getDate() - i);
+
+    // Simulate realistic weight loss with daily fluctuations
+    // Average loss of ~0.5kg per week (healthy rate)
+    const weeksPassed = (30 - i) / 7;
+    const baseWeight = startWeight - weeksPassed * 0.5;
+
+    // Add realistic daily fluctuations (±0.3kg)
+    const fluctuation = (Math.random() - 0.5) * 0.6;
+    const weight = baseWeight + fluctuation;
+
+    // Only add data for some days (not every day) for more realistic tracking
+    if (Math.random() > 0.3) {
+      // ~70% chance of logging weight each day
+      dummyData.push({
+        value: parseFloat(weight.toFixed(1)),
+        date: date.toISOString(),
+      });
+    }
+  }
+
+  return dummyData;
+};
 
 function Progress() {
   const { user, loading } = useAuth();
@@ -28,7 +62,12 @@ function Progress() {
     router.push("/(root)/log-weight");
   }, []);
 
-  const loggedWeights = user.loggedWeights || [];
+  // Use dummy data if no real data exists, otherwise use real data
+  const dummyData = useMemo(() => generateDummyWeightData(), []);
+  const loggedWeights =
+    user.loggedWeights && user.loggedWeights.length > 0
+      ? user.loggedWeights
+      : dummyData;
 
   return (
     <SafeAreaView className="flex-1" edges={["top"]}>
@@ -112,16 +151,19 @@ function Progress() {
 
           <View className="flex-row justify-between items-center mt-6 mb-2 mx-4">
             <Typo size={18} className="font-PoppinsSemiBold">
-              Target Weight Weekly Progress (kg)
+              Weight Progress Tracker
             </Typo>
             <InfoTooltip
-              title="Target Weight Weekly Progress"
-              content="This chart tracks your weekly weight changes towards your target weight goal. Each point represents your recorded weight for that week. The trend line helps you visualize your progress over time and see if you're moving closer to your target weight. Log your weight regularly for more accurate tracking."
+              title="Weight Progress Tracker"
+              content="Track your weight changes with weekly bar charts or monthly line graphs. The weekly view shows daily entries, while the monthly view displays trends over time. Toggle between views to see your progress from different perspectives. The dashed line represents your target weight goal."
             />
           </View>
 
           <View className="bg-white rounded-lg p-4 shadow-xl">
-            <TargetWeightChart loggedWeights={loggedWeights} />
+            <TargetWeightChart
+              loggedWeights={loggedWeights}
+              targetWeight={user.targetWeight || 75}
+            />
           </View>
 
           {/* Diet Summary Card */}

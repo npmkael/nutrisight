@@ -169,7 +169,7 @@ function Details() {
 
     await updateAccount(payload);
     if (!error) {
-      alert("Profile updated successfully!");
+      Alert.alert("Success", "Profile updated successfully!");
       router.back();
     }
   }, [username, birthDate, updateAccount, error, router]);
