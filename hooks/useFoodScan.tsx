@@ -32,6 +32,13 @@ export function useFoodScan() {
         const data = await res.json();
         console.log("Predictions:", data);
 
+        if (data.error === "not food") {
+          console.error("The image does not contain food.");
+          alert("The image does not contain food. Please try again.");
+          handleRetakePhoto();
+          return;
+        }
+
         if (!data || !data.data) {
           alert("No data found in the scan result. Please try again.");
           handleRetakePhoto();
