@@ -1,37 +1,49 @@
 import { capitalizeFirstLetter } from "@/utils/helpers";
+import { Feather } from "@expo/vector-icons";
 import { StyleSheet, Text, TouchableOpacity, View } from "react-native";
-import Animated, { FadeIn } from "react-native-reanimated";
+import Animated, {
+  FadeIn,
+  useAnimatedStyle,
+  useSharedValue,
+  withTiming,
+} from "react-native-reanimated";
 
 type PredictionCardProps = {
   predictionLabel: string;
-  predictionValue: number;
   redirectToResults: (name: string) => void;
-  index: number;
 };
 
 export default function PredictionCard({
   predictionLabel,
-  predictionValue,
   redirectToResults,
-  index,
 }: PredictionCardProps) {
+  const scale = useSharedValue(1);
+
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: withTiming(scale.value, { duration: 120 }) }],
+  }));
+
   return (
     <Animated.View
-      className="space-y-3 mb-2"
-      entering={FadeIn.duration(1000)
-        .delay(index * 200)
-        .springify()
-        .damping(12)}
+      style={[{ marginBottom: 10 }, animatedStyle]}
+      entering={FadeIn.duration(700).springify().damping(12)}
     >
       <TouchableOpacity
-        style={styles.card}
+        activeOpacity={0.9}
         onPress={() => redirectToResults(predictionLabel)}
+        onPressIn={() => (scale.value = 0.98)}
+        onPressOut={() => (scale.value = 1)}
+        style={styles.card}
       >
-        <View className="flex-row items-center justify-between">
-          <View className="flex-1">
-            <Text style={styles.predictionLabel}>
+        <View style={styles.rowNoBadge}>
+          <View style={styles.content}>
+            <Text style={styles.predictionLabel} numberOfLines={1}>
               {capitalizeFirstLetter(predictionLabel)}
             </Text>
+          </View>
+
+          <View style={styles.chevWrap}>
+            <Feather name="chevron-right" size={18} color="#9ca3af" />
           </View>
         </View>
       </TouchableOpacity>
@@ -41,35 +53,36 @@ export default function PredictionCard({
 
 const styles = StyleSheet.create({
   card: {
-    backgroundColor: "white",
-    flexDirection: "column",
-    gap: 10,
+    backgroundColor: "#fff",
     borderRadius: 10,
-    padding: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
     borderWidth: 1,
-    borderColor: "#e1e1e1",
+    borderColor: "#e6e6e6",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  row: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  rowNoBadge: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  content: {
+    flex: 1,
   },
   predictionLabel: {
     fontSize: 16,
     fontFamily: "GeistSemiBold",
-    color: "black",
+    color: "#111827",
   },
-  barContainer: {
-    marginTop: 4,
-    backgroundColor: "#e1e1e1",
-    borderRadius: 100,
-    height: 8,
-    overflow: "hidden",
-  },
-  // Dynamic width (!)
-  predictionValue: {
-    fontSize: 24,
-    fontFamily: "GeistBold",
-    color: "black",
-  },
-  predictionConfidence: {
-    fontSize: 12,
-    fontFamily: "GeistRegular",
-    color: "#737373",
+  chevWrap: {
+    marginLeft: 8,
   },
 });

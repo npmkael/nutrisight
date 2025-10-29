@@ -97,7 +97,9 @@ function Predictions() {
       <View className="p-4 bg-white flex-1">
         <View className="px-2 pb-2 mb-2">
           <Text style={styles.title}>Top Predictions</Text>
-          <Text style={styles.subtitle}>Analysis results for your photo</Text>
+          <Text style={styles.note}>
+            Tap any prediction to view detailed nutrition results
+          </Text>
         </View>
 
         <ScrollView
@@ -106,12 +108,10 @@ function Predictions() {
           contentContainerStyle={{ paddingBottom: 20 }}
         >
           {parsedPredictions.length > 0 ? (
-            parsedPredictions.map((prediction, index) => (
+            parsedPredictions.map((prediction) => (
               <PredictionCard
-                index={index}
                 key={prediction.label}
                 predictionLabel={prediction.label}
-                predictionValue={Number((prediction.prob * 100).toFixed(2))}
                 redirectToResults={redirectToResult}
               />
             ))
@@ -135,5 +135,10 @@ const styles = StyleSheet.create({
   subtitle: {
     fontSize: 13,
     color: "#737373",
+  },
+  note: {
+    marginTop: 6,
+    fontSize: 12,
+    color: "#6b7280",
   },
 });
