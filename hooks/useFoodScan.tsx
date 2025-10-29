@@ -37,7 +37,7 @@ export function useFoodScan() {
         console.log("Predictions:", data);
 
         if (data.error === "not food") {
-          console.error(
+          console.log(
             "The image does not contain food or is outside of our datasets."
           );
           Alert.alert(
@@ -59,7 +59,7 @@ export function useFoodScan() {
 
         setFoodScanData(data.data as PredictionType[]);
       } catch (error: any) {
-        console.error("Error scanning food:", error);
+        console.log("Error scanning food:", error);
         Alert.alert(
           "Scan Error",
           error.message || "Unknown error occurred while scanning food."
