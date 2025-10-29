@@ -1,5 +1,6 @@
 import { PredictionType } from "@/app/(root)/main-camera";
 import { useCallback, useState } from "react";
+import { Alert } from "react-native";
 
 export function useFoodScan() {
   const [foodScanData, setFoodScanData] = useState<PredictionType[] | null>(
@@ -24,7 +25,10 @@ export function useFoodScan() {
         );
         if (!res.ok) {
           console.error("Failed to scan food:", res.statusText);
-          alert("Failed to scan food. Please try again.");
+          Alert.alert(
+            "Failed to scan food. Please try again.",
+            "Server might be down."
+          );
           handleRetakePhoto();
           return;
         }
@@ -33,14 +37,22 @@ export function useFoodScan() {
         console.log("Predictions:", data);
 
         if (data.error === "not food") {
-          console.error("The image does not contain food.");
-          alert("The image does not contain food. Please try again.");
+          console.error(
+            "The image does not contain food or is outside of our datasets."
+          );
+          Alert.alert(
+            "Detection Error.",
+            "The image does not contain food or is outside of our datasets. Please try again."
+          );
           handleRetakePhoto();
           return;
         }
 
         if (!data || !data.data) {
-          alert("No data found in the scan result. Please try again.");
+          Alert.alert(
+            "Scan Error",
+            "No data found in the scan result. Please try again."
+          );
           handleRetakePhoto();
           return;
         }
@@ -48,7 +60,10 @@ export function useFoodScan() {
         setFoodScanData(data.data as PredictionType[]);
       } catch (error: any) {
         console.error("Error scanning food:", error);
-        alert(error.message || "Unknown error occurred while scanning food.");
+        Alert.alert(
+          "Scan Error",
+          error.message || "Unknown error occurred while scanning food."
+        );
         handleRetakePhoto();
       }
     },
