@@ -74,7 +74,9 @@ export default function TargetWeightChart({
         (w) => !Number.isNaN(w.value) && w.dateObj.toString() !== "Invalid Date"
       );
 
-    // Create an entry for each day of the week (Sun..Sat) so empty days stay visible
+    // Create an entry for each day of the week (Sun..Sat)
+    // For days without a logged weight we use `null` so the chart library
+    // can hide the bar instead of rendering a dummy 0 value.
     const weekDays = Array.from({ length: 7 }).map((_, i) => {
       const day = new Date(startDateObj);
       day.setDate(startDateObj.getDate() + i);
@@ -83,24 +85,16 @@ export default function TargetWeightChart({
       const found = normalized.find((w) => localDateKey(w.dateObj) === dayKey);
       return {
         date: day.toISOString(),
-        // if no value, use 0 so bar exists (option: use null to hide bar but keep label)
-        value: found ? found.value : 0,
+        // if no value, use null so the bar is hidden
+        value: found ? found.value : null,
         label: day.toLocaleDateString("en-US", { weekday: "short" }),
       };
     });
 
-    // If all days are empty, render empty chart state
-    const hasAnyValue = weekDays.some((d) => d.value > 0);
+    // If none of the days have a real value, render empty chart state
+    const hasAnyValue = weekDays.some((d) => d.value !== null && d.value > 0);
     if (!hasAnyValue) {
-      setChartData(
-        weekDays.map((item) => ({
-          value: 0,
-          label: item.label,
-          frontColor: "#E6E9EE",
-          spacing: 2,
-          topLabelComponent: () => <Text style={styles.topLabel}></Text>,
-        }))
-      );
+      setChartData([]);
       setMaxValue(1);
       setWeekDateRange(formatRange(startDateObj, endDateObj));
       return;
@@ -108,12 +102,13 @@ export default function TargetWeightChart({
 
     // Build chart data from weekDays (you can replace 0 fallback with last-known value if desired)
     const formattedData = weekDays.map((item) => ({
+      // value may be `number` or `null` - gifted-charts will hide null bars
       value: item.value,
       label: item.label,
-      frontColor: item.value > 0 ? "#2D3644" : "#E6E9EE",
+      frontColor: item.value !== null ? "#2D3644" : "#E6E9EE",
       spacing: 2,
       topLabelComponent: () =>
-        item.value > 0 ? (
+        item.value !== null ? (
           <Text style={styles.topLabel}>{Number(item.value).toFixed(1)}</Text>
         ) : (
           <Text style={styles.topLabel}></Text>
@@ -123,7 +118,9 @@ export default function TargetWeightChart({
     setChartData(formattedData);
 
     // compute a sensible max/min for the Y axis (based on real values only)
-    const values = weekDays.map((d) => d.value).filter((v) => v > 0);
+    const values = weekDays
+      .map((d) => d.value)
+      .filter((v) => v !== null) as number[];
     const max = values.length ? Math.max(...values) : 0;
     setMaxValue(max > 0 ? max * 1.1 : 1);
 
