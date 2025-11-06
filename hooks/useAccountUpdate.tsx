@@ -18,6 +18,8 @@ type UpdatePayload = Partial<{
     carbs: number;
     fat: number;
   };
+  weightGoal: "lose" | "maintain" | "gain";
+  targetWeight: number;
   // Add other allowed fields as needed
 }>;
 
