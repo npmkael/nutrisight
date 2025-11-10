@@ -190,12 +190,12 @@ function Settings() {
               onPress={() => router.push("/(root)/(settings)/dietary-goals")}
             />
 
-            {/* <SettingsItem
+            <SettingsItem
               icon={<Ionicons name="scale-outline" size={20} color="#6B7280" />}
-              title="Weight Tracking"
-              subtitle="Manage weight goals and history"
-              onPress={() => router.push("/(root)/(settings)/weight")}
-            /> */}
+              title="Edit Weight Goal"
+              subtitle="Update your target weight"
+              onPress={() => router.push("/(root)/(settings)/edit-weight-goal")}
+            />
 
             <SettingsItem
               icon={
@@ -242,12 +242,20 @@ function Settings() {
 
             <SettingsItem
               icon={
+                <Ionicons name="fast-food-outline" size={20} color="#6B7280" />
+              }
+              title="Food Coverage"
+              subtitle="View supported foods for scanning"
+              onPress={() => router.push("/(root)/(settings)/food-coverage")}
+            />
+
+            <SettingsItem
+              icon={
                 <Ionicons name="chatbubble-outline" size={20} color="#6B7280" />
               }
               title="Send Feedback"
               subtitle="Help us improve the app"
               onPress={() => handleSendFeedback()}
-              showDivider={false}
             />
           </Container>
 

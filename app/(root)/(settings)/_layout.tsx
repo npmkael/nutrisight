@@ -23,6 +23,8 @@ function RootLayout() {
       <Stack.Screen name="privacy-policy" options={{ headerShown: false }} />
       <Stack.Screen name="terms-of-service" options={{ headerShown: false }} />
       <Stack.Screen name="about" options={{ headerShown: false }} />
+      <Stack.Screen name="edit-weight-goal" options={{ headerShown: false }} />
+      <Stack.Screen name="food-coverage" options={{ headerShown: false }} />
     </Stack>
   );
 }
