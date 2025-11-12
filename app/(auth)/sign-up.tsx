@@ -1,11 +1,20 @@
 import { Link, router } from "expo-router";
 import { memo, useCallback, useEffect, useState } from "react";
-import { Alert, KeyboardAvoidingView, Platform, ScrollView, Text, TouchableOpacity, View } from "react-native";
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from "react-native";
 
 // custom components
 import CustomButton from "@/components/CustomButton";
 import InputField from "@/components/InputField";
 import OAuth from "@/components/OAuth";
+import PasswordRequirementsCard from "@/components/PasswordRequirementsCard";
 
 // icons and images
 import { icons } from "@/constants";
@@ -207,7 +216,7 @@ function SignUp() {
       form.email,
       form.password
     );
-    
+
     if (!success) {
       router.replace("/(auth)/sign-up");
       return;
@@ -242,121 +251,125 @@ function SignUp() {
         </TouchableOpacity>
       </View>
 
-      <KeyboardAvoidingView 
+      <KeyboardAvoidingView
         className="flex-1"
         behavior={Platform.OS === "ios" ? "padding" : "height"}
         keyboardVerticalOffset={Platform.OS === "ios" ? 0 : 20}
       >
-        <ScrollView className="flex-1 bg-white" keyboardShouldPersistTaps="handled">
-        <View className="px-5 bg-white">
-          <Text
-            className="text-4xl text-black"
-            style={{ fontFamily: "GeistSemiBold" }}
-          >
-            Sign Up
-          </Text>
-          <Text
-            className="text-base text-gray-500"
-            style={{ fontFamily: "GeistRegular" }}
-          >
-            Welcome to NutriSight! Please enter your details.
-          </Text>
-        </View>
-        <View className="flex-1 bg-white">
-          <View className="p-5">
-            <InputField
-              label="First Name"
-              placeholder="Enter your first name"
-              icon={icons.person}
-              value={form.firstName}
-              onChangeText={(value) => setForm({ ...form, firstName: value })}
-              onBlur={() => handleBlur("firstName")}
-              error={errors.firstName}
-              isValid={!errors.firstName && form.firstName.trim() !== ""}
-              showValidation={touched.firstName}
-              autoCapitalize="words"
-            />
-            
-            <InputField
-              label="Last Name"
-              placeholder="Enter your last name"
-              icon={icons.person}
-              value={form.lastName}
-              onChangeText={(value) => setForm({ ...form, lastName: value })}
-              onBlur={() => handleBlur("lastName")}
-              error={errors.lastName}
-              isValid={!errors.lastName && form.lastName.trim() !== ""}
-              showValidation={touched.lastName}
-              autoCapitalize="words"
-            />
-            
-            <InputField
-              label="Email Address"
-              placeholder="Enter your email"
-              icon={icons.email}
-              value={form.email}
-              onChangeText={(value) => setForm({ ...form, email: value })}
-              onBlur={() => handleBlur("email")}
-              error={errors.email}
-              isValid={!errors.email && form.email.trim() !== ""}
-              showValidation={touched.email}
-              keyboardType="email-address"
-              autoCapitalize="none"
-              autoComplete="email"
-            />
-            
-            <InputField
-              label="Password"
-              placeholder="Enter your password"
-              icon={icons.lock}
-              secureTextEntry={true}
-              value={form.password}
-              onChangeText={(value) => setForm({ ...form, password: value })}
-              onBlur={() => handleBlur("password")}
-              error={errors.password}
-              isValid={!errors.password && form.password !== ""}
-              showValidation={touched.password}
-              autoCapitalize="none"
-            />
-            
-            <InputField
-              label="Confirm Password"
-              placeholder="Re-enter your password"
-              icon={icons.lock}
-              secureTextEntry={true}
-              value={form.confirmPassword}
-              onChangeText={(value) =>
-                setForm({ ...form, confirmPassword: value })
-              }
-              onBlur={() => handleBlur("confirmPassword")}
-              error={errors.confirmPassword}
-              isValid={
-                !errors.confirmPassword && form.confirmPassword !== ""
-              }
-              showValidation={touched.confirmPassword}
-              autoCapitalize="none"
-            />
-
-            <CustomButton
-              title="Sign Up"
-              onPress={handleRegister}
-              className="mt-6"
-              disabled={!isFormValid || loading}
-              loading={loading}
-            />
-
-            {/* OAuth */}
-            <OAuth />
-
-            <Link href="/sign-in" className="mt-10">
-              <Text className="text-base text-center text-gray-600">
-                Already have an account?{" "}
-                <Text className="font-semibold text-[#2D3644]">Log In</Text>
-              </Text>
-            </Link>
+        <ScrollView
+          className="flex-1 bg-white"
+          keyboardShouldPersistTaps="handled"
+          contentContainerStyle={{ paddingBottom: 48 }}
+        >
+          <View className="px-5 bg-white">
+            <Text
+              className="text-4xl text-black"
+              style={{ fontFamily: "GeistSemiBold" }}
+            >
+              Sign Up
+            </Text>
+            <Text
+              className="text-base text-gray-500"
+              style={{ fontFamily: "GeistRegular" }}
+            >
+              Welcome to NutriSight! Please enter your details.
+            </Text>
           </View>
-        </View>
-      </ScrollView>
+          <View className="flex-1 bg-white">
+            <View className="p-5">
+              <InputField
+                label="First Name"
+                placeholder="Enter your first name"
+                icon={icons.person}
+                value={form.firstName}
+                onChangeText={(value) => setForm({ ...form, firstName: value })}
+                onBlur={() => handleBlur("firstName")}
+                error={errors.firstName}
+                isValid={!errors.firstName && form.firstName.trim() !== ""}
+                showValidation={touched.firstName}
+                autoCapitalize="words"
+              />
+
+              <InputField
+                label="Last Name"
+                placeholder="Enter your last name"
+                icon={icons.person}
+                value={form.lastName}
+                onChangeText={(value) => setForm({ ...form, lastName: value })}
+                onBlur={() => handleBlur("lastName")}
+                error={errors.lastName}
+                isValid={!errors.lastName && form.lastName.trim() !== ""}
+                showValidation={touched.lastName}
+                autoCapitalize="words"
+              />
+
+              <InputField
+                label="Email Address"
+                placeholder="Enter your email"
+                icon={icons.email}
+                value={form.email}
+                onChangeText={(value) => setForm({ ...form, email: value })}
+                onBlur={() => handleBlur("email")}
+                error={errors.email}
+                isValid={!errors.email && form.email.trim() !== ""}
+                showValidation={touched.email}
+                keyboardType="email-address"
+                autoCapitalize="none"
+                autoComplete="email"
+              />
+
+              <InputField
+                label="Password"
+                placeholder="Enter your password"
+                icon={icons.lock}
+                secureTextEntry={true}
+                value={form.password}
+                onChangeText={(value) => setForm({ ...form, password: value })}
+                onBlur={() => handleBlur("password")}
+                error={errors.password}
+                isValid={!errors.password && form.password !== ""}
+                showValidation={touched.password}
+                autoCapitalize="none"
+              />
+
+              <InputField
+                label="Confirm Password"
+                placeholder="Re-enter your password"
+                icon={icons.lock}
+                secureTextEntry={true}
+                value={form.confirmPassword}
+                onChangeText={(value) =>
+                  setForm({ ...form, confirmPassword: value })
+                }
+                onBlur={() => handleBlur("confirmPassword")}
+                error={errors.confirmPassword}
+                isValid={!errors.confirmPassword && form.confirmPassword !== ""}
+                showValidation={touched.confirmPassword}
+                autoCapitalize="none"
+              />
+
+              <PasswordRequirementsCard password={form.password} />
+
+              <CustomButton
+                title="Sign Up"
+                onPress={handleRegister}
+                className="mt-6"
+                disabled={!isFormValid || loading}
+                loading={loading}
+              />
+
+              {/* OAuth */}
+              <OAuth />
+
+              <Link href="/sign-in" className="mt-10">
+                <Text className="text-base text-center text-gray-600">
+                  Already have an account?{" "}
+                  <Text className="font-semibold text-[#2D3644]">Log In</Text>
+                </Text>
+              </Link>
+            </View>
+          </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
