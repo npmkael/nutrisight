@@ -28,6 +28,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from "react-native";
@@ -51,6 +52,7 @@ function Results() {
   const [result, setResult] = useState<ScanResultType | null>(
     scanResult ? (JSON.parse(scanResult as string) as ScanResultType) : null
   );
+  const [quantityInput, setQuantityInput] = useState("1");
 
   // Bottom sheet refs and state
   const caloriesBottomSheetRef = useRef<BottomSheet | null>(null);
@@ -282,45 +284,69 @@ function Results() {
     }
   }, [result, setUser, router]);
 
-  const handleDecreaseQuantity = useCallback(() => {
-    setQuantity((prevQ) => {
-      const newQ = prevQ > 1 ? prevQ - 1 : 1;
-      setResult((p) => {
-        if (!p) return p;
-        return {
-          ...p,
-          nutritionData: p.nutritionData.map((category) => ({
-            ...category,
-            items: category.items.map((item) => ({
-              ...item,
-              value: (Number(item.value) / prevQ) * newQ,
+  const applyQuantityChange = useCallback(
+    (updater: (previous: number) => number) => {
+      setQuantity((prevQ) => {
+        const requested = updater(prevQ);
+        const targetValue = Number.isFinite(requested) ? requested : prevQ;
+        const sanitized = Math.max(1, Math.round(targetValue));
+
+        if (prevQ === sanitized) {
+          setQuantityInput(sanitized.toString());
+          return prevQ;
+        }
+
+        setResult((p) => {
+          if (!p) return p;
+          return {
+            ...p,
+            nutritionData: p.nutritionData.map((category) => ({
+              ...category,
+              items: category.items.map((item) => ({
+                ...item,
+                value: (Number(item.value) / prevQ) * sanitized,
+              })),
             })),
-          })),
-        };
+          };
+        });
+
+        setQuantityInput(sanitized.toString());
+        return sanitized;
       });
-      return newQ;
-    });
-  }, []);
+    },
+    []
+  );
+
+  const handleDecreaseQuantity = useCallback(() => {
+    applyQuantityChange((prevQ) => prevQ - 1);
+  }, [applyQuantityChange]);
 
   const handleIncreaseQuantity = useCallback(() => {
-    setQuantity((prevQ) => {
-      const newQ = prevQ + 1;
-      setResult((p) => {
-        if (!p) return p;
-        return {
-          ...p,
-          nutritionData: p.nutritionData.map((category) => ({
-            ...category,
-            items: category.items.map((item) => ({
-              ...item,
-              value: (Number(item.value) / prevQ) * newQ,
-            })),
-          })),
-        };
-      });
-      return newQ;
-    });
-  }, []);
+    applyQuantityChange((prevQ) => prevQ + 1);
+  }, [applyQuantityChange]);
+
+  const handleQuantityInputChange = useCallback(
+    (value: string) => {
+      const numericOnly = value.replace(/[^0-9]/g, "");
+      setQuantityInput(numericOnly);
+
+      if (numericOnly === "") {
+        return;
+      }
+
+      const numericValue = Number(numericOnly);
+      if (!Number.isNaN(numericValue)) {
+        applyQuantityChange(() => numericValue);
+      }
+    },
+    [applyQuantityChange]
+  );
+
+  const handleQuantityInputBlur = useCallback(() => {
+    if (quantityInput === "") {
+      setQuantityInput(quantity.toString());
+    }
+  }, [quantityInput, quantity]);
 
   if (!result) {
     return (
@@ -375,9 +401,17 @@ function Results() {
               >
                 <AntDesign name="minus" size={20} color="black" />
               </TouchableOpacity>
-              <Text className="text-xl text-black font-PoppinsMedium">
-                {quantity}
-              </Text>
+              <TextInput
+                className="w-8 text-xl text-black font-PoppinsMedium text-center"
+                value={quantityInput}
+                onChangeText={handleQuantityInputChange}
+                onBlur={handleQuantityInputBlur}
+                keyboardType="number-pad"
+                inputMode="numeric"
+                maxLength={3}
+                selectTextOnFocus
+                accessibilityLabel="Set quantity"
+              />
               <TouchableOpacity
                 className="w-10 h-10 bg-white border border-gray-200 rounded-full items-center justify-center"
                 onPress={handleIncreaseQuantity}
