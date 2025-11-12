@@ -128,26 +128,27 @@ function BMIClassification({
           </View>
         </View>
         {/* Legend */}
-        <View className="flex-row mb-8">
-          {BMI_CATEGORIES.map((cat) => (
-            <View
-              key={cat.label}
-              className="flex-row gap-1 items-center justify-center flex-1"
-            >
-              <View
-                style={{ backgroundColor: cat.color }}
-                className="w-2 h-2 rounded-sm"
-              />
-              <View>
-                <Text className="text-xs text-gray-400 font-Poppins">
-                  {cat.label}
-                </Text>
-                <Text className="text-xs font-PoppinsSemiBold">
-                  {cat.min} - {cat.max}
-                </Text>
+        <View className="mb-8 bg-gradient-to-r from-gray-50 to-white rounded-2xl p-4 border border-gray-100">
+          <View className="gap-2">
+            {BMI_CATEGORIES.map((cat, index) => (
+              <View key={cat.label} className="flex-row items-center">
+                <View className="flex-row items-center flex-1">
+                  <View
+                    style={{ backgroundColor: cat.color }}
+                    className="w-1 h-10 rounded-full mr-3"
+                  />
+                  <View className="flex-1">
+                    <Text className="text-sm font-PoppinsSemiBold text-gray-800">
+                      {cat.label}
+                    </Text>
+                    <Text className="text-xs text-gray-500 font-Poppins mt-0.5">
+                      {cat.min} - {cat.max}
+                    </Text>
+                  </View>
+                </View>
               </View>
-            </View>
-          ))}
+            ))}
+          </View>
         </View>
         {/* BMI Value and Classification */}
         <View className="flex-col gap-2">
