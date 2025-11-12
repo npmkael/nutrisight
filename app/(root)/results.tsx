@@ -24,6 +24,7 @@ import BottomSheet from "@gorhom/bottom-sheet";
 import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useRef, useState } from "react";
 import {
+  Alert,
   Image,
   ScrollView,
   StyleSheet,
@@ -48,11 +49,17 @@ function Results() {
   const { setUser, user } = useAuth();
   const { image, name, scanResult, mealTime } = useLocalSearchParams();
   const [loading, setLoading] = useState(false);
-  const [quantity, setQuantity] = useState(1);
-  const [result, setResult] = useState<ScanResultType | null>(
-    scanResult ? (JSON.parse(scanResult as string) as ScanResultType) : null
+  const parsedResult = scanResult
+    ? (JSON.parse(scanResult as string) as ScanResultType & {
+        quantity?: number;
+      })
+    : null;
+  const initialQuantity = parsedResult?.quantity || 1;
+  const [quantity, setQuantity] = useState(initialQuantity);
+  const [result, setResult] = useState<ScanResultType | null>(parsedResult);
+  const [quantityInput, setQuantityInput] = useState(
+    initialQuantity.toString()
   );
-  const [quantityInput, setQuantityInput] = useState("1");
 
   // Bottom sheet refs and state
   const caloriesBottomSheetRef = useRef<BottomSheet | null>(null);
@@ -173,6 +180,19 @@ function Results() {
   }, [name, router]);
 
   const handleSave = useCallback(async () => {
+    // Validate quantity - check both state and input
+    if (
+      quantityInput.trim() === "" ||
+      quantity < 1 ||
+      !Number.isInteger(quantity)
+    ) {
+      Alert.alert(
+        "Invalid Quantity",
+        "Quantity must be a whole number and at least 1."
+      );
+      return;
+    }
+
     console.log("Final Result to Save:", result);
     const allNutritionItems = result?.nutritionData.flatMap(
       (category) => category.items
@@ -282,7 +302,7 @@ function Results() {
     } finally {
       setLoading(false);
     }
-  }, [result, setUser, router]);
+  }, [quantityInput, quantity, result, setUser, router]);
 
   const applyQuantityChange = useCallback(
     (updater: (previous: number) => number) => {
@@ -734,7 +754,12 @@ function Results() {
               title="Save"
               onPress={handleSave}
               loading={loading}
-              disabled={loading}
+              disabled={
+                loading ||
+                quantityInput.trim() === "" ||
+                quantity < 1 ||
+                !Number.isInteger(quantity)
+              }
             />
           </View>
         </View>

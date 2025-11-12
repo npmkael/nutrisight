@@ -32,7 +32,7 @@ export type ScanResultType = {
     }[];
   }[];
   source?: string; // "usda" | "nutritionix" | "open food facts" | "gemini" | "mynetdiary"
-  barcode?: boolean
+  barcode?: boolean;
 };
 
 export type PredictionType = {
@@ -59,10 +59,11 @@ function App() {
   console.log("Meal Time maincamera:", mealTime);
 
   useEffect(() => {
-    if (barcodeData) setScanResult({
-      ...barcodeData,
-      barcode: true,
-    });
+    if (barcodeData)
+      setScanResult({
+        ...barcodeData,
+        barcode: true,
+      });
   }, [barcodeData]); // The effect runs only when barcodeData changes
 
   useEffect(() => {
@@ -177,7 +178,7 @@ function App() {
       }
 
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        mediaTypes: "images",
         base64: true,
         quality: 0.7,
       });

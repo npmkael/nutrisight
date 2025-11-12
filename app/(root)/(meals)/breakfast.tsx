@@ -1,7 +1,10 @@
 import CircularProgressBar from "@/components/CircularProgressBar";
 import Loading from "@/components/Loading";
 import { BACKEND_URL, useAuth } from "@/context/AuthContext";
-import { capitalizeFirstLetter, setPrecisionIfNotInteger } from "@/utils/helpers";
+import {
+  capitalizeFirstLetter,
+  setPrecisionIfNotInteger,
+} from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import Entypo from "@expo/vector-icons/Entypo";
 import BottomSheet, {
@@ -164,10 +167,13 @@ export default function Breakfast() {
   const handleViewItem = useCallback(async () => {
     if (selectedItem == null) return;
 
+    bottomSheetRef.current?.close();
+
     router.push({
-      pathname: "/(root)/results",
+      pathname: "/results",
       params: {
-        name: selectedItem.name,
+        image: "", // No image stored for historical meals
+        name: selectedItem.name || selectedItem.foodName,
         scanResult: JSON.stringify(selectedItem),
       },
     });
@@ -316,15 +322,23 @@ export default function Breakfast() {
                                         .includes(key)
                                     )
                                   );
+                                const calorieValue = calorieItem
+                                  ? Number(calorieItem.value) *
+                                    (item.quantity || 1)
+                                  : 0;
                                 return calorieItem
                                   ? `${
-                                      Number(calorieItem.value) % 1 === 0
-                                        ? Number(calorieItem.value).toFixed(0)
-                                        : Number(calorieItem.value).toFixed(2)
+                                      calorieValue % 1 === 0
+                                        ? calorieValue.toFixed(0)
+                                        : calorieValue.toFixed(2)
                                     }`
                                   : "N/A";
                               })()}{" "}
-                              kcal • {item.servingSize} serving size
+                              kcal •{" "}
+                              {item.quantity > 1
+                                ? `${item.quantity} x ${item.servingSize}`
+                                : item.servingSize}{" "}
+                              serving size
                             </Text>
                           </View>
                         </View>
@@ -348,7 +362,11 @@ export default function Breakfast() {
                       <View className="flex-row justify-between">
                         <View className="items-center flex-1">
                           <Text className="text-lg font-PoppinsBold text-primary">
-                            {setPrecisionIfNotInteger(sumByKeyword(item.nutritionData, "protein"))}g
+                            {setPrecisionIfNotInteger(
+                              sumByKeyword(item.nutritionData, "protein") *
+                                (item.quantity || 1)
+                            )}
+                            g
                           </Text>
                           <View className="flex-row items-center gap-1">
                             <Text className="text-xs font-PoppinsMedium text-gray-600">
@@ -359,7 +377,11 @@ export default function Breakfast() {
 
                         <View className="items-center flex-1">
                           <Text className="text-lg font-PoppinsBold text-primary">
-                            {setPrecisionIfNotInteger(sumByKeyword(item.nutritionData, "carb"))}g
+                            {setPrecisionIfNotInteger(
+                              sumByKeyword(item.nutritionData, "carb") *
+                                (item.quantity || 1)
+                            )}
+                            g
                           </Text>
                           <View className="flex-row items-center gap-1">
                             <Text className="text-xs font-PoppinsMedium text-gray-600">
@@ -370,7 +392,11 @@ export default function Breakfast() {
 
                         <View className="items-center flex-1">
                           <Text className="text-lg font-PoppinsBold text-primary">
-                            {setPrecisionIfNotInteger(sumByKeyword(item.nutritionData, "fat"))}g
+                            {setPrecisionIfNotInteger(
+                              sumByKeyword(item.nutritionData, "fat") *
+                                (item.quantity || 1)
+                            )}
+                            g
                           </Text>
                           <View className="flex-row items-center gap-1">
                             <Text className="text-xs font-PoppinsMedium text-gray-600">
