@@ -25,8 +25,8 @@ function HeightEdit() {
 
   useEffect(() => {
     if (user) {
-      setHeightFeet(user.heightFeet?.toLocaleString()!);
-      setHeightInches(user.heightInches?.toLocaleString()!);
+      setHeightFeet(user.heightFeet?.toLocaleString() ?? "");
+      setHeightInches(user.heightInches?.toLocaleString() ?? "");
     }
   }, [user]);
 
@@ -43,16 +43,17 @@ function HeightEdit() {
   }, [router]);
 
   const handleSave = useCallback(async () => {
-    let feetValue = 0;
     if (heightUnit === "ft/in") {
       const feet = parseInt(heightFeet) || 0;
       const inches = parseInt(heightInches) || 0;
-      feetValue = parseFloat(`${feet}.${inches}`);
+      await updateAccount({ heightFeet: feet, heightInches: inches });
     } else {
       // cm to feet: 1 cm = 0.0328084 ft
-      feetValue = +(parseFloat(heightCm) * 0.0328084).toFixed(2);
+      const feetValue = +(parseFloat(heightCm) * 0.0328084).toFixed(2);
+      const feet = Math.floor(feetValue);
+      const inches = Math.round((feetValue - feet) * 12);
+      await updateAccount({ heightFeet: feet, heightInches: inches });
     }
-    const res = await updateAccount({ height: feetValue });
     if (!error) router.back();
   }, [
     heightFeet,
@@ -61,7 +62,6 @@ function HeightEdit() {
     heightUnit,
     router,
     updateAccount,
-    setUser,
     error,
   ]);
 
