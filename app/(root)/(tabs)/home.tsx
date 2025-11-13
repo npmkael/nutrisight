@@ -1,8 +1,10 @@
 import { AddMeal } from "@/components/add-meal";
 import { CustomCircularProgress } from "@/components/custom-circular-progress";
 import FloatingActionButton from "@/components/FloatingActionButton";
+import FoodRecommendationCard from "@/components/FoodRecommendationCard";
 import { Progress } from "@/components/line-progress";
 import { DietHistory, useAuth } from "@/context/AuthContext";
+import { useFoodRecommendations } from "@/hooks/useFoodRecommendations";
 import { colors } from "@/lib/utils";
 import {
   calorieSum,
@@ -17,7 +19,7 @@ import {
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { navigate } from "expo-router/build/global-state/routing";
-import React, { memo, useCallback, useEffect, useState } from "react";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Image,
   ScrollView,
@@ -39,6 +41,17 @@ function Home() {
     fats: number;
   } | null>(null);
   const [targetCalories, setTargetCalories] = useState<number>(0);
+
+  const {
+    recommendations: foodRecommendations,
+    loading: recommendationsLoading,
+    error: recommendationsError,
+  } = useFoodRecommendations();
+
+  const featuredRecommendation = useMemo(
+    () => foodRecommendations[0] ?? null,
+    [foodRecommendations]
+  );
 
   const sumMealCalories = useCallback(
     (meals?: { calorie?: number }[]) =>
@@ -571,6 +584,16 @@ function Home() {
             disabled={!isToday}
             date={selectedDate.toISOString()}
           />
+
+          {/* Food Recommendation Banner */}
+          <View className="mt-4">
+            <FoodRecommendationCard
+              recommendation={featuredRecommendation}
+              isLoading={recommendationsLoading}
+              error={recommendationsError}
+              onPress={() => router.push("/(root)/meal-plan")}
+            />
+          </View>
         </View>
       </ScrollView>
 

@@ -31,6 +31,7 @@ function RootLayout() {
           options={{ headerShown: false, presentation: "modal" }}
         />
         <Stack.Screen name="(meals)" options={{ headerShown: false }} />
+        <Stack.Screen name="meal-plan" options={{ headerShown: false }} />
       </Stack>
     </AuthProtect>
   );
