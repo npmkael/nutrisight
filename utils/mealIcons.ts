@@ -29,27 +29,27 @@ const iconMap: Record<string, IconConfig> = {
   breakfast: {
     name: "sunny-outline",
     color: accentColors.sunrise,
-    backgroundColor: "rgba(255, 183, 77, 0.12)",
+    backgroundColor: "rgba(255, 183, 77, 0.25)",
   },
   lunch: {
     name: "fast-food-outline",
     color: accentColors.midday,
-    backgroundColor: "rgba(79, 195, 247, 0.12)",
+    backgroundColor: "rgba(79, 195, 247, 0.25)",
   },
   dinner: {
     name: "moon-outline",
     color: accentColors.evening,
-    backgroundColor: "rgba(149, 117, 205, 0.12)",
+    backgroundColor: "rgba(149, 117, 205, 0.25)",
   },
   snack: {
     name: "pizza-outline",
     color: accentColors.snack,
-    backgroundColor: "rgba(129, 199, 132, 0.12)",
+    backgroundColor: "rgba(129, 199, 132, 0.25)",
   },
   snacks: {
     name: "pizza-outline",
     color: accentColors.snack,
-    backgroundColor: "rgba(129, 199, 132, 0.12)",
+    backgroundColor: "rgba(129, 199, 132, 0.25)",
   },
 };
 

@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import {
   ActivityIndicator,
   RefreshControl,
@@ -13,6 +13,7 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import MealPlanItemCard from "@/components/MealPlanItemCard";
 import { useFoodRecommendations } from "@/hooks/useFoodRecommendations";
 import { colors } from "@/lib/utils";
+import { getRandomItems } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
@@ -30,13 +31,26 @@ const sectionsConfig: Array<{
 ];
 
 export default function MealPlanScreen() {
+  const [filters, setFilters] = useState({
+    highProtein: false,
+    highCarbs: false,
+    highFat: false,
+    highCal: false,
+  });
+
   const { groupedRecommendations, mealDistribution, loading, error, refetch } =
     useFoodRecommendations();
+
+  const toggleFilter = (filterKey: keyof typeof filters) => {
+    const newFilters = { ...filters, [filterKey]: !filters[filterKey] };
+    setFilters(newFilters);
+    refetch(newFilters);
+  };
 
   const groupedSections = useMemo(() => {
     return sectionsConfig.map((section) => ({
       ...section,
-      items: groupedRecommendations[section.key] ?? [],
+      items: getRandomItems(groupedRecommendations[section.key] ?? [], 3),
       percentage: mealDistribution?.[section.percentageKey],
     }));
   }, [groupedRecommendations, mealDistribution]);
@@ -58,20 +72,104 @@ export default function MealPlanScreen() {
         </View>
       </View>
 
-      {error ? (
-        <View style={styles.errorBanner}>
-          <Ionicons name="warning-outline" size={18} color="#DC2626" />
-          <Text style={styles.errorText}>{error}</Text>
-        </View>
-      ) : null}
-
       <ScrollView
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
         refreshControl={
-          <RefreshControl refreshing={loading} onRefresh={refetch} />
+          <RefreshControl refreshing={false} onRefresh={refetch} />
         }
       >
+        {/* Filter Section */}
+        <View style={styles.filterSection}>
+          <View style={styles.filterHeader}>
+            <Text style={styles.filterLabel}>Filters:</Text>
+            <View style={styles.scrollHint}>
+              <Text style={styles.scrollHintText}>Swipe</Text>
+              <Ionicons name="chevron-forward" size={14} color="#9CA3AF" />
+            </View>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterScrollContent}
+          >
+            <TouchableOpacity
+              style={[
+                styles.filterChip,
+                filters.highProtein && styles.filterChipActive,
+              ]}
+              onPress={() => toggleFilter("highProtein")}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  filters.highProtein && styles.filterChipTextActive,
+                ]}
+              >
+                High Protein
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.filterChip,
+                filters.highCarbs && styles.filterChipActive,
+              ]}
+              onPress={() => toggleFilter("highCarbs")}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  filters.highCarbs && styles.filterChipTextActive,
+                ]}
+              >
+                High Carbs
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.filterChip,
+                filters.highFat && styles.filterChipActive,
+              ]}
+              onPress={() => toggleFilter("highFat")}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  filters.highFat && styles.filterChipTextActive,
+                ]}
+              >
+                High Fat
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[
+                styles.filterChip,
+                filters.highCal && styles.filterChipActive,
+              ]}
+              onPress={() => toggleFilter("highCal")}
+            >
+              <Text
+                style={[
+                  styles.filterChipText,
+                  filters.highCal && styles.filterChipTextActive,
+                ]}
+              >
+                High Calorie
+              </Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </View>
+
+        {error && (
+          <View style={styles.errorBanner}>
+            <Ionicons name="warning-outline" size={18} color="#DC2626" />
+            <Text style={styles.errorText}>{error}</Text>
+          </View>
+        )}
+
         {groupedSections.map((section) => (
           <View key={section.key} style={styles.section}>
             <View style={styles.sectionHeader}>
@@ -88,14 +186,7 @@ export default function MealPlanScreen() {
               <View style={styles.sectionDivider} />
             </View>
 
-            {loading && !section.items.length ? (
-              <View style={styles.loadingWrapper}>
-                <ActivityIndicator size="small" color={colors.primary} />
-                <Text style={styles.loadingText}>
-                  Gathering fresh recommendations…
-                </Text>
-              </View>
-            ) : section.items.length ? (
+            {section.items.length ? (
               section.items.map((item, idx) => (
                 <View
                   key={`${section.key}-${item.id ?? idx}`}
@@ -104,6 +195,13 @@ export default function MealPlanScreen() {
                   <MealPlanItemCard item={item} />
                 </View>
               ))
+            ) : loading ? (
+              <View style={styles.loadingWrapper}>
+                <ActivityIndicator size="small" color={colors.primary} />
+                <Text style={styles.loadingText}>
+                  Gathering fresh recommendations…
+                </Text>
+              </View>
             ) : (
               <View style={styles.emptyState}>
                 <Ionicons name="restaurant-outline" size={20} color="#9CA3AF" />
@@ -163,7 +261,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 8,
     marginHorizontal: 20,
-    marginBottom: 8,
+    marginTop: 12,
+    marginBottom: 12,
     padding: 12,
     borderRadius: 12,
     backgroundColor: "rgba(220, 38, 38, 0.08)",
@@ -176,15 +275,16 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 20,
     paddingBottom: 40,
-    gap: 24,
+    gap: 28,
   },
   section: {
-    gap: 12,
+    gap: 14,
   },
   sectionHeader: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
+    marginBottom: 4,
   },
   sectionTitleRow: {
     flexDirection: "row",
@@ -193,21 +293,23 @@ const styles = StyleSheet.create({
   },
   sectionTitle: {
     fontFamily: "PoppinsSemiBold",
-    fontSize: 18,
+    fontSize: 20,
     color: colors.black,
+    letterSpacing: -0.3,
   },
   percentageBadge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 8,
-    backgroundColor: "rgba(48, 176, 199, 0.1)",
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 12,
+    backgroundColor: "rgba(48, 176, 199, 0.12)",
     borderWidth: 1,
-    borderColor: "rgba(48, 176, 199, 0.2)",
+    borderColor: "rgba(48, 176, 199, 0.25)",
   },
   percentageText: {
     fontFamily: "PoppinsSemiBold",
-    fontSize: 12,
+    fontSize: 13,
     color: "#30B0C7",
+    letterSpacing: 0.2,
   },
   sectionDivider: {
     flex: 1,
@@ -220,13 +322,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     padding: 16,
-    borderRadius: 16,
-    backgroundColor: colors.white,
-    shadowColor: "#1F2933",
-    shadowOpacity: 0.04,
-    shadowOffset: { width: 0, height: 2 },
-    shadowRadius: 6,
-    elevation: 2,
+    borderRadius: 18,
+    backgroundColor: "transparent",
   },
   loadingText: {
     fontFamily: "Poppins",
@@ -240,18 +337,82 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     gap: 10,
-    paddingVertical: 16,
-    paddingHorizontal: 12,
-    backgroundColor: "rgba(156, 163, 175, 0.12)",
-    borderRadius: 14,
+    paddingVertical: 20,
+    paddingHorizontal: 16,
+    backgroundColor: "rgba(156, 163, 175, 0.08)",
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: "rgba(156, 163, 175, 0.15)",
+    borderStyle: "dashed",
   },
   emptyText: {
     flex: 1,
     fontFamily: "Poppins",
-    fontSize: 13,
+    fontSize: 14,
     color: "#6B7280",
+    lineHeight: 20,
   },
   bottomSpacing: {
     height: 32,
+  },
+  filterSection: {
+    paddingVertical: 12,
+    backgroundColor: "#F3F4F7",
+  },
+  filterHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 8,
+    paddingHorizontal: 20,
+  },
+  filterLabel: {
+    fontFamily: "PoppinsSemiBold",
+    fontSize: 13,
+    color: colors.black,
+  },
+  scrollHint: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    opacity: 0.6,
+  },
+  scrollHintText: {
+    fontFamily: "Poppins",
+    fontSize: 11,
+    color: "#9CA3AF",
+  },
+  filterScrollContent: {
+    gap: 8,
+    paddingHorizontal: 20,
+  },
+  filterChip: {
+    paddingHorizontal: 18,
+    paddingVertical: 10,
+    borderRadius: 24,
+    backgroundColor: colors.white,
+    borderWidth: 1.5,
+    borderColor: "#E5E7EB",
+    shadowColor: "#000",
+    shadowOpacity: 0.04,
+    shadowOffset: { width: 0, height: 2 },
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  filterChipActive: {
+    backgroundColor: colors.primary,
+    borderColor: colors.primary,
+    shadowOpacity: 0.15,
+    shadowColor: colors.primary,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  filterChipText: {
+    fontFamily: "PoppinsSemiBold",
+    fontSize: 13,
+    color: "#4B5563",
+  },
+  filterChipTextActive: {
+    color: colors.white,
   },
 });

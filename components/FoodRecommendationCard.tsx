@@ -9,6 +9,7 @@ import {
 
 import { FoodRecommendation } from "@/constants/foodRecommendations";
 import { colors } from "@/lib/utils";
+import { capitalizeFirstLetter } from "@/utils/helpers";
 import { getMealIconConfig } from "@/utils/mealIcons";
 import { Ionicons } from "@expo/vector-icons";
 
@@ -89,28 +90,52 @@ function FoodRecommendationCardComponent({
           ) : recommendation ? (
             <>
               <Text style={styles.title} numberOfLines={1}>
-                {recommendation.name}
+                {capitalizeFirstLetter(recommendation.name)}
               </Text>
               <Text style={styles.description} numberOfLines={2}>
                 {recommendation.description}
               </Text>
-              {/* Metadata row */}
-              {(recommendation.calories || recommendation.prepTime) && (
-                <View style={styles.metaRow}>
-                  {recommendation.calories ? (
-                    <View style={styles.metaItem}>
-                      <Ionicons
-                        name="flame-outline"
-                        size={14}
-                        color="#F59E0B"
-                      />
-                      <Text style={styles.metaText}>
-                        {recommendation.calories} cal
-                      </Text>
-                    </View>
-                  ) : null}
-                </View>
+              {/* Serving size */}
+              {recommendation.servingSize && (
+                <Text style={styles.servingSize}>
+                  {recommendation.servingSize}
+                </Text>
               )}
+              {/* Macros row */}
+              <View style={styles.metaRow}>
+                {recommendation.calories && (
+                  <View style={[styles.metaItem, styles.caloriesItem]}>
+                    <Ionicons name="flame-outline" size={14} color="#F59E0B" />
+                    <Text style={styles.metaText}>
+                      {recommendation.calories}
+                    </Text>
+                  </View>
+                )}
+                {recommendation.protein && (
+                  <View style={[styles.metaItem, styles.proteinItem]}>
+                    <Text style={[styles.metaLabel, styles.proteinLabel]}>
+                      P:
+                    </Text>
+                    <Text style={styles.metaText}>
+                      {recommendation.protein}
+                    </Text>
+                  </View>
+                )}
+                {recommendation.carbs && (
+                  <View style={[styles.metaItem, styles.carbsItem]}>
+                    <Text style={[styles.metaLabel, styles.carbsLabel]}>
+                      C:
+                    </Text>
+                    <Text style={styles.metaText}>{recommendation.carbs}</Text>
+                  </View>
+                )}
+                {recommendation.fat && (
+                  <View style={[styles.metaItem, styles.fatItem]}>
+                    <Text style={[styles.metaLabel, styles.fatLabel]}>F:</Text>
+                    <Text style={styles.metaText}>{recommendation.fat}</Text>
+                  </View>
+                )}
+              </View>
             </>
           ) : (
             <>
@@ -250,11 +275,18 @@ const styles = StyleSheet.create({
     color: "#6B7280",
     letterSpacing: 0.1,
   },
+  servingSize: {
+    fontFamily: "PoppinsMedium",
+    fontSize: 12,
+    color: "#9CA3AF",
+    marginTop: 2,
+  },
   metaRow: {
     flexDirection: "row",
     alignItems: "center",
-    gap: 12,
-    marginTop: 6,
+    flexWrap: "wrap",
+    gap: 8,
+    marginTop: 8,
   },
   metaItem: {
     flexDirection: "row",
@@ -264,6 +296,40 @@ const styles = StyleSheet.create({
     paddingVertical: 4,
     backgroundColor: "#F9FAFB",
     borderRadius: 8,
+  },
+  caloriesItem: {
+    backgroundColor: "rgba(245, 158, 11, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(245, 158, 11, 0.2)",
+  },
+  proteinItem: {
+    backgroundColor: "rgba(16, 185, 129, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.2)",
+  },
+  carbsItem: {
+    backgroundColor: "rgba(249, 115, 22, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(249, 115, 22, 0.2)",
+  },
+  fatItem: {
+    backgroundColor: "rgba(59, 130, 246, 0.1)",
+    borderWidth: 1,
+    borderColor: "rgba(59, 130, 246, 0.2)",
+  },
+  metaLabel: {
+    fontFamily: "PoppinsBold",
+    fontSize: 11,
+    color: "#6B7280",
+  },
+  proteinLabel: {
+    color: "#10B981",
+  },
+  carbsLabel: {
+    color: "#F97316",
+  },
+  fatLabel: {
+    color: "#3B82F6",
   },
   metaText: {
     fontFamily: "PoppinsSemiBold",

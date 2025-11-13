@@ -30,6 +30,15 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 
+const BREAKFAST_START = 6 * 60; // 360 (06:00)
+const BREAKFAST_END = 10 * 60; // 600 (10:00)
+
+const LUNCH_START = 12 * 60; // 720 (12:00)
+const LUNCH_END = 14 * 60; // 840 (14:00)
+
+const DINNER_START = 18 * 60; // 1080 (18:00)
+const DINNER_END = 21 * 60; // 1260 (21:00)
+
 function Home() {
   const { user } = useAuth();
   const router = useRouter();
@@ -46,12 +55,66 @@ function Home() {
     recommendations: foodRecommendations,
     loading: recommendationsLoading,
     error: recommendationsError,
+    refetch: refetchRecommendations,
   } = useFoodRecommendations();
 
-  const featuredRecommendation = useMemo(
-    () => foodRecommendations[0] ?? null,
-    [foodRecommendations]
-  );
+  const featuredRecommendation = useMemo(() => {
+    if (!foodRecommendations.length) return null;
+
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    let mealType: "breakfast" | "lunch" | "dinner" | null = null;
+
+    // Determine meal type based on time ranges
+    if (currentMinutes >= BREAKFAST_START && currentMinutes < BREAKFAST_END) {
+      mealType = "breakfast";
+    } else if (currentMinutes >= LUNCH_START && currentMinutes < LUNCH_END) {
+      mealType = "lunch";
+    } else if (currentMinutes >= DINNER_START && currentMinutes < DINNER_END) {
+      mealType = "dinner";
+    }
+
+    // Filter recommendations matching the current meal type
+    if (mealType) {
+      let matchingRecommendations = foodRecommendations.filter(
+        (r) => r.mealTime === mealType
+      );
+
+      // If we have matching recommendations, pick a random one
+      if (matchingRecommendations.length > 0) {
+        const randomIndex = Math.floor(
+          Math.random() * matchingRecommendations.length
+        );
+        return matchingRecommendations[randomIndex];
+      }
+    }
+
+    // Fallback to a random recommendation from all available
+    const randomIndex = Math.floor(Math.random() * foodRecommendations.length);
+    return foodRecommendations[randomIndex];
+  }, [foodRecommendations]);
+
+  const recommendationLabel = useMemo(() => {
+    const now = new Date();
+    const currentMinutes = now.getHours() * 60 + now.getMinutes();
+
+    if (currentMinutes >= BREAKFAST_START && currentMinutes < BREAKFAST_END) {
+      return "Breakfast pick";
+    } else if (currentMinutes >= LUNCH_START && currentMinutes < LUNCH_END) {
+      return "Lunch pick";
+    } else if (currentMinutes >= DINNER_START && currentMinutes < DINNER_END) {
+      return "Dinner pick";
+    }
+    return "Today's pick";
+  }, []);
+
+  useEffect(() => {
+    // Refetch recommendations when user profile changes
+    if (user) {
+      refetchRecommendations();
+    }
+  }, [user, refetchRecommendations]);
 
   const sumMealCalories = useCallback(
     (meals?: { calorie?: number }[]) =>
@@ -592,6 +655,7 @@ function Home() {
               isLoading={recommendationsLoading}
               error={recommendationsError}
               onPress={() => router.push("/(root)/meal-plan")}
+              accentLabel={recommendationLabel}
             />
           </View>
         </View>

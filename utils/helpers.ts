@@ -278,6 +278,15 @@ export function setPrecisionIfNotInteger(num: number, precision = 2) {
   return Number.isInteger(num) ? num : Number(num.toFixed(precision));
 }
 
+export function getRandomItems<T>(array: T[], maxItems: number = 3): T[] {
+  if (array.length <= maxItems) {
+    return array;
+  }
+
+  const shuffled = [...array].sort(() => Math.random() - 0.5);
+  return shuffled.slice(0, maxItems);
+}
+
 export const getMacroValue = (
   macroName: string,
   searchKeys: string[],
