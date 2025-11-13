@@ -9,7 +9,7 @@ import { SafeAreaView, Text, TouchableOpacity, View } from "react-native";
 import Animated, { FadeIn } from "react-native-reanimated";
 
 function EditCalories() {
-  const { user , setUser} = useAuth();
+  const { user, setUser } = useAuth();
   const [calories, setCalories] = useState(
     user?.dailyRecommendation?.calories.toString() || "2000"
   );
@@ -71,22 +71,27 @@ function EditCalories() {
     }
   }, []);
 
-  const handleSave = useCallback(async() => {
+  const handleSave = useCallback(async () => {
+    const caloriesValue = parseInt(calories);
+    if (!calories.trim() || isNaN(caloriesValue) || caloriesValue <= 0) {
+      alert("Please enter a valid calorie value");
+      return;
+    }
     // Save the calorie value
     const payload: any = {
       dailyRecommendation: {
-        calories: parseInt(calories),
+        calories: caloriesValue,
         protein: user?.dailyRecommendation?.protein || 0,
         carbs: user?.dailyRecommendation?.carbs || 0,
         fat: user?.dailyRecommendation?.fat || 0,
-      }
-    }
+      },
+    };
     await updateAccount(payload);
     if (!error) {
       alert("Calories updated successfully!");
       router.back();
     }
-    router.replace("/(root)/(tabs)/settings")
+    router.replace("/(root)/(tabs)/settings");
   }, [calories, updateAccount, setUser, router, error]);
 
   return (
@@ -172,7 +177,12 @@ function EditCalories() {
       <View className="px-4 py-4 border-t bg-white border-border">
         <TouchableOpacity
           onPress={handleSave}
-          className="bg-primary py-4 px-6 rounded-2xl items-center"
+          disabled={
+            !calories.trim() ||
+            parseInt(calories) <= 0 ||
+            isNaN(parseInt(calories))
+          }
+          className={`py-4 px-6 rounded-2xl items-center ${!calories.trim() || parseInt(calories) <= 0 || isNaN(parseInt(calories)) ? "bg-gray-300" : "bg-primary"}`}
           style={{
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },

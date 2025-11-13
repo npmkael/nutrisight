@@ -1,4 +1,4 @@
-import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
+import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { StyleSheet, TouchableOpacity, View } from "react-native";
 import Animated, {
@@ -45,10 +45,10 @@ const FloatingActionButton = () => {
       opacity.value = withTiming(0, { duration: 100 });
     } else {
       firstValue.value = withDelay(200, withSpring(90));
-      firstWidth.value = withDelay(1200, withSpring(120));
+      firstWidth.value = withDelay(1200, withSpring(110));
       opacity.value = withDelay(1200, withSpring(1));
       secondValue.value = withDelay(250, withSpring(160));
-      secondWidth.value = withDelay(1100, withSpring(160));
+      secondWidth.value = withDelay(1100, withSpring(135));
     }
 
     isOpen.value = !isOpen.value;
@@ -57,7 +57,7 @@ const FloatingActionButton = () => {
   const handleAddFoodPress = () => {
     router.push("/(root)/manual-food-entry");
     handlePress(); // Close the FAB
-    console.log("Add Food Pressed");
+    console.log("Search Food Pressed");
   };
 
   const handleScanPress = () => {
@@ -123,10 +123,10 @@ const FloatingActionButton = () => {
           style={[styles.contentContainer, secondIcon, secondWidthStyle]}
         >
           <View style={styles.iconContainer}>
-            <MaterialCommunityIcons name="food-apple" size={26} color="white" />
+            <Ionicons name="search" size={26} color="white" />
           </View>
           <Animated.Text style={[styles.text, opacityText]}>
-            Add Food
+            Search
           </Animated.Text>
         </Animated.View>
       </TouchableOpacity>
@@ -175,8 +175,9 @@ const styles = StyleSheet.create({
   },
   text: {
     color: "white",
-    fontSize: 18,
+    fontSize: 16,
     fontFamily: "GeistRegular",
+    paddingRight: 12,
   },
 });
 

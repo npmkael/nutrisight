@@ -48,7 +48,8 @@ function ProteinBottomSheet({
   );
 
   const handleSave = useCallback(() => {
-    if (value.trim()) {
+    const numValue = parseFloat(value);
+    if (value.trim() && !isNaN(numValue) && numValue > 0) {
       onSave(value);
       bottomSheetRef.current?.close();
       onClose();
@@ -158,8 +159,18 @@ function ProteinBottomSheet({
           <CustomButton
             title="Save Changes"
             onPress={handleSave}
-            disabled={!value.trim()}
-            className={!value.trim() ? "opacity-50" : ""}
+            disabled={
+              !value.trim() ||
+              parseFloat(value) <= 0 ||
+              isNaN(parseFloat(value))
+            }
+            className={
+              !value.trim() ||
+              parseFloat(value) <= 0 ||
+              isNaN(parseFloat(value))
+                ? "opacity-50"
+                : ""
+            }
           />
         </View>
       </BottomSheetView>

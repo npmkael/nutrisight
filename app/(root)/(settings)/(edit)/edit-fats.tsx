@@ -94,22 +94,27 @@ function EditFats() {
     }
   }, []);
 
-  const handleSave = useCallback(async() => {
+  const handleSave = useCallback(async () => {
+    const fatsValue = parseInt(fats);
+    if (!fats.trim() || isNaN(fatsValue) || fatsValue <= 0) {
+      alert("Please enter a valid fats value");
+      return;
+    }
     // Save the fats value
     const payload: any = {
       dailyRecommendation: {
         calories: user?.dailyRecommendation?.calories || 0,
         protein: user?.dailyRecommendation?.protein || 0,
         carbs: user?.dailyRecommendation?.carbs || 0,
-        fat: parseInt(fats),
-      }
-    }
+        fat: fatsValue,
+      },
+    };
     await updateAccount(payload);
     if (!error) {
       alert("Fats updated successfully!");
       router.back();
     }
-    router.replace("/(root)/(tabs)/settings")
+    router.replace("/(root)/(tabs)/settings");
   }, [fats, updateAccount, setUser, router, error]);
 
   return (
@@ -196,7 +201,10 @@ function EditFats() {
       <View className="px-4 py-4 border-t bg-white border-border">
         <TouchableOpacity
           onPress={handleSave}
-          className="bg-primary py-4 px-6 rounded-2xl items-center"
+          disabled={
+            !fats.trim() || parseInt(fats) <= 0 || isNaN(parseInt(fats))
+          }
+          className={`py-4 px-6 rounded-2xl items-center ${!fats.trim() || parseInt(fats) <= 0 || isNaN(parseInt(fats)) ? "bg-gray-300" : "bg-primary"}`}
           style={{
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },

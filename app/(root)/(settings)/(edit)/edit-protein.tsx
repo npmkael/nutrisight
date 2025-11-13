@@ -81,21 +81,26 @@ function EditProtein() {
   };
 
   const handleSave = async () => {
+    const proteinValue = parseInt(protein);
+    if (!protein.trim() || isNaN(proteinValue) || proteinValue <= 0) {
+      alert("Please enter a valid protein value");
+      return;
+    }
     // Save the protein value
     const payload: any = {
       dailyRecommendation: {
         calories: user?.dailyRecommendation?.calories || 0,
-        protein: parseInt(protein),
+        protein: proteinValue,
         carbs: user?.dailyRecommendation?.carbs || 0,
         fat: user?.dailyRecommendation?.fat || 0,
-      }
-    }
+      },
+    };
     await updateAccount(payload);
     if (!error) {
       alert("Protein updated successfully!");
       router.back();
     }
-    router.replace("/(root)/(tabs)/settings")
+    router.replace("/(root)/(tabs)/settings");
   };
 
   return (
@@ -182,7 +187,12 @@ function EditProtein() {
       <View className="px-4 py-4 border-t bg-white border-border">
         <TouchableOpacity
           onPress={handleSave}
-          className="bg-primary py-4 px-6 rounded-2xl items-center"
+          disabled={
+            !protein.trim() ||
+            parseInt(protein) <= 0 ||
+            isNaN(parseInt(protein))
+          }
+          className={`py-4 px-6 rounded-2xl items-center ${!protein.trim() || parseInt(protein) <= 0 || isNaN(parseInt(protein)) ? "bg-gray-300" : "bg-primary"}`}
           style={{
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },

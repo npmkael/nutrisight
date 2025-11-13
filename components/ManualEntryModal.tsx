@@ -238,8 +238,10 @@ export function ManualEntryModal({
                       placeholderTextColor="#D1D5DB"
                       value={calories}
                       onChangeText={(text) => {
-                        setCalories(text);
-                        if (errors.calories) validateField("calories", text);
+                        const filtered = text.replace(/[^0-9]/g, "");
+                        setCalories(filtered);
+                        if (errors.calories)
+                          validateField("calories", filtered);
                       }}
                       onFocus={() => setFocusedInput("calories")}
                       onBlur={() => {
@@ -291,8 +293,9 @@ export function ManualEntryModal({
                       placeholderTextColor="#D1D5DB"
                       value={carbs}
                       onChangeText={(text) => {
-                        setCarbs(text);
-                        if (errors.carbs) validateField("carbs", text);
+                        const filtered = text.replace(/[^0-9]/g, "");
+                        setCarbs(filtered);
+                        if (errors.carbs) validateField("carbs", filtered);
                       }}
                       onFocus={() => setFocusedInput("carbs")}
                       onBlur={() => {
@@ -344,8 +347,9 @@ export function ManualEntryModal({
                       placeholderTextColor="#D1D5DB"
                       value={protein}
                       onChangeText={(text) => {
-                        setProtein(text);
-                        if (errors.protein) validateField("protein", text);
+                        const filtered = text.replace(/[^0-9]/g, "");
+                        setProtein(filtered);
+                        if (errors.protein) validateField("protein", filtered);
                       }}
                       onFocus={() => setFocusedInput("protein")}
                       onBlur={() => {
@@ -397,8 +401,9 @@ export function ManualEntryModal({
                       placeholderTextColor="#D1D5DB"
                       value={fats}
                       onChangeText={(text) => {
-                        setFats(text);
-                        if (errors.fats) validateField("fats", text);
+                        const filtered = text.replace(/[^0-9]/g, "");
+                        setFats(filtered);
+                        if (errors.fats) validateField("fats", filtered);
                       }}
                       onFocus={() => setFocusedInput("fats")}
                       onBlur={() => {

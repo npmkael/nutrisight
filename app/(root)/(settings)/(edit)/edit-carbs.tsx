@@ -80,22 +80,27 @@ function EditCarbs() {
     }
   }, []);
 
-  const handleSave = useCallback(async() => {
+  const handleSave = useCallback(async () => {
+    const carbsValue = parseInt(carbs);
+    if (!carbs.trim() || isNaN(carbsValue) || carbsValue <= 0) {
+      alert("Please enter a valid carbs value");
+      return;
+    }
     // Save the carbs value
     const payload: any = {
       dailyRecommendation: {
         calories: user?.dailyRecommendation?.calories || 0,
         protein: user?.dailyRecommendation?.protein || 0,
-        carbs: parseInt(carbs),
+        carbs: carbsValue,
         fat: user?.dailyRecommendation?.fat || 0,
-      }
-    }
+      },
+    };
     await updateAccount(payload);
     if (!error) {
       alert("Carbs updated successfully!");
       router.back();
     }
-    router.replace("/(root)/(tabs)/settings")
+    router.replace("/(root)/(tabs)/settings");
   }, [carbs, updateAccount, setUser, router, error]);
 
   return (
@@ -181,7 +186,10 @@ function EditCarbs() {
       <View className="px-4 py-4 border-t bg-white border-border">
         <TouchableOpacity
           onPress={handleSave}
-          className="bg-primary py-4 px-6 rounded-2xl items-center"
+          disabled={
+            !carbs.trim() || parseInt(carbs) <= 0 || isNaN(parseInt(carbs))
+          }
+          className={`py-4 px-6 rounded-2xl items-center ${!carbs.trim() || parseInt(carbs) <= 0 || isNaN(parseInt(carbs)) ? "bg-gray-300" : "bg-primary"}`}
           style={{
             shadowColor: "#000",
             shadowOffset: { width: 0, height: 4 },

@@ -71,9 +71,11 @@ function HeightEdit() {
 
   const isValid = useCallback(() => {
     if (heightUnit === "cm") {
-      return heightCm.trim().length > 0 && parseFloat(heightCm) > 0;
+      const cmValue = parseFloat(heightCm);
+      return heightCm.trim().length > 0 && !isNaN(cmValue) && cmValue > 0;
     }
-    return heightFeet.trim().length > 0 && parseInt(heightFeet) > 0;
+    const feetValue = parseInt(heightFeet);
+    return heightFeet.trim().length > 0 && !isNaN(feetValue) && feetValue > 0;
   }, [heightFeet, heightInches, heightCm, heightUnit]);
 
   return (
@@ -115,13 +117,17 @@ function HeightEdit() {
                 <>
                   <TextInputField
                     value={heightFeet}
-                    onChangeText={setHeightFeet}
+                    onChangeText={(text) =>
+                      setHeightFeet(text.replace(/[^0-9]/g, ""))
+                    }
                     maxLength={1}
                     keyboardType="numeric"
                   />
                   <TextInputField
                     value={heightInches}
-                    onChangeText={setHeightInches}
+                    onChangeText={(text) =>
+                      setHeightInches(text.replace(/[^0-9]/g, ""))
+                    }
                     maxLength={2}
                     keyboardType="numeric"
                   />
@@ -129,7 +135,9 @@ function HeightEdit() {
               ) : (
                 <TextInputField
                   value={heightCm}
-                  onChangeText={setHeightCm}
+                  onChangeText={(text) =>
+                    setHeightCm(text.replace(/[^0-9]/g, ""))
+                  }
                   maxLength={3}
                   keyboardType="numeric"
                 />

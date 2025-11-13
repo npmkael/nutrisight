@@ -237,7 +237,9 @@ function EditWeightGoal() {
             </Text>
             <TextInputField
               value={targetWeight}
-              onChangeText={setTargetWeight}
+              onChangeText={(text) =>
+                setTargetWeight(text.replace(/[^0-9.]/g, ""))
+              }
               keyboardType="numeric"
               placeholderText="Enter target weight"
               editable={weightGoal !== "maintain"}

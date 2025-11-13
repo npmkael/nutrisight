@@ -91,7 +91,10 @@ function WeightEdit() {
   }, []);
 
   const isValid = useMemo(
-    () => weight.trim().length > 0 && parseFloat(weight) > 0,
+    () =>
+      weight.trim().length > 0 &&
+      !isNaN(parseFloat(weight)) &&
+      parseFloat(weight) > 0,
     [weight]
   );
 
@@ -128,7 +131,14 @@ function WeightEdit() {
             <View className="flex-row items-center gap-2">
               <TextInputField
                 value={weight}
-                onChangeText={setWeight}
+                onChangeText={(text) => {
+                  // Only allow numbers and decimal point
+                  const filtered = text.replace(/[^0-9.]/g, "");
+                  // Prevent multiple decimal points
+                  const parts = filtered.split(".");
+                  if (parts.length > 2) return;
+                  setWeight(filtered);
+                }}
                 keyboardType="numeric"
               />
               <TouchableOpacity

@@ -247,16 +247,17 @@ function Settings() {
               title="Food Coverage"
               subtitle="View supported foods for scanning"
               onPress={() => router.push("/(root)/(settings)/food-coverage")}
+              showDivider={false}
             />
 
-            <SettingsItem
+            {/* <SettingsItem
               icon={
                 <Ionicons name="chatbubble-outline" size={20} color="#6B7280" />
               }
               title="Send Feedback"
               subtitle="Help us improve the app"
               onPress={() => handleSendFeedback()}
-            />
+            /> */}
           </Container>
 
           {/* Legal & About Section */}
@@ -313,7 +314,7 @@ function Settings() {
           {/* App Version */}
           <View className="items-center mb-4">
             <Text className="text-xs font-Poppins text-gray-400 uppercase tracking-wide">
-              NutriSight Version 1.0.0
+              NutriSight Version 1.0.5
             </Text>
             <Text className="text-xs font-Poppins text-gray-400 mt-1">
               © 2025 NutriSight. All rights reserved.

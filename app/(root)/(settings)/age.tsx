@@ -43,13 +43,23 @@ function AgeEdit() {
 
   const handleSave = useCallback(async () => {
     const ageNum = parseInt(age);
-    const res = await updateAccount({ age: ageNum });
+    if (!age.trim() || isNaN(ageNum) || ageNum < 1 || ageNum > 120) {
+      return;
+    }
+    // Calculate birth date from age
+    const currentYear = new Date().getFullYear();
+    const birthYear = currentYear - ageNum;
+    const birthDate = new Date(birthYear, 0, 1);
+
+    const res = await updateAccount({ birthDate });
     if (!error) router.back();
   }, [age, updateAccount, setUser, router, error]);
 
   const isValid = useCallback(() => {
     const ageNum = parseInt(age);
-    return age.trim().length > 0 && ageNum >= 1 && ageNum <= 120;
+    return (
+      age.trim().length > 0 && !isNaN(ageNum) && ageNum >= 1 && ageNum <= 120
+    );
   }, [age]);
 
   return (
@@ -88,7 +98,7 @@ function AgeEdit() {
             <View className="flex-row items-center gap-3">
               <TextInputField
                 value={age}
-                onChangeText={setAge}
+                onChangeText={(text) => setAge(text.replace(/[^0-9]/g, ""))}
                 maxLength={3}
                 keyboardType="numeric"
               />
