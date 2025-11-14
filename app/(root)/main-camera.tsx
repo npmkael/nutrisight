@@ -343,10 +343,10 @@ function App() {
         </TouchableOpacity>
       </View>
 
-      {/* Flash Button - Top Right */}
+      {/* Flash Button - Top Left */}
       {!loading && (
         <TouchableOpacity
-          style={styles.flashButtonTop}
+          style={styles.searchButtonTop}
           onPress={toggleFlash}
           accessibilityLabel={`Toggle flash ${flashMode === "on" ? "off" : "on"}`}
         >
@@ -355,6 +355,17 @@ function App() {
             size={28}
             color={flashMode === "on" ? "#FFD700" : "white"}
           />
+        </TouchableOpacity>
+      )}
+
+      {/* Search Food Button - Top Right */}
+      {!loading && (
+        <TouchableOpacity
+          style={styles.flashButtonTop}
+          onPress={() => router.push("/(root)/manual-food-entry")}
+          accessibilityLabel="Search food database"
+        >
+          <Ionicons name="search" size={28} color="white" />
         </TouchableOpacity>
       )}
 
@@ -572,6 +583,25 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 60,
     right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
+  },
+  searchButtonTop: {
+    position: "absolute",
+    top: 60,
+    left: 20,
     width: 50,
     height: 50,
     borderRadius: 25,

@@ -352,14 +352,13 @@ function Details() {
           {/* Gender */}
           <View style={styles.fieldContainer}>
             <Text style={styles.fieldLabel}>Gender</Text>
-            <TouchableOpacity style={styles.dropdownContainer}>
+            <View style={styles.dropdownContainer}>
               <Text style={styles.dropdownText}>
                 {user?.gender
                   ? user.gender.charAt(0).toUpperCase() + user.gender.slice(1)
                   : ""}
               </Text>
-              {/* <Ionicons name="chevron-down" size={20} color="#9CA3AF" /> */}
-            </TouchableOpacity>
+            </View>
           </View>
 
           {/* Date of Birth */}
