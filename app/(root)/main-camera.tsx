@@ -8,6 +8,7 @@ import {
   CameraCapturedPicture,
   CameraType,
   CameraView,
+  FlashMode,
   useCameraPermissions,
 } from "expo-camera";
 import * as ImagePicker from "expo-image-picker";
@@ -53,6 +54,7 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null); // State to hold scan result
   const [barcodeScanned, setBarcodeScanned] = useState(false);
+  const [flashMode, setFlashMode] = useState<FlashMode>("off");
 
   const router = useRouter();
 
@@ -93,6 +95,10 @@ function App() {
       });
     }
   }, [foodScanData, photo, router]);
+
+  const toggleFlash = useCallback(() => {
+    setFlashMode((current) => (current === "off" ? "on" : "off"));
+  }, []);
 
   const handleRetakePhoto = useCallback(() => {
     setPhoto(null);
@@ -241,6 +247,7 @@ function App() {
         style={styles.camera}
         facing={facing}
         ref={cameraRef}
+        enableTorch={flashMode === "on"}
       />
       {/* Camera Scan Indicator */}
       <View style={styles.scanOverlay}>
@@ -311,7 +318,7 @@ function App() {
         {!loading && scanMode !== "barcode" && (
           <>
             <TouchableOpacity
-              style={styles.flashButton}
+              style={styles.galleryButton}
               onPress={handlePickFromGallery}
               accessibilityLabel="Pick image from gallery"
             >
@@ -335,6 +342,21 @@ function App() {
           <Ionicons name="close-outline" size={24} color="white" />
         </TouchableOpacity>
       </View>
+
+      {/* Flash Button - Top Right */}
+      {!loading && (
+        <TouchableOpacity
+          style={styles.flashButtonTop}
+          onPress={toggleFlash}
+          accessibilityLabel={`Toggle flash ${flashMode === "on" ? "off" : "on"}`}
+        >
+          <Ionicons
+            name={flashMode === "on" ? "flash" : "flash-off"}
+            size={28}
+            color={flashMode === "on" ? "#FFD700" : "white"}
+          />
+        </TouchableOpacity>
+      )}
 
       {/* Add loading overlay */}
       {loading && <LoadingScreen message="Scanning..." />}
@@ -530,7 +552,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  flashButton: {
+  galleryButton: {
     width: 60,
     height: 60,
     borderRadius: 40,
@@ -545,5 +567,24 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(0, 0, 0, 0.5)",
     alignItems: "center",
     justifyContent: "center",
+  },
+  flashButtonTop: {
+    position: "absolute",
+    top: 60,
+    right: 20,
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    backgroundColor: "rgba(0, 0, 0, 0.6)",
+    alignItems: "center",
+    justifyContent: "center",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
+    elevation: 5,
   },
 });
