@@ -379,25 +379,41 @@ function Results() {
   return (
     <GestureHandlerRootView className="flex-1">
       <View className="flex-1 bg-[#F7F7F7]">
-        <Image
-          source={{ uri: image as string }}
-          style={{ height: 300, width: "100%" }}
-          resizeMode="cover"
-        />
+        {image && (
+          <Image
+            source={{ uri: image as string }}
+            style={{ height: 300, width: "100%" }}
+            resizeMode="cover"
+          />
+        )}
         {/* Header */}
-        <TouchableOpacity
-          className="absolute left-4 right-0 top-4 w-10 h-10 rounded-full bg-black/50 z-10 items-center justify-center"
-          onPress={handleBack}
-        >
-          <View className="items-center justify-center">
-            <Feather name="chevron-left" size={18} color="white" />
-          </View>
-        </TouchableOpacity>
+        {image && (
+          <TouchableOpacity
+            className="absolute left-4 right-0 top-4 w-10 h-10 rounded-full bg-black/50 z-10 items-center justify-center"
+            onPress={handleBack}
+          >
+            <View className="items-center justify-center">
+              <Feather name="chevron-left" size={18} color="white" />
+            </View>
+          </TouchableOpacity>
+        )}
 
-        <View className="flex-1 bg-white mt-[-24px]">
+        <View
+          className={`flex-1 bg-white ${image ? "mt-[-24px]" : "mt-0"} ${!image ? "pt-4" : ""}`}
+        >
           {/* Date/Time */}
           {/* Quantity */}
-          <View className="flex-row items-center justify-between p-4">
+          <View
+            className={`flex-row items-center p-4 ${!image ? "justify-start gap-3" : "justify-between"}`}
+          >
+            {!image && (
+              <TouchableOpacity
+                className="w-10 h-10 rounded-full bg-gray-100 items-center justify-center"
+                onPress={handleBack}
+              >
+                <Feather name="chevron-left" size={20} color="black" />
+              </TouchableOpacity>
+            )}
             <View className="bg-[#F3F4F7] rounded-2xl flex-row items-center justify-center gap-2 px-2 py-2 w-32">
               <AntDesign name="camera" size={24} color="black" />
               <View>
@@ -414,7 +430,9 @@ function Results() {
               </View>
             </View>
 
-            <View className="flex-row items-center justify-center gap-5">
+            <View
+              className={`flex-row items-center justify-center gap-5 ${!image ? "ml-auto" : ""}`}
+            >
               <TouchableOpacity
                 className="w-10 h-10 bg-white border border-gray-200 rounded-full items-center justify-center"
                 onPress={handleDecreaseQuantity}
