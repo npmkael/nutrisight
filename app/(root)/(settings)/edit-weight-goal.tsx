@@ -24,11 +24,23 @@ function EditWeightGoal() {
     user?.targetWeight?.toString() || ""
   );
   const [weightGoal, setWeightGoal] = useState(user?.weightGoal || "");
+  const [autoUpdateMacros, setAutoUpdateMacros] = useState(true);
 
   useEffect(() => {
     if (user) {
       setTargetWeight(user.targetWeight?.toString() || "");
       setWeightGoal(user.weightGoal || "");
+
+      // Auto-select weight goal based on current weight vs target weight
+      if (!user.weightGoal && user.weight && user.targetWeight) {
+        if (user.targetWeight < user.weight) {
+          setWeightGoal("lose");
+        } else if (user.targetWeight > user.weight) {
+          setWeightGoal("gain");
+        } else {
+          setWeightGoal("maintain");
+        }
+      }
     }
   }, [user]);
 
@@ -54,12 +66,76 @@ function EditWeightGoal() {
   const handleSave = useCallback(async () => {
     const targetWeightKg = parseFloat(targetWeight);
 
-    await updateAccount({
+    const payload: any = {
       targetWeight: targetWeightKg,
       weightGoal: weightGoal as "lose" | "maintain" | "gain",
-    });
+    };
+
+    // If auto-update is enabled, calculate and update macros
+    if (
+      autoUpdateMacros &&
+      user?.heightFeet &&
+      user?.heightInches &&
+      user?.activityLevel
+    ) {
+      // Convert height to meters
+      const feet_x_12 = user.heightFeet * 12;
+      const initHeight = feet_x_12 + Math.round(Number(user.heightInches));
+      const heightMeters = initHeight * 0.0254;
+
+      // Convert height to cm and calculate desired weight
+      const heightFeetToInches = user.heightFeet * 12;
+      const totalHeightInches = heightFeetToInches + user.heightInches;
+
+      const heightInchesToCm = totalHeightInches * 2.54;
+      const heightInchesToCmLess100 = heightInchesToCm - 100;
+      const heightInchesToCmLess100MultipledBy0_1 =
+        0.1 * heightInchesToCmLess100;
+
+      const desiredWeight = Math.round(
+        heightInchesToCmLess100 - heightInchesToCmLess100MultipledBy0_1
+      );
+
+      let targetCalories =
+        user.activityLevel === "sedentary"
+          ? desiredWeight * 30
+          : user.activityLevel === "active"
+            ? desiredWeight * 35
+            : 0;
+
+      if (weightGoal === "lose") {
+        targetCalories -= 300;
+      } else if (weightGoal === "gain") {
+        targetCalories += 300;
+      }
+
+      const calories15Percent = 0.15 * targetCalories;
+      const calories25Percent = 0.25 * targetCalories;
+      const calories60Percent = 0.6 * targetCalories;
+
+      const targetFat = calories15Percent / 9;
+      const targetProtein = calories25Percent / 4;
+      const targetCarbs = calories60Percent / 4;
+
+      payload.dailyRecommendation = {
+        calories: Math.round(targetCalories),
+        protein: Math.round(targetProtein),
+        carbs: Math.round(targetCarbs),
+        fat: Math.round(targetFat),
+      };
+    }
+
+    await updateAccount(payload);
     if (!error) router.back();
-  }, [targetWeight, weightGoal, router, updateAccount, error]);
+  }, [
+    targetWeight,
+    weightGoal,
+    autoUpdateMacros,
+    user,
+    router,
+    updateAccount,
+    error,
+  ]);
 
   const handleGoalSelect = useCallback(
     (goal: string) => {
@@ -264,6 +340,33 @@ function EditWeightGoal() {
                         : ""}
                 </Text>
               )}
+          </View>
+
+          {/* Auto Update Macros Toggle */}
+          <View className="mb-6 bg-white rounded-lg p-4 border border-gray-200">
+            <View className="flex-row items-center justify-between">
+              <View className="flex-1 pr-3">
+                <Text className="font-PoppinsSemiBold text-gray-900 mb-1">
+                  Auto-Update Daily Macros
+                </Text>
+                <Text className="font-Poppins text-sm text-gray-500">
+                  Automatically adjust your daily calorie and macro targets
+                  based on your weight goal
+                </Text>
+              </View>
+              <TouchableOpacity
+                onPress={() => setAutoUpdateMacros(!autoUpdateMacros)}
+                className={`w-14 h-8 rounded-full p-1 ${
+                  autoUpdateMacros ? "bg-blue-500" : "bg-gray-300"
+                }`}
+              >
+                <View
+                  className={`w-6 h-6 rounded-full bg-white ${
+                    autoUpdateMacros ? "ml-auto" : ""
+                  }`}
+                />
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
 
