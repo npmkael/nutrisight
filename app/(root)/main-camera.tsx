@@ -1,9 +1,14 @@
 import LoadingScreen from "@/components/loading-screen";
+import {
+  ScanOnboardingModal,
+  shouldShowOnboarding,
+} from "@/components/ScanOnboardingModal";
 import { useAuth } from "@/context/AuthContext";
 import { useBarcodeScan } from "@/hooks/useBarcodeScan";
 import { useFoodScan } from "@/hooks/useFoodScan";
 import { cropCenterTo256Base64 } from "@/utils/cropImage";
 import { Ionicons } from "@expo/vector-icons";
+import BottomSheet from "@gorhom/bottom-sheet";
 import {
   CameraCapturedPicture,
   CameraType,
@@ -55,8 +60,31 @@ function App() {
   const [scanResult, setScanResult] = useState<ScanResultType | null>(null); // State to hold scan result
   const [barcodeScanned, setBarcodeScanned] = useState(false);
   const [flashMode, setFlashMode] = useState<FlashMode>("off");
+  const onboardingSheetRef = useRef<BottomSheet>(null);
 
   const router = useRouter();
+
+  // Check if we should show onboarding on mount
+  useEffect(() => {
+    checkAndShowOnboarding();
+  }, []);
+
+  const checkAndShowOnboarding = async () => {
+    const shouldShow = await shouldShowOnboarding();
+    console.log("Should show onboarding:", shouldShow);
+    if (shouldShow) {
+      // Small delay to ensure camera is mounted
+      setTimeout(() => {
+        console.log("Opening onboarding sheet");
+        onboardingSheetRef.current?.snapToIndex(0);
+      }, 500);
+    }
+  };
+
+  const openOnboarding = () => {
+    console.log("Manual open onboarding");
+    onboardingSheetRef.current?.snapToIndex(0);
+  };
 
   console.log("Meal Time maincamera:", mealTime);
 
@@ -345,17 +373,28 @@ function App() {
 
       {/* Flash Button - Top Left */}
       {!loading && (
-        <TouchableOpacity
-          style={styles.searchButtonTop}
-          onPress={toggleFlash}
-          accessibilityLabel={`Toggle flash ${flashMode === "on" ? "off" : "on"}`}
-        >
-          <Ionicons
-            name={flashMode === "on" ? "flash" : "flash-off"}
-            size={28}
-            color={flashMode === "on" ? "#FFD700" : "white"}
-          />
-        </TouchableOpacity>
+        <>
+          <TouchableOpacity
+            style={styles.searchButtonTop}
+            onPress={toggleFlash}
+            accessibilityLabel={`Toggle flash ${flashMode === "on" ? "off" : "on"}`}
+          >
+            <Ionicons
+              name={flashMode === "on" ? "flash" : "flash-off"}
+              size={28}
+              color={flashMode === "on" ? "#FFD700" : "white"}
+            />
+          </TouchableOpacity>
+
+          {/* Help Button - For testing onboarding */}
+          <TouchableOpacity
+            style={[styles.searchButtonTop, { top: 120 }]}
+            onPress={openOnboarding}
+            accessibilityLabel="Show help"
+          >
+            <Ionicons name="help-circle-outline" size={28} color="white" />
+          </TouchableOpacity>
+        </>
       )}
 
       {/* Search Food Button - Top Right */}
@@ -371,6 +410,13 @@ function App() {
 
       {/* Add loading overlay */}
       {loading && <LoadingScreen message="Scanning..." />}
+
+      {/* Onboarding Bottom Sheet */}
+      <ScanOnboardingModal
+        bottomSheetRef={onboardingSheetRef}
+        onClose={() => {}}
+        onComplete={() => {}}
+      />
     </View>
   );
 }

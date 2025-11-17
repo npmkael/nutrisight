@@ -2,6 +2,7 @@ import { UserProvider } from "@/context/AuthContext";
 import { useFonts } from "expo-font";
 import { SplashScreen, Stack } from "expo-router";
 import { memo, useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 import Loading from "../components/Loading";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
@@ -35,34 +36,36 @@ function RootLayout() {
   }
 
   return (
-    <UserProvider>
-      <Stack>
-        <Stack.Screen
-          name="index"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="(auth)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="(root)"
-          options={{
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="(onboarding)"
-          options={{
-            headerShown: false,
-          }}
-        />
-      </Stack>
-    </UserProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <UserProvider>
+        <Stack>
+          <Stack.Screen
+            name="index"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(auth)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(root)"
+            options={{
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="(onboarding)"
+            options={{
+              headerShown: false,
+            }}
+          />
+        </Stack>
+      </UserProvider>
+    </GestureHandlerRootView>
   );
 }
 
