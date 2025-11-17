@@ -1,9 +1,9 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet, {
   BottomSheetBackdrop,
   BottomSheetView,
 } from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useRouter } from "expo-router";
 import React, { useCallback, useMemo, useState } from "react";
 import { Image, Text, TouchableOpacity, View } from "react-native";
@@ -36,48 +36,74 @@ export function ScanOnboardingModal({
 
   const steps = [
     {
-      title: "What Can We Scan?",
-      icon: "scan" as const,
+      title: "Food Scan Mode",
+      icon: "restaurant" as const,
       iconColor: "#10b981",
       content: (
         <View>
+          <Text className="text-gray-700 font-Poppins text-sm mb-4">
+            Use this mode to scan prepared foods and get instant nutrition
+            information.
+          </Text>
+
           <View className="mb-4">
-            <View className="flex-row items-center mb-2">
+            <View className="flex-row items-center mb-3">
               <Ionicons name="checkmark-circle" size={20} color="#10b981" />
               <Text className="text-gray-900 font-PoppinsSemiBold ml-2 text-sm">
-                Scannable Items
+                What We Can Recognize
               </Text>
             </View>
-            <Text className="text-gray-600 font-Poppins text-sm ml-7">
-              • Packaged foods with barcodes{"\n"}• Nutrition facts labels{"\n"}
-              • Prepared meals with labels{"\n"}• Beverages with nutritional
-              info
-            </Text>
+
+            {/* Food Coverage Link */}
+            <TouchableOpacity
+              onPress={handleViewFoodCoverage}
+              className="bg-blue-50 rounded-xl p-4 border border-blue-100"
+              activeOpacity={0.7}
+            >
+              <View className="flex-row items-center justify-between">
+                <View className="flex-row items-center flex-1">
+                  <View className="bg-blue-100 rounded-full p-2 mr-3">
+                    <Ionicons name="restaurant" size={20} color="#3b82f6" />
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-blue-900 font-PoppinsSemiBold mb-0.5 text-sm">
+                      View Food Coverage
+                    </Text>
+                    <Text className="text-blue-700 font-Poppins text-xs">
+                      See the full list of foods we can recognize
+                    </Text>
+                  </View>
+                </View>
+                <Ionicons name="chevron-forward" size={20} color="#3b82f6" />
+              </View>
+            </TouchableOpacity>
           </View>
 
           <View>
             <View className="flex-row items-center mb-2">
               <Ionicons name="close-circle" size={20} color="#ef4444" />
               <Text className="text-gray-900 font-PoppinsSemiBold ml-2 text-sm">
-                Cannot Scan
+                Cannot Recognize
               </Text>
             </View>
             <Text className="text-gray-600 font-Poppins text-sm ml-7">
-              • Raw ingredients without packaging{"\n"}• Unlabeled bulk foods
-              {"\n"}• Handwritten labels
+              • Packaged foods (use Barcode mode){"\n"}• Multiple mixed items
+              {"\n"}• Very small or unclear items
             </Text>
           </View>
         </View>
       ),
     },
     {
-      title: "Scanning Food Tips",
+      title: "Food Scan Tips",
       icon: "images" as const,
       iconColor: "#8b5cf6",
       content: (
         <View>
-          <Text className="text-gray-700 font-Poppins text-sm mb-4 text-center">
-            Scan one food only for more accurate results.
+          <Text className="text-gray-700 font-Poppins text-sm mb-4">
+            For best results with{" "}
+            <Text className="font-PoppinsSemiBold">Food Scan mode</Text>, scan
+            one item at a time.
           </Text>
 
           {/* Side by Side Examples */}
@@ -144,23 +170,111 @@ export function ScanOnboardingModal({
       ),
     },
     {
-      title: "Tips for Barcode Scanning",
+      title: "Food Scan Best Practices",
       icon: "camera" as const,
-      iconColor: "#3b82f6",
+      iconColor: "#8b5cf6",
       content: (
         <View>
+          <Text className="text-gray-700 font-Poppins text-sm mb-4">
+            Follow these tips when using{" "}
+            <Text className="font-PoppinsSemiBold">Food Scan mode</Text>:
+          </Text>
+
           <ScanExampleCard
-            icon="barcode-outline"
+            icon="sunny-outline"
             iconColor="#10b981"
             iconBg="#dcfce7"
-            title="Center the Barcode"
-            description="Position the barcode in the center of the frame and wait for automatic detection"
+            title="Good Lighting"
+            description="Use natural light or bright indoor lighting for best results"
             isGood
           />
 
           <View style={{ marginTop: 12 }}>
             <ScanExampleCard
-              icon="document-text-outline"
+              icon="scan-outline"
+              iconColor="#10b981"
+              iconBg="#dcfce7"
+              title="Center the Food"
+              description="Keep the food item centered in the camera frame"
+              isGood
+            />
+          </View>
+
+          <View style={{ marginTop: 12 }}>
+            <ScanExampleCard
+              icon="hand-left-outline"
+              iconColor="#10b981"
+              iconBg="#dcfce7"
+              title="Hold Steady"
+              description="Keep your phone still for 1-2 seconds"
+              isGood
+            />
+          </View>
+        </View>
+      ),
+    },
+    {
+      title: "Barcode Scan Mode",
+      icon: "barcode" as const,
+      iconColor: "#3b82f6",
+      content: (
+        <View>
+          <Text className="text-gray-700 font-Poppins text-sm mb-4">
+            Use this mode for packaged foods with barcodes to get accurate
+            product nutrition data.
+          </Text>
+
+          <View className="mb-4">
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="checkmark-circle" size={20} color="#10b981" />
+              <Text className="text-gray-900 font-PoppinsSemiBold ml-2 text-sm">
+                What We Can Scan
+              </Text>
+            </View>
+            <Text className="text-gray-600 font-Poppins text-sm ml-7">
+              • Packaged foods with UPC barcodes
+            </Text>
+          </View>
+
+          <View>
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="information-circle" size={20} color="#3b82f6" />
+              <Text className="text-gray-900 font-PoppinsSemiBold ml-2 text-sm">
+                How It Works
+              </Text>
+            </View>
+            <Text className="text-gray-600 font-Poppins text-sm ml-7">
+              Point your camera at the barcode and wait for automatic detection.
+              The app will fetch nutrition data from our database or other
+              nutrition databases APIs.
+            </Text>
+          </View>
+        </View>
+      ),
+    },
+    {
+      title: "Barcode Scan Tips",
+      icon: "scan" as const,
+      iconColor: "#3b82f6",
+      content: (
+        <View>
+          <Text className="text-gray-700 font-Poppins text-sm mb-4">
+            Follow these tips when using{" "}
+            <Text className="font-PoppinsSemiBold">Barcode Scan mode</Text>:
+          </Text>
+
+          <ScanExampleCard
+            icon="barcode-outline"
+            iconColor="#10b981"
+            iconBg="#dcfce7"
+            title="Center the Barcode"
+            description="Position the barcode in the center and wait for automatic detection"
+            isGood
+          />
+
+          <View style={{ marginTop: 12 }}>
+            <ScanExampleCard
+              icon="hand-left-outline"
               iconColor="#10b981"
               iconBg="#dcfce7"
               title="Hold Steady"
@@ -171,29 +285,45 @@ export function ScanOnboardingModal({
 
           <View style={{ marginTop: 12 }}>
             <ScanExampleCard
-              icon="warning-outline"
-              iconColor="#ef4444"
-              iconBg="#fee2e2"
-              title="Avoid Blurry Shots"
-              description="Don't move while scanning"
-              isGood={false}
+              icon="resize-outline"
+              iconColor="#10b981"
+              iconBg="#dcfce7"
+              title="Proper Distance"
+              description="Not too close, not too far - about 6-8 inches away"
+              isGood
             />
           </View>
         </View>
       ),
     },
     {
-      title: "Quick Tips",
+      title: "General Tips",
       icon: "bulb" as const,
       iconColor: "#f59e0b",
       content: (
         <View>
+          <Text className="text-gray-700 font-Poppins text-sm mb-4">
+            Follow these tips for the best scanning experience:
+          </Text>
+
           <View className="bg-emerald-50 rounded-xl p-4 border border-emerald-100 mb-4">
             {[
-              "Ensure good lighting",
-              "Hold phone steady for 1-2 seconds",
-              "Keep the item in the center of the frame",
-              "Wait for automatic detection in barcode mode",
+              {
+                text: "Ensure good lighting",
+                subtitle: "Natural light works best",
+              },
+              {
+                text: "Hold phone steady",
+                subtitle: "Wait 1-2 seconds for barcode detection",
+              },
+              {
+                text: "Center your item",
+                subtitle: "Keep it in the middle of the frame",
+              },
+              {
+                text: "Use the right mode",
+                subtitle: "Food Scan for dishes, Barcode for packages",
+              },
             ].map((tip, index) => (
               <View
                 key={index}
@@ -206,36 +336,17 @@ export function ScanOnboardingModal({
                   color="#10b981"
                   style={{ marginTop: 1 }}
                 />
-                <Text className="text-gray-700 font-Poppins ml-3 flex-1">
-                  {tip}
-                </Text>
+                <View className="ml-3 flex-1">
+                  <Text className="text-gray-900 font-PoppinsSemiBold text-sm">
+                    {tip.text}
+                  </Text>
+                  <Text className="text-gray-600 font-Poppins text-xs mt-0.5">
+                    {tip.subtitle}
+                  </Text>
+                </View>
               </View>
             ))}
           </View>
-
-          {/* Food Coverage Link */}
-          <TouchableOpacity
-            onPress={handleViewFoodCoverage}
-            className="bg-blue-50 rounded-xl p-4 border border-blue-100"
-            activeOpacity={0.7}
-          >
-            <View className="flex-row items-center justify-between">
-              <View className="flex-row items-center flex-1">
-                <View className="bg-blue-100 rounded-full p-2 mr-3">
-                  <Ionicons name="restaurant" size={20} color="#3b82f6" />
-                </View>
-                <View className="flex-1">
-                  <Text className="text-blue-900 font-PoppinsSemiBold mb-0.5 text-sm">
-                    View Food Coverage
-                  </Text>
-                  <Text className="text-blue-700 font-Poppins text-xs">
-                    See the full list of foods we can scan
-                  </Text>
-                </View>
-              </View>
-              <Ionicons name="chevron-forward" size={20} color="#3b82f6" />
-            </View>
-          </TouchableOpacity>
         </View>
       ),
     },
@@ -258,9 +369,8 @@ export function ScanOnboardingModal({
 
   const handleDismiss = useCallback(async () => {
     try {
-      if (dontShowAgain) {
-        await AsyncStorage.setItem(STORAGE_KEY, "true");
-      }
+      // Always save to storage when dismissing (whether via "Got It!", "Skip", or close button)
+      await AsyncStorage.setItem(STORAGE_KEY, "true");
       bottomSheetRef.current?.close();
       onComplete();
       onClose();
@@ -270,7 +380,7 @@ export function ScanOnboardingModal({
       onComplete();
       onClose();
     }
-  }, [dontShowAgain, bottomSheetRef, onComplete, onClose]);
+  }, [bottomSheetRef, onComplete, onClose]);
 
   const handleSheetClose = useCallback(() => {
     setCurrentStep(0);
