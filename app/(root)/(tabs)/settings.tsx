@@ -314,7 +314,7 @@ function Settings() {
           {/* App Version */}
           <View className="items-center mb-4">
             <Text className="text-xs font-Poppins text-gray-400 uppercase tracking-wide">
-              NutriSight Version 1.0.7
+              NutriSight Version 1.0.8
             </Text>
             <Text className="text-xs font-Poppins text-gray-400 mt-1">
               © 2025 NutriSight. All rights reserved.

@@ -63,7 +63,9 @@ export default function Lunch() {
         }
 
         setMealData(data.dietHistory.lunch || []);
-        setConsumedCalories(Number(caloriesConsumed) || 0);
+        setConsumedCalories(
+          setPrecisionIfNotInteger(Number(caloriesConsumed)) || 0
+        );
       } catch (error) {
         console.error("Error fetching meal data:", error);
         alert("Failed to load meal data.");
@@ -72,7 +74,7 @@ export default function Lunch() {
       }
     }
     fetchMealData();
-  }, [date]);
+  }, [date, caloriesConsumed]);
 
   // BottomSheet snap points
   const snapPoints = useMemo(() => ["25%", "25%"], []);
@@ -125,7 +127,9 @@ export default function Lunch() {
             )
           )
           .reduce((sum, item) => sum + Number(item.value || 0), 0);
-        return prev - calorieToSubtract;
+        return setPrecisionIfNotInteger(
+          prev - calorieToSubtract * (selectedItem.quantity || 1)
+        );
       });
 
       const res = await fetch(`${BACKEND_URL}/account/diet-history`, {
@@ -257,7 +261,7 @@ export default function Lunch() {
                       lineHeight: 32,
                     }}
                   >
-                    {caloriesConsumed}
+                    {consumedCalories}
                   </Text>
                   <Text
                     style={{
@@ -457,6 +461,7 @@ export default function Lunch() {
               }}
               className="bg-primary"
               onPress={handleViewItem}
+              disabled={deleting}
             >
               <Text
                 style={{
