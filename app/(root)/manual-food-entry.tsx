@@ -2,11 +2,11 @@ import { EmptySearchState } from "@/components/EmptySearchState";
 import { FoodSearchResultItem } from "@/components/FoodSearchResultItem";
 import { SearchBar } from "@/components/SearchBar";
 import { SearchResultShimmer } from "@/components/SearchResultShimmer";
-import { BACKEND_URL, useAuth } from "@/context/AuthContext";
+import { BACKEND_URL } from "@/context/AuthContext";
 import { capitalizeFirstLetter, getMacroValue } from "@/utils/helpers";
 import { Ionicons } from "@expo/vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { memo, useCallback, useEffect, useState } from "react";
 import {
   FlatList,
@@ -22,7 +22,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { ScanResultType } from "./main-camera";
 
 function ManualFoodEntry() {
-  const { user } = useAuth();
+  // get mealTime from params if exists
+  const { mealTime } = useLocalSearchParams();
 
   // Search state
   const [searchQuery, setSearchQuery] = useState("");
@@ -147,6 +148,7 @@ function ManualFoodEntry() {
         scanResult: JSON.stringify(food),
         name: food.foodName || food.name,
         image: "", // No image for searched items
+        mealTime: mealTime || undefined,
       },
     });
   }, []);
@@ -211,6 +213,7 @@ function ManualFoodEntry() {
           scanResult: JSON.stringify(nutritionData),
           name: data.foodName,
           image: "", // No image for manual entries
+          mealTime: mealTime || undefined,
         },
       });
     },

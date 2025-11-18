@@ -22,7 +22,7 @@ import { Feather, MaterialCommunityIcons } from "@expo/vector-icons";
 import AntDesign from "@expo/vector-icons/AntDesign";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { router, useLocalSearchParams } from "expo-router";
-import { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useRef, useState } from "react";
 import {
   Alert,
   Image,
@@ -71,12 +71,6 @@ function Results() {
   const uniqueAllergens = removeDuplicateTriggeredAllergens(
     result?.triggeredAllergens!
   );
-
-  useEffect(() => {
-    if (result) {
-      console.log("Scan Result:", result);
-    }
-  }, [result]);
 
   console.log("Meal Time results:", mealTime);
 
@@ -237,8 +231,10 @@ function Results() {
     const mealRecordPayload: ScanResultType & { quantity: number } = {
       ...(result as ScanResultType),
       quantity,
-      id: date, // use date as unique id
+      id: Date.now(), // use unique timestamp as ID
     };
+
+    console.log("Meal Record Payload:", mealRecordPayload);
 
     // Save the result or perform any action
     const dietHistoryPayload: DietHistory = {

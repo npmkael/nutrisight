@@ -401,7 +401,12 @@ function App() {
       {!loading && (
         <TouchableOpacity
           style={styles.flashButtonTop}
-          onPress={() => router.push("/(root)/manual-food-entry")}
+          onPress={() =>
+            router.push({
+              pathname: "/manual-food-entry",
+              params: { mealTime },
+            })
+          }
           accessibilityLabel="Search food database"
         >
           <Ionicons name="search" size={28} color="white" />
