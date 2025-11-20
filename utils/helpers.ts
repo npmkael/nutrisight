@@ -120,20 +120,23 @@ export function calorieSum(
 ) {
   let sum = 0;
   for (const m of mealRecords) {
-    for (const n of m.nutritionData || []) {
-      for (const i of n.items) {
-        if (
-          i.name.toLowerCase().includes("energy") ||
-          i.name.toLowerCase().includes("calorie") ||
-          i.name.toLowerCase().includes("kcal") ||
-          i.unit.toLowerCase().includes("kcal")
-        ) {
-          sum += Number(i.value) || 0;
-          break; // found calories, no need to check other items
-        }
-      }
-    }
+    const calorieItem = (m.nutritionData || [])
+      .flatMap((n) => n.items || [])
+      .find((i) => {
+        const name = String(i.name ?? "").toLowerCase();
+        const unit = String(i.unit ?? "").toLowerCase();
+        return (
+          name.includes("energy") ||
+          name.includes("calorie") ||
+          name.includes("kcal") ||
+          unit.includes("kcal")
+        );
+      });
+
+    const value = calorieItem ? Number(calorieItem.value || 0) : 0;
+    sum += value * (m.quantity || 1);
   }
+
   return sum;
 }
 

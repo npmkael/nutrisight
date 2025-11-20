@@ -2,6 +2,7 @@ import CircularProgressBar from "@/components/CircularProgressBar";
 import Loading from "@/components/Loading";
 import { BACKEND_URL, useAuth } from "@/context/AuthContext";
 import {
+  calorieSum,
   capitalizeFirstLetter,
   setPrecisionIfNotInteger,
 } from "@/utils/helpers";
@@ -57,16 +58,13 @@ export default function Snacks() {
 
         console.log("Fetched meal data:", data);
 
-        if (!data.dietHistory || !data.dietHistory.otherMealTime) {
-          setMealData([]);
-          return;
-        }
+        const items = data.dietHistory?.otherMealTime || [];
 
-        setMealData(data.dietHistory.otherMealTime || []);
-        // Set
-        setConsumedCalories(
-          setPrecisionIfNotInteger(Number(caloriesConsumed)) || 0
-        );
+        setMealData(items);
+
+        // compute consumed calories from fetched items (matches displayed per-item logic)
+        const total = calorieSum(items || []);
+        setConsumedCalories(setPrecisionIfNotInteger(total >= 0 ? total : 0));
       } catch (error) {
         console.error("Error fetching meal data:", error);
         alert("Failed to load meal data.");
@@ -75,7 +73,7 @@ export default function Snacks() {
       }
     }
     fetchMealData();
-  }, [date, caloriesConsumed]);
+  }, [date]);
 
   // BottomSheet snap points
   const snapPoints = useMemo(() => ["25%", "25%"], []);
@@ -120,17 +118,21 @@ export default function Snacks() {
     try {
       // subtract calories of deleted item from consumedCalories
       setConsumedCalories((prev) => {
-        const calorieToSubtract = selectedItem.nutritionData
+        const calorieItem = selectedItem.nutritionData
           .flatMap((category) => category.items)
-          .filter((item) =>
+          .find((item) =>
             ["energy", "calories", "kcal"].some((key) =>
               (item.name as string).toLowerCase().includes(key)
             )
-          )
-          .reduce((sum, item) => sum + Number(item.value || 0), 0);
-        return setPrecisionIfNotInteger(
-          prev - calorieToSubtract * (selectedItem.quantity || 1)
-        );
+          );
+
+        const calorieToSubtract = calorieItem
+          ? Number(calorieItem.value || 0)
+          : 0;
+
+        const ccInput = prev - calorieToSubtract * (selectedItem.quantity || 1);
+
+        return setPrecisionIfNotInteger(ccInput >= 0 ? ccInput : 0);
       });
 
       const res = await fetch(`${BACKEND_URL}/account/diet-history`, {
@@ -155,6 +157,12 @@ export default function Snacks() {
         (item) => item.id !== selectedItem.id
       );
       setMealData(updatedMealData);
+
+      // recompute consumed calories from remaining items
+      const newTotal = calorieSum(updatedMealData || []);
+      setConsumedCalories(
+        setPrecisionIfNotInteger(newTotal >= 0 ? newTotal : 0)
+      );
 
       // Update user context
       setUser(data.user);
@@ -471,7 +479,7 @@ export default function Snacks() {
                   color: "#fff",
                 }}
               >
-                View
+                Add Same Food
               </Text>
             </TouchableOpacity>
             <TouchableOpacity

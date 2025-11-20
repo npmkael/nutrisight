@@ -90,6 +90,17 @@ function Home() {
       }
     }
 
+    // Prefer snack recommendations as the default fallback
+    const snackRecommendations = foodRecommendations.filter(
+      (r) => (r.mealTime || "").toLowerCase() === "snack"
+    );
+    if (snackRecommendations.length > 0) {
+      const randomIndex = Math.floor(
+        Math.random() * snackRecommendations.length
+      );
+      return snackRecommendations[randomIndex];
+    }
+
     // Fallback to a random recommendation from all available
     const randomIndex = Math.floor(Math.random() * foodRecommendations.length);
     return foodRecommendations[randomIndex];
@@ -292,6 +303,80 @@ function Home() {
   }, [selectedDate, user]);
 
   const isToday = selectedDate.toDateString() === new Date().toDateString();
+
+  const totalLoggedCalories =
+    breakfastCalories + lunchCalories + dinnerCalories + otherCalories;
+
+  const exceededRecommendations = useMemo(() => {
+    const exceeded: Array<{
+      key: string;
+      label: string;
+      amount: number;
+      unit: string;
+    }> = [];
+    const dr = user?.dailyRecommendation as any;
+    if (!dr) return exceeded;
+
+    if (dr.calories && totalLoggedCalories > dr.calories) {
+      exceeded.push({
+        key: "calories",
+        label: "Calories",
+        amount: totalLoggedCalories - dr.calories,
+        unit: "kcal",
+      });
+    }
+
+    if (dr.protein && (macros?.protein || 0) > dr.protein) {
+      exceeded.push({
+        key: "protein",
+        label: "Protein",
+        amount: (macros?.protein || 0) - dr.protein,
+        unit: "g",
+      });
+    }
+
+    if (dr.carbs && (macros?.carbs || 0) > dr.carbs) {
+      exceeded.push({
+        key: "carbs",
+        label: "Carbs",
+        amount: (macros?.carbs || 0) - dr.carbs,
+        unit: "g",
+      });
+    }
+
+    if (dr.fat && (macros?.fats || 0) > dr.fat) {
+      exceeded.push({
+        key: "fat",
+        label: "Fats",
+        amount: (macros?.fats || 0) - dr.fat,
+        unit: "g",
+      });
+    }
+
+    return exceeded;
+  }, [user, totalLoggedCalories, macros]);
+
+  const exceedText = useMemo(() => {
+    if (!exceededRecommendations || exceededRecommendations.length === 0)
+      return "";
+    const parts = exceededRecommendations.map((e) => {
+      const amt = setPrecisionIfNotInteger(Number(e.amount || 0));
+      if (e.key === "calories") return `${amt}${e.unit}`;
+      return `${amt}${e.unit} ${e.label}`;
+    });
+    if (parts.length === 1) return `You exceeded ${parts[0]}.`;
+    return `You exceeded ${parts.join(", ")}.`;
+  }, [exceededRecommendations]);
+
+  const [showExceededWarning, setShowExceededWarning] = useState(false);
+
+  useEffect(() => {
+    if (exceededRecommendations.length > 0) {
+      setShowExceededWarning(true);
+    } else {
+      setShowExceededWarning(false);
+    }
+  }, [exceededRecommendations]);
 
   const consumedPercent = useCallback(
     (consumed: number | undefined, recommended: number | undefined) => {
@@ -610,7 +695,29 @@ function Home() {
         </View>
 
         {/* Add Food Button */}
+
         <View className="flex-col gap-2 mx-4 mt-[470px]">
+          {/* Persistent exceed-warning banner: appears when any daily recommendation is exceeded and stays until closed */}
+          {showExceededWarning && exceededRecommendations.length > 0 && (
+            <View className="mx-4 mt-2">
+              <View className="bg-yellow-50 border-l-4 border-yellow-400 p-3 rounded-md flex-row items-start">
+                <View className="flex-1 pr-2">
+                  <Text className="text-yellow-800 font-PoppinsSemiBold">
+                    Warning
+                  </Text>
+                  <Text className="text-yellow-800 text-sm">{exceedText}</Text>
+                </View>
+                <TouchableOpacity
+                  onPress={() => setShowExceededWarning(false)}
+                  className="p-2"
+                  accessibilityLabel="Close warning"
+                >
+                  <Ionicons name="close" size={18} color="#92400E" />
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
           <AddMeal
             title="Breakfast"
             totalCalories={0.25 * (user.dailyRecommendation?.calories || 0)}

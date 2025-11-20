@@ -27,7 +27,7 @@ function FatsBottomSheet({
 
   // Initialize value when currentValue changes
   React.useEffect(() => {
-    if (currentValue && !isInitialized) {
+    if (currentValue !== undefined && !isInitialized) {
       setValue(currentValue);
       setIsInitialized(true);
     }
@@ -49,7 +49,7 @@ function FatsBottomSheet({
 
   const handleSave = useCallback(() => {
     const numValue = parseFloat(value);
-    if (value.trim() && !isNaN(numValue) && numValue > 0) {
+    if (value.trim() && !isNaN(numValue) && numValue >= 0) {
       onSave(value);
       bottomSheetRef.current?.close();
       onClose();
@@ -160,14 +160,10 @@ function FatsBottomSheet({
             title="Save Changes"
             onPress={handleSave}
             disabled={
-              !value.trim() ||
-              parseFloat(value) <= 0 ||
-              isNaN(parseFloat(value))
+              !value.trim() || parseFloat(value) < 0 || isNaN(parseFloat(value))
             }
             className={
-              !value.trim() ||
-              parseFloat(value) <= 0 ||
-              isNaN(parseFloat(value))
+              !value.trim() || parseFloat(value) < 0 || isNaN(parseFloat(value))
                 ? "opacity-50"
                 : ""
             }

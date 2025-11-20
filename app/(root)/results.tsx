@@ -12,7 +12,10 @@ import Typo from "@/components/Typo";
 import { icons } from "@/constants";
 import { BACKEND_URL, DietHistory, useAuth } from "@/context/AuthContext";
 import {
+  calorieSum,
   capitalizeFirstLetter,
+  getCaloriesFromMealEntry,
+  getDateString,
   getMacroValue,
   removeDuplicateTriggeredAllergens,
   setPrecisionIfNotInteger,
@@ -71,6 +74,103 @@ function Results() {
   const uniqueAllergens = removeDuplicateTriggeredAllergens(
     result?.triggeredAllergens!
   );
+
+  // Compute today's logged meals (from user) and totals to detect potential exceedance
+  const todayKey = getDateString(new Date());
+  const todaysEntry = user?.dietHistory?.find((h) => h.date === todayKey);
+
+  const todaysMeals = [
+    ...(todaysEntry?.breakfast || []),
+    ...(todaysEntry?.lunch || []),
+    ...(todaysEntry?.dinner || []),
+    ...(todaysEntry?.otherMealTime || []),
+  ];
+
+  const loggedCalories = calorieSum(todaysMeals || []);
+
+  const sumMacroFromMeals = (
+    meals: (ScanResultType & { quantity: number })[] | undefined,
+    searchKeys: string[]
+  ) => {
+    if (!Array.isArray(meals)) return 0;
+    return meals.reduce((acc, m) => {
+      const v = Number(getMacroValue("", searchKeys, m)) || 0;
+      return acc + v;
+    }, 0);
+  };
+
+  const loggedProtein = sumMacroFromMeals(todaysMeals, [
+    "protein",
+    "total protein",
+  ]);
+  const loggedCarbs = sumMacroFromMeals(todaysMeals, [
+    "carbohydrate",
+    "carbs",
+    "total carbohydrate",
+  ]);
+  const loggedFat = sumMacroFromMeals(todaysMeals, [
+    "fat",
+    "total fat",
+    "fats",
+    "lipid",
+  ]);
+
+  // Current result's macro values (already adjusted for `quantity` via state updates)
+  const resultCalories = getCaloriesFromMealEntry(result as any) || 0;
+  const resultProtein =
+    Number(getMacroValue("protein", ["protein", "total protein"], result)) || 0;
+  const resultCarbs =
+    Number(
+      getMacroValue(
+        "carbs",
+        ["carbohydrate", "carbs", "total carbohydrate"],
+        result
+      )
+    ) || 0;
+  const resultFat =
+    Number(
+      getMacroValue("fat", ["fat", "total fat", "fats", "lipid"], result)
+    ) || 0;
+
+  const totalIfSaved = {
+    calories: loggedCalories + resultCalories,
+    protein: loggedProtein + resultProtein,
+    carbs: loggedCarbs + resultCarbs,
+    fat: loggedFat + resultFat,
+  };
+
+  const exceeded: { key: string; diff: number; unit: string }[] = [];
+  const targ: any = (user && (user.dailyRecommendation as any)) || {};
+  if (
+    typeof targ.calories === "number" &&
+    totalIfSaved.calories > targ.calories
+  ) {
+    exceeded.push({
+      key: "Calories",
+      diff: totalIfSaved.calories - targ.calories,
+      unit: "kcal",
+    });
+  }
+  if (typeof targ.protein === "number" && totalIfSaved.protein > targ.protein) {
+    exceeded.push({
+      key: "Protein",
+      diff: totalIfSaved.protein - targ.protein,
+      unit: "g",
+    });
+  }
+  if (typeof targ.carbs === "number" && totalIfSaved.carbs > targ.carbs) {
+    exceeded.push({
+      key: "Carbs",
+      diff: totalIfSaved.carbs - targ.carbs,
+      unit: "g",
+    });
+  }
+  if (typeof targ.fat === "number" && totalIfSaved.fat > targ.fat) {
+    exceeded.push({ key: "Fat", diff: totalIfSaved.fat - targ.fat, unit: "g" });
+  }
+
+  const hasWarnings =
+    (result?.triggeredAllergens?.length || 0) > 0 || exceeded.length > 0;
 
   console.log("Meal Time results:", mealTime);
 
@@ -486,6 +586,38 @@ function Results() {
               <AllergenSafeBadge variant="prominent" />
             ) : null}
 
+            {exceeded.length > 0 && (
+              <View
+                className="mx-4 mb-4 p-3 rounded-lg"
+                style={{
+                  backgroundColor: "#fff4f4",
+                  borderWidth: 1,
+                  borderColor: "#fecaca",
+                }}
+              >
+                <Text
+                  style={{ color: "#991b1b", fontFamily: "PoppinsSemiBold" }}
+                >
+                  Warning — this item will exceed your daily recommendation for:
+                </Text>
+                <Text
+                  style={{
+                    color: "#991b1b",
+                    marginTop: 6,
+                    fontFamily: "Poppins",
+                  }}
+                >
+                  {exceeded.map((e, i) => (
+                    <Text key={e.key}>
+                      {i > 0 ? ", " : " "}
+                      {e.key} (+{setPrecisionIfNotInteger(e.diff)}
+                      {e.unit})
+                    </Text>
+                  ))}
+                </Text>
+              </View>
+            )}
+
             {/* Food Name */}
             <Typo
               size={28}
@@ -772,7 +904,8 @@ function Results() {
                 loading ||
                 quantityInput.trim() === "" ||
                 quantity < 1 ||
-                !Number.isInteger(quantity)
+                !Number.isInteger(quantity) ||
+                hasWarnings
               }
             />
           </View>
