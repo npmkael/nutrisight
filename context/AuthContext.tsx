@@ -305,8 +305,9 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         const data = await response.json();
         return !!data?.userId;
       } catch (error) {
-        // console.error("Registration error:", error);
-        Alert.alert("Registration failed", "Please try again.");
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
+        Alert.alert("Registration failed", `${errorMessage}`);
         return false;
       } finally {
         setLoading(false);
@@ -396,7 +397,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
           !gender ||
           !birthDate ||
           !heightFeet ||
-          !heightInches && heightInches !== 0 ||
+          (!heightInches && heightInches !== 0) ||
           !weight ||
           !weightGoal ||
           targetWeight === null ||
@@ -412,7 +413,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             !gender && "gender",
             !birthDate && "birthDate",
             !heightFeet && "heightFeet",
-            (!heightInches && heightInches !== 0) && "heightInches",
+            !heightInches && heightInches !== 0 && "heightInches",
             !weight && "weight",
             !weightGoal && "weightGoal",
             targetWeight === null && "targetWeight",
