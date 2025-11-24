@@ -22,6 +22,8 @@ import { navigate } from "expo-router/build/global-state/routing";
 import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import {
   Image,
+  Modal,
+  ScrollView as RNScrollView,
   ScrollView,
   StyleSheet,
   Text,
@@ -119,6 +121,9 @@ function Home() {
     }
     return "Today's pick";
   }, []);
+
+  const [showGuideModal, setShowGuideModal] = useState(false);
+  const [guidePage, setGuidePage] = useState<number>(0);
 
   useEffect(() => {
     // Refetch recommendations when user profile changes
@@ -306,6 +311,13 @@ function Home() {
 
   const totalLoggedCalories =
     breakfastCalories + lunchCalories + dinnerCalories + otherCalories;
+
+  const belowRecommendation = useMemo(() => {
+    const dr = user?.dailyRecommendation as any;
+    if (!dr || !dr.calories) return false;
+    // Consider 'below' if logged calories are less than 70% of daily recommendation
+    return totalLoggedCalories < 0.7 * dr.calories;
+  }, [user, totalLoggedCalories]);
 
   const exceededRecommendations = useMemo(() => {
     const exceeded: Array<{
@@ -517,6 +529,18 @@ function Home() {
           </View>
 
           <View className="flex-row gap-2">
+            <TouchableOpacity
+              onPress={() => setShowGuideModal(true)}
+              className="p-2 bg-slate-50 rounded-full border border-gray-300 mr-2"
+              accessibilityLabel="Open daily intake guide"
+            >
+              <Ionicons
+                name="information-circle-outline"
+                size={20}
+                color="#666"
+              />
+            </TouchableOpacity>
+
             <TouchableOpacity
               onPress={() => navigate("/(root)/(tabs)/settings")}
               className="p-2 bg-slate-50 rounded-full border border-gray-300"
@@ -770,6 +794,305 @@ function Home() {
 
       {/* Floating Action Button */}
       <FloatingActionButton />
+      {/* Daily Intake Guide Modal */}
+      <Modal
+        visible={showGuideModal}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setShowGuideModal(false)}
+      >
+        <View className="flex-1 justify-end bg-black/40">
+          <View className="bg-white rounded-t-xl p-4 max-h-[70%]">
+            <View className="flex-row justify-between items-center mb-3">
+              <Text className="text-lg font-PoppinsSemiBold">
+                Daily Intake Guide
+              </Text>
+              <TouchableOpacity onPress={() => setShowGuideModal(false)}>
+                <Ionicons name="close" size={22} color="#666" />
+              </TouchableOpacity>
+            </View>
+            <RNScrollView showsVerticalScrollIndicator={false}>
+              {/* Page 0: Quick summary + shortfall explanation */}
+              {guidePage === 0 && (
+                <View className="mb-4 px-1">
+                  <Text className="text-2xl font-PoppinsSemiBold mb-3">
+                    Quick summary
+                  </Text>
+                  {exceededRecommendations.length > 0 ? (
+                    <Text className="text-lg text-red-700">{exceedText}</Text>
+                  ) : belowRecommendation ? (
+                    <Text className="text-lg text-blue-700">
+                      You're below your daily calorie target — a small,
+                      nutrient-dense snack (protein + carb) can help bring you
+                      closer to your daily goal without overdoing it.
+                    </Text>
+                  ) : (
+                    <Text className="text-lg text-green-700">
+                      You're inside your target range — keep balanced meals and
+                      stay hydrated to maintain steady progress.
+                    </Text>
+                  )}
+                </View>
+              )}
+
+              {/* Page 1: What happens next */}
+              {guidePage === 1 && (
+                <View className="mb-4 px-1">
+                  <Text className="text-2xl font-PoppinsSemiBold mb-4">
+                    What happens next
+                  </Text>
+
+                  <View className="bg-yellow-50 p-3 rounded-lg mb-3">
+                    <View className="flex-row items-start gap-3">
+                      <Ionicons
+                        name="alert-circle-outline"
+                        size={22}
+                        color="#92400E"
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-lg font-PoppinsSemiBold mb-1"
+                          style={{ lineHeight: 26 }}
+                        >
+                          Home banner
+                        </Text>
+                        <Text
+                          className="text-md text-yellow-900"
+                          style={{ lineHeight: 22 }}
+                        >
+                          If you exceed targets, a persistent warning appears on
+                          Home until you close it. It stays subtle but visible.
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View className="bg-slate-50 p-3 rounded-lg mb-3">
+                    <View className="flex-row items-start gap-3">
+                      <Ionicons name="save-outline" size={22} color="#0F172A" />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-lg font-PoppinsSemiBold mb-1"
+                          style={{ lineHeight: 26 }}
+                        >
+                          Save behavior
+                        </Text>
+                        <Text
+                          className="text-md text-slate-800"
+                          style={{ lineHeight: 22 }}
+                        >
+                          If saving a new scan would increase an exceedance, the
+                          Results screen blocks Save so you can review and
+                          adjust before confirming.
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View className="bg-white p-3 rounded-lg border border-gray-100 mb-3">
+                    <View className="flex-row items-start gap-3">
+                      <Ionicons
+                        name="create-outline"
+                        size={22}
+                        color="#0EA5A4"
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-lg font-PoppinsSemiBold mb-1"
+                          style={{ lineHeight: 26 }}
+                        >
+                          Editability
+                        </Text>
+                        <Text
+                          className="text-md text-slate-800"
+                          style={{ lineHeight: 22 }}
+                        >
+                          Scan results can be edited before you save them
+                          (adjust portions or corrections on the Results
+                          screen). To change items already logged, open the meal
+                          from Home and delete or re-add entries — totals update
+                          after you make changes.
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+
+                  <View className="p-3 rounded-lg">
+                    <View className="flex-row items-start gap-3">
+                      <Ionicons
+                        name="information-circle"
+                        size={22}
+                        color="#334155"
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-lg font-PoppinsSemiBold mb-1"
+                          style={{ lineHeight: 26 }}
+                        >
+                          Guidance only
+                        </Text>
+                        <Text
+                          className="text-sm text-gray-600"
+                          style={{ lineHeight: 20 }}
+                        >
+                          Warnings are informational and meant to prompt review
+                          — they are not a medical diagnosis. Consult a
+                          clinician for personalized advice.
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Page 2: Meal tips only (accessible card layout) */}
+              {guidePage === 2 && (
+                <View className="mb-4 px-1">
+                  <Text className="text-2xl font-PoppinsSemiBold mb-4">
+                    Meal tips
+                  </Text>
+
+                  <View className="space-y-4">
+                    <View className="flex-row items-start gap-3 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                      <Ionicons
+                        name="sunny-outline"
+                        size={28}
+                        color="#0F172A"
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-xl font-PoppinsSemiBold"
+                          style={{ lineHeight: 28 }}
+                        >
+                          Breakfast
+                        </Text>
+                        <Text
+                          className="text-md text-slate-700"
+                          style={{ lineHeight: 22 }}
+                        >
+                          Protein + whole grain (eggs, oats) — a satisfying
+                          start to your day.
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="flex-row items-start gap-3 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                      <Ionicons
+                        name="restaurant-outline"
+                        size={28}
+                        color="#0F172A"
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-xl font-PoppinsSemiBold"
+                          style={{ lineHeight: 28 }}
+                        >
+                          Lunch
+                        </Text>
+                        <Text
+                          className="text-md text-slate-700"
+                          style={{ lineHeight: 22 }}
+                        >
+                          Protein + vegetables + whole grain — balanced energy
+                          for the afternoon.
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="flex-row items-start gap-3 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                      <Ionicons name="moon-outline" size={28} color="#0F172A" />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-xl font-PoppinsSemiBold"
+                          style={{ lineHeight: 28 }}
+                        >
+                          Dinner
+                        </Text>
+                        <Text
+                          className="text-md text-slate-700"
+                          style={{ lineHeight: 22 }}
+                        >
+                          Lighter carbs, vegetables, and lean protein — keep it
+                          satisfying but not too heavy.
+                        </Text>
+                      </View>
+                    </View>
+
+                    <View className="flex-row items-start gap-3 bg-white p-4 rounded-xl border border-gray-100 shadow-sm">
+                      <Ionicons
+                        name="nutrition-outline"
+                        size={28}
+                        color="#0F172A"
+                      />
+                      <View style={{ flex: 1 }}>
+                        <Text
+                          className="text-xl font-PoppinsSemiBold"
+                          style={{ lineHeight: 28 }}
+                        >
+                          Snacks
+                        </Text>
+                        <Text
+                          className="text-md text-slate-700"
+                          style={{ lineHeight: 22 }}
+                        >
+                          Go for simple, nutrient-dense options such as fruit,
+                          nuts, or yogurt.
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </View>
+              )}
+
+              {/* Pager indicator */}
+              <View className="flex-row justify-center items-center mt-2">
+                {[0, 1, 2].map((i) => (
+                  <View
+                    key={i}
+                    className={`w-2 h-2 rounded-full mx-1 ${
+                      guidePage === i ? "bg-gray-700" : "bg-gray-300"
+                    }`}
+                  />
+                ))}
+              </View>
+
+              {/* Footer navigation */}
+              <View className="flex-row justify-between mt-4">
+                <TouchableOpacity
+                  onPress={() => setGuidePage(Math.max(0, guidePage - 1))}
+                  className={`px-4 py-2 rounded-md ${guidePage === 0 ? "opacity-50" : "bg-slate-100"}`}
+                  disabled={guidePage === 0}
+                >
+                  <Text className="font-Poppins">Back</Text>
+                </TouchableOpacity>
+
+                {guidePage < 2 ? (
+                  <TouchableOpacity
+                    onPress={() => setGuidePage(Math.min(2, guidePage + 1))}
+                    className="px-4 py-2 bg-gray-800 rounded-md"
+                  >
+                    <Text className="text-white font-PoppinsSemiBold">
+                      Next
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowGuideModal(false);
+                      setGuidePage(0);
+                    }}
+                    className="px-4 py-2 bg-gray-800 rounded-md"
+                  >
+                    <Text className="text-white font-PoppinsSemiBold">
+                      Done
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </RNScrollView>
+          </View>
+        </View>
+      </Modal>
     </SafeAreaView>
   );
 }

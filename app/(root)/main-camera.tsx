@@ -9,6 +9,7 @@ import { useFoodScan } from "@/hooks/useFoodScan";
 import { cropCenterTo256Base64 } from "@/utils/cropImage";
 import { Ionicons } from "@expo/vector-icons";
 import BottomSheet from "@gorhom/bottom-sheet";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   CameraCapturedPicture,
   CameraType,
@@ -69,6 +70,20 @@ function App() {
     checkAndShowOnboarding();
   }, []);
 
+  // Restore last used scan mode (so barcode-initiated flows default to barcode)
+  useEffect(() => {
+    (async () => {
+      try {
+        const last = await AsyncStorage.getItem("@nutrisight:lastScanMode");
+        if (last === "barcode" || last === "food") {
+          setScanMode(last as "food" | "barcode");
+        }
+      } catch (e) {
+        console.warn("Failed to read last scan mode", e);
+      }
+    })();
+  }, []);
+
   const checkAndShowOnboarding = async () => {
     const shouldShow = await shouldShowOnboarding();
     console.log("Should show onboarding:", shouldShow);
@@ -95,6 +110,20 @@ function App() {
         barcode: true,
       });
   }, [barcodeData]); // The effect runs only when barcodeData changes
+
+  // If a barcode result comes in, remember barcode as the preferred next-mode
+  useEffect(() => {
+    (async () => {
+      try {
+        if (barcodeData) {
+          await AsyncStorage.setItem("@nutrisight:lastScanMode", "barcode");
+          setScanMode("barcode");
+        }
+      } catch (e) {
+        console.warn("Failed to persist last scan mode", e);
+      }
+    })();
+  }, [barcodeData]);
 
   useEffect(() => {
     if (scanResult && photo) {
@@ -128,6 +157,17 @@ function App() {
     setFlashMode((current) => (current === "off" ? "on" : "off"));
   }, []);
 
+  // Persist scan mode whenever user changes it so next session can restore it
+  useEffect(() => {
+    (async () => {
+      try {
+        await AsyncStorage.setItem("@nutrisight:lastScanMode", scanMode);
+      } catch (e) {
+        console.warn("Failed to persist last scan mode", e);
+      }
+    })();
+  }, [scanMode]);
+
   const handleRetakePhoto = useCallback(() => {
     setPhoto(null);
     setLoading(false);
@@ -142,6 +182,7 @@ function App() {
     async ({ data }: { data: string }) => {
       if (scanMode !== "barcode" || barcodeScanned) return;
       setBarcodeScanned(true);
+      console.log("Barcode scanned:", data);
       // Take the picture and set the photo state
       if (cameraRef.current) {
         cameraRef.current
