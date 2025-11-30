@@ -89,14 +89,14 @@ function LogWeight() {
     if (!error) router.back();
   }, [weight, weightUnit, router, updateAccount, setUser, error]);
 
-  const toggleWeightUnit = useCallback(() => {
-    setWeightUnit((prev) => (prev === "lbs" ? "kg" : "lbs"));
-  }, []);
-
-  const isValid = useMemo(
-    () => weight.trim().length > 0 && parseFloat(weight) > 0,
-    [weight]
-  );
+  const isValid = useMemo(() => {
+    const val = weight.trim();
+    if (!val) return false;
+    const raw = parseFloat(val);
+    if (!Number.isFinite(raw) || raw <= 0) return false;
+    // This screen is kg-only (no unit toggle), validate raw value as kg
+    return raw >= 30 && raw <= 200;
+  }, [weight]);
 
   return (
     <SafeAreaView className="flex-1 bg-white">
@@ -135,8 +135,17 @@ function LogWeight() {
                 value={weight}
                 onChangeText={setWeight}
                 keyboardType="numeric"
+                maxLength={3}
               />
+              <Text className="font-Poppins text-md text-gray-700 font-bold">
+                kg
+              </Text>
             </View>
+            {weight.trim().length > 0 && !isValid && (
+              <Text className="text-sm text-red-500 mt-2">
+                Weight must be between 30–200 kg.
+              </Text>
+            )}
           </View>
         </View>
 

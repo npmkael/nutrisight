@@ -103,7 +103,7 @@ function SetupLayout() {
           const ft = Number(heightFeet);
           const inch = Number(heightInches) || 0;
           const wt = Number(weight);
-          
+
           if (
             !heightFeet.trim() ||
             !weight.trim() ||
@@ -118,13 +118,13 @@ function SetupLayout() {
           const totalInches = ft * 12 + inch;
           const minInches = 4 * 12 + 0; // 4'0"
           const maxInches = 7 * 12 + 5; // 7'5"
-          
+
           if (totalInches < minInches || totalInches > maxInches) {
             return false;
           }
 
-          // Weight validation: 20-200 kg
-          if (wt < 20 || wt > 200) {
+          // Weight validation: 30-200 kg
+          if (wt < 30 || wt > 200) {
             return false;
           }
 
@@ -132,13 +132,8 @@ function SetupLayout() {
         } else {
           const cm = Number(heightFeet);
           const lb = Number(weight);
-          
-          if (
-            !heightFeet.trim() ||
-            !weight.trim() ||
-            isNaN(cm) ||
-            isNaN(lb)
-          ) {
+
+          if (!heightFeet.trim() || !weight.trim() || isNaN(cm) || isNaN(lb)) {
             return false;
           }
 
@@ -147,8 +142,8 @@ function SetupLayout() {
             return false;
           }
 
-          // Weight validation: 44-440 lb (20-200 kg)
-          if (lb < 44 || lb > 440) {
+          // Weight validation: 66-440 lb (30-200 kg)
+          if (lb < 66 || lb > 440) {
             return false;
           }
 
@@ -176,13 +171,13 @@ function SetupLayout() {
         const currentWeightNum = Number(weight);
         const targetWeightNum = Number(targetWeight);
 
-        // Min/max weight validation: 20-200 kg or 44-440 lb
+        // Min/max weight validation: 30-200 kg or 66-440 lb
         if (weightUnit === "kg") {
-          if (targetWeightNum < 20 || targetWeightNum > 200) {
+          if (targetWeightNum < 30 || targetWeightNum > 200) {
             return false;
           }
         } else {
-          if (targetWeightNum < 44 || targetWeightNum > 440) {
+          if (targetWeightNum < 66 || targetWeightNum > 440) {
             return false;
           }
         }

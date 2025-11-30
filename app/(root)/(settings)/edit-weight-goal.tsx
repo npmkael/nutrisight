@@ -175,8 +175,8 @@ function EditWeightGoal() {
       return false;
     }
 
-    // Min/max weight validation (20-200 kg)
-    if (targetWeightNum < 20 || targetWeightNum > 200) {
+    // Min/max weight validation (30-200 kg)
+    if (targetWeightNum < 30 || targetWeightNum > 200) {
       return false;
     }
 
@@ -330,9 +330,9 @@ function EditWeightGoal() {
               weightGoal &&
               weightGoal !== "maintain" && (
                 <Text className="text-sm text-red-500 mt-2 font-Poppins">
-                  {parseFloat(targetWeight) < 20 ||
+                  {parseFloat(targetWeight) < 30 ||
                   parseFloat(targetWeight) > 200
-                    ? "Target weight must be between 20-200 kg"
+                    ? "Target weight must be between 30-200 kg"
                     : weightGoal === "lose"
                       ? "Target weight must be less than current weight"
                       : weightGoal === "gain"
